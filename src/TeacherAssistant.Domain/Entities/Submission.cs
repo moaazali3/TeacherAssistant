@@ -2,8 +2,10 @@ using TeacherAssistant.Domain.Common;
 
 namespace TeacherAssistant.Domain.Entities;
 
-public class Submission : BaseEntity
+public class Submission : BaseEntity, ITenantEntity
 {
+    public Guid? TenantId { get; set; }
+
     public Guid QuizId { get; set; }
     public Quiz? Quiz { get; set; }
 

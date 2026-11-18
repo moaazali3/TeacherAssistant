@@ -5,6 +5,6 @@ public interface ICurrentUserService
     Guid? UserId { get; }
     string? Email { get; }
     string? Role { get; }
-    string? TenantId { get; }
+    Guid? TenantId { get; }
     bool IsAuthenticated { get; }
 }

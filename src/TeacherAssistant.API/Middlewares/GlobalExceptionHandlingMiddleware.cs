@@ -8,11 +8,20 @@ public class GlobalExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
+    private readonly bool _includeDetails;
 
-    public GlobalExceptionHandlingMiddleware(RequestDelegate _next, ILogger<GlobalExceptionHandlingMiddleware> logger)
+    public GlobalExceptionHandlingMiddleware(
+        RequestDelegate _next,
+        ILogger<GlobalExceptionHandlingMiddleware> logger,
+        IHostEnvironment environment)
     {
         this._next = _next;
         _logger = logger;
+
+        // Production (and any other deployed environment) gets the generic message only.
+        // Internal details stay available locally and in tests.
+        _includeDetails = environment.IsDevelopment()
+            || environment.IsEnvironment("Testing");
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -24,18 +33,18 @@ public class GlobalExceptionHandlingMiddleware
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(context, ex);
+            await HandleExceptionAsync(context, ex, _includeDetails);
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception, bool includeDetails)
     {
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
         var response = ApiResponse<string>.FailureResponse(
             "An unexpected error occurred. Please try again later.",
-            new List<string> { exception.Message });
+            includeDetails ? new List<string> { exception.Message } : new List<string>());
 
         var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
         {

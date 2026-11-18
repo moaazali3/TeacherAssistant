@@ -16,7 +16,7 @@ public class PaymentsController : BaseApiController
     }
 
     /// <summary>
-    /// POST /api/v1/payments/checkout - بدء عملية الدفع لكورس
+    /// POST /api/v1/payments/checkout - بدء عملية الدفع لمادة
     /// </summary>
     [Authorize]
     [HttpPost("checkout")]

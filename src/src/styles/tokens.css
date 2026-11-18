@@ -1,0 +1,93 @@
+/**
+ * ==============================================================================
+ * DESIGN TOKENS
+ * ==============================================================================
+ * All design tokens (colors, fonts, radii, spacing) are defined here as CSS variables.
+ * These are wired directly into the Tailwind configuration.
+ *
+ * NOTE FOR DEVELOPER:
+ * You can replace these placeholder values with your custom tokens at any time.
+ * The tenant's `PrimaryColor` from GET /tenants/current will override `--color-primary`
+ * and its variants dynamically at runtime.
+ * ==============================================================================
+ */
+
+:root {
+  /* ----------------------------------------------------------------------------
+   * BRAND & THEME COLORS (Placeholder values - overridden by tenant at runtime)
+   * ---------------------------------------------------------------------------- */
+  --color-primary: #0F766E;                 /* Teal 700 - Default brand color */
+  --color-primary-hover: #115E59;           /* Teal 800 - Button hover */
+  --color-primary-active: #134E4A;          /* Teal 900 - Button pressed */
+  --color-primary-light: #CCFBF1;           /* Teal 100 - Subtle badges, highlights */
+  --color-primary-subtle: #F0FDFA;          /* Teal 50 - Tinted backgrounds */
+  --color-primary-foreground: #FFFFFF;      /* Text on primary buttons */
+
+  /* ----------------------------------------------------------------------------
+   * SURFACE & BACKGROUND COLORS
+   * ---------------------------------------------------------------------------- */
+  --color-bg: #F8FAFC;                      /* Main application background (Slate 50) */
+  --color-surface: #FFFFFF;                 /* Cards, modals, dropdowns */
+  --color-surface-hover: #F1F5F9;           /* Surface hover state (Slate 100) */
+  --color-surface-subtle: #F8FAFC;          /* Inner nested card/wells */
+
+  /* ----------------------------------------------------------------------------
+   * TEXT & CONTENT COLORS
+   * ---------------------------------------------------------------------------- */
+  --color-text-main: #0F172A;               /* Headings & primary body text (Slate 900) */
+  --color-text-muted: #475569;              /* Secondary labels & helper copy (Slate 600) */
+  --color-text-subtle: #94A3B8;             /* Placeholders & disabled text (Slate 400) */
+  --color-text-inverse: #FFFFFF;            /* Text on dark backgrounds */
+
+  /* ----------------------------------------------------------------------------
+   * BORDER COLORS
+   * ---------------------------------------------------------------------------- */
+  --color-border: #E2E8F0;                  /* Card & input borders (Slate 200) */
+  --color-border-hover: #CBD5E1;            /* Border hover / focus ring border (Slate 300) */
+  --color-border-subtle: #F1F5F9;           /* Dividers and table rows */
+
+  /* ----------------------------------------------------------------------------
+   * FEEDBACK & SEMANTIC COLORS
+   * ---------------------------------------------------------------------------- */
+  --color-success: #16A34A;                 /* Success green */
+  --color-success-bg: #DCFCE7;              /* Success pill background */
+  --color-success-foreground: #14532D;      /* Success text on pill */
+
+  --color-warning: #D97706;                 /* Warning amber */
+  --color-warning-bg: #FEF3C7;              /* Warning pill background */
+  --color-warning-foreground: #78350F;      /* Warning text on pill */
+
+  --color-danger: #DC2626;                  /* Error red */
+  --color-danger-hover: #B91C1C;            /* Error red hover */
+  --color-danger-bg: #FEE2E2;               /* Error alert background */
+  --color-danger-foreground: #FFFFFF;       /* Text on danger buttons */
+
+  --color-info: #0284C7;                    /* Info blue */
+  --color-info-bg: #E0F2FE;                 /* Info alert background */
+
+  /* ----------------------------------------------------------------------------
+   * TYPOGRAPHY / FONTS
+   * ---------------------------------------------------------------------------- */
+  --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Cairo', 'Tajawal', sans-serif;
+  --font-family-heading: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Cairo', 'Tajawal', sans-serif;
+
+  /* ----------------------------------------------------------------------------
+   * BORDER RADIUS
+   * ---------------------------------------------------------------------------- */
+  --radius-sm: 0.25rem;                     /* 4px */
+  --radius-md: 0.5rem;                      /* 8px */
+  --radius-lg: 0.75rem;                     /* 12px */
+  --radius-xl: 1rem;                        /* 16px */
+  --radius-2xl: 1.5rem;                     /* 24px */
+  --radius-full: 9999px;                    /* Pills / Badges / Avatars */
+
+  /* ----------------------------------------------------------------------------
+   * SPACING
+   * ---------------------------------------------------------------------------- */
+  --spacing-xs: 0.25rem;                    /* 4px */
+  --spacing-sm: 0.5rem;                     /* 8px */
+  --spacing-md: 1rem;                       /* 16px */
+  --spacing-lg: 1.5rem;                     /* 24px */
+  --spacing-xl: 2rem;                       /* 32px */
+  --spacing-2xl: 3rem;                      /* 48px */
+}

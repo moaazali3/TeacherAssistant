@@ -1,8 +1,9 @@
+using TeacherAssistant.Application.Common.Models;
 using TeacherAssistant.Domain.Entities;
 
 namespace TeacherAssistant.Application.Common.Interfaces;
 
 public interface IJwtTokenGenerator
 {
-    string GenerateToken(User user);
+    JwtTokenResult GenerateToken(User user);
 }

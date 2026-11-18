@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TeacherAssistant.Application.Common.Interfaces;
+using TeacherAssistant.Application.Common.Models;
 using TeacherAssistant.Domain.Entities;
 using TeacherAssistant.Infrastructure.Settings;
 
@@ -18,10 +19,11 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _jwtSettings = jwtOptions.Value;
     }
 
-    public string GenerateToken(User user)
+    public JwtTokenResult GenerateToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
+        var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes);
 
         var claims = new List<Claim>
         {
@@ -29,15 +31,15 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new(ClaimTypes.Name, user.Name),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Role, user.Role.ToString()),
-            
-            // Custom Claims for Tenancy as requested in document
-            new("TenantId", user.TenantId ?? string.Empty)
+
+            // Custom claim used to reject a token on another tenant's subdomain.
+            new("tenantId", user.TenantId?.ToString() ?? string.Empty)
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+            Expires = expiresAt,
             Issuer = _jwtSettings.Issuer,
             Audience = _jwtSettings.Audience,
             SigningCredentials = new SigningCredentials(
@@ -46,6 +48,6 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        return new JwtTokenResult(tokenHandler.WriteToken(token), expiresAt);
     }
 }

@@ -5,6 +5,11 @@
 
 # dotenv files
 .env
+.env.*
+.env.local
+.env.*.local
+!.env.example
+!.env.*.example
 
 # User-specific files
 *.rsuser
@@ -480,3 +485,16 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Frontend build & distribution
+dist/
+dist-ssr/
+
+# Local AI tool folders & configurations
+.cursor/
+.cursorrules
+.windsurf/
+.claude/
+.gemini/
+.cline/
+.aider*

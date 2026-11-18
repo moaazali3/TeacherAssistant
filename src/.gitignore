@@ -1,0 +1,39 @@
+# Node dependencies
+node_modules/
+.pnpm-store/
+
+# Production build output
+dist/
+dist-ssr/
+
+# .NET Build artifacts
+[Bb]in/
+[Oo]bj/
+
+# Environment files (keep example)
+.env
+.env.*
+.env.local
+.env.*.local
+!.env.example
+!.env.*.example
+
+# IDE & Editor files
+.vs/
+.idea/
+*.user
+*.suo
+*.userprefs
+
+# Database files
+*.mdf
+*.ldf
+
+# Local AI assistant folders & files
+.cursor/
+.cursorrules
+.windsurf/
+.claude/
+.gemini/
+.cline/
+.aider*

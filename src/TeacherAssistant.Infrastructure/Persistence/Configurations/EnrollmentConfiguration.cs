@@ -10,8 +10,8 @@ public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
     {
         builder.HasKey(e => e.Id);
 
-        // A student cannot enroll in the same course twice
-        builder.HasIndex(e => new { e.StudentId, e.CourseId })
+        // A student cannot enroll in the same subject twice
+        builder.HasIndex(e => new { e.StudentId, e.SubjectId })
             .IsUnique();
 
         builder.HasMany(e => e.PaymentTransactions)

@@ -18,7 +18,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(256);
 
-        builder.HasIndex(u => u.Email)
+        // Emails are unique per tenant, not globally.
+        builder.HasIndex(u => new { u.TenantId, u.Email })
             .IsUnique();
 
         builder.Property(u => u.PasswordHash)
@@ -27,12 +28,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Role)
             .IsRequired();
 
-        builder.Property(u => u.TenantId)
-            .HasMaxLength(100);
-
-        builder.HasMany(u => u.InstructedCourses)
-            .WithOne(c => c.Instructor)
-            .HasForeignKey(c => c.InstructorId)
+        builder.HasMany(u => u.InstructedSubjects)
+            .WithOne(s => s.Instructor)
+            .HasForeignKey(s => s.InstructorId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(u => u.Enrollments)

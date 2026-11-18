@@ -35,7 +35,7 @@ public class OpenAiAssessmentService : IAIAssessmentService
         return ApiResponse<QuizDto>.SuccessResponse(new QuizDto
         {
             Id = Guid.NewGuid(),
-            CourseId = request.CourseId,
+            SubjectId = request.SubjectId,
             LessonId = request.LessonId,
             Title = request.Title,
             QuestionsData = "[{\"question\":\"What is the main concept of Clean Architecture?\",\"options\":[\"Separation of concerns\",\"Tight coupling\",\"Direct DB in UI\",\"None\"],\"answer\":0}]",

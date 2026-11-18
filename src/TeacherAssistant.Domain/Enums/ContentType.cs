@@ -5,5 +5,6 @@ public enum ContentType
     Video = 1,
     Pdf = 2,
     Word = 3,
-    Article = 4
+    Article = 4,
+    Link = 5
 }

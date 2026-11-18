@@ -22,7 +22,7 @@ public class QuizzesController : BaseApiController
     [HttpPost("generate-from-pdf")]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<ApiResponse<QuizDto>>> GenerateFromPdf(
-        [FromForm] Guid courseId,
+        [FromForm] Guid subjectId,
         [FromForm] Guid? lessonId,
         [FromForm] string title,
         [FromForm] int numberOfQuestions,
@@ -41,7 +41,7 @@ public class QuizzesController : BaseApiController
 
         var requestDto = new GenerateQuizRequestDto
         {
-            CourseId = courseId,
+            SubjectId = subjectId,
             LessonId = lessonId,
             Title = string.IsNullOrWhiteSpace(title) ? Path.GetFileNameWithoutExtension(pdfFile.FileName) : title,
             NumberOfQuestions = numberOfQuestions <= 0 ? 5 : numberOfQuestions,

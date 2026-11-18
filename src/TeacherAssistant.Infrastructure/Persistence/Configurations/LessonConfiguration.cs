@@ -14,15 +14,27 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(l => l.VideoUrl)
+        builder.Property(l => l.Description)
+            .HasMaxLength(2000);
+
+        builder.Property(l => l.ContentUrl)
+            .IsRequired()
             .HasMaxLength(500);
 
-        builder.Property(l => l.AttachmentUrl)
-            .HasMaxLength(500);
+        builder.Property(l => l.SortOrder)
+            .IsRequired();
+
+        builder.Property(l => l.IsPublished)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.HasIndex(l => new { l.SubjectId, l.SortOrder });
 
         builder.HasMany(l => l.Quizzes)
             .WithOne(q => q.Lesson)
             .HasForeignKey(q => q.LessonId)
-            .OnDelete(DeleteBehavior.SetNull);
+            // NoAction avoids SQL Server's "multiple cascade paths" error:
+            // quizzes already cascade from Subject, and lessons cascade from Subject.
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -5,4 +5,7 @@
     <Project Path="src/TeacherAssistant.Domain/TeacherAssistant.Domain.csproj" />
     <Project Path="src/TeacherAssistant.Infrastructure/TeacherAssistant.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TeacherAssistant.IntegrationTests/TeacherAssistant.IntegrationTests.csproj" />
+  </Folder>
 </Solution>

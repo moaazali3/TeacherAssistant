@@ -27,8 +27,14 @@ public class CurrentUserService : ICurrentUserService
     public string? Role =>
         _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
 
-    public string? TenantId =>
-        _httpContextAccessor.HttpContext?.User?.FindFirstValue("TenantId");
+    public Guid? TenantId
+    {
+        get
+        {
+            var tenantIdStr = _httpContextAccessor.HttpContext?.User?.FindFirstValue("tenantId");
+            return Guid.TryParse(tenantIdStr, out var tenantId) ? tenantId : null;
+        }
+    }
 
     public bool IsAuthenticated =>
         _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;

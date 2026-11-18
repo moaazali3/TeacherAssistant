@@ -26,7 +26,7 @@ public class PaymentService : IPaymentService
     public async Task<ApiResponse<CheckoutResponseDto>> CheckoutAsync(CheckoutRequestDto request, CancellationToken cancellationToken = default)
     {
         // TODO (Graduation Project Team):
-        // 1. Fetch course details and student info
+        // 1. Fetch subject details and student info
         // 2. Create pending Enrollment record
         // 3. Initiate payment session via Stripe Checkout API, Fawry API, or Paymob API
         // 4. Return checkout session URL to redirect student

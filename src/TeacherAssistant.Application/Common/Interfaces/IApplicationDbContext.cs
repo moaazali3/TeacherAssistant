@@ -5,9 +5,12 @@ namespace TeacherAssistant.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {
+    DbSet<Tenant> Tenants { get; }
     DbSet<User> Users { get; }
-    DbSet<Course> Courses { get; }
+    DbSet<Subject> Subjects { get; }
     DbSet<Lesson> Lessons { get; }
+    DbSet<Group> Groups { get; }
+    DbSet<GroupMembership> GroupMemberships { get; }
     DbSet<Enrollment> Enrollments { get; }
     DbSet<PaymentTransaction> PaymentTransactions { get; }
     DbSet<Quiz> Quizzes { get; }
