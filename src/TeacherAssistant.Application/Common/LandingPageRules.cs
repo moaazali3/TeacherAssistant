@@ -107,10 +107,11 @@ public static partial class LandingPageRules
 
         if (!string.IsNullOrWhiteSpace(dto.Theme.HeroImageUrl))
         {
-            if (!IsValidHttpUrl(dto.Theme.HeroImageUrl))
-                errors.Add("HeroImageUrl must be a valid HTTP/HTTPS URL.");
+            var trimmedHero = dto.Theme.HeroImageUrl.Trim();
+            if (!trimmedHero.StartsWith('/') && !IsValidHttpUrl(trimmedHero))
+                errors.Add("HeroImageUrl must be a valid HTTP/HTTPS URL or relative path starting with '/'.");
             else
-                dto.Theme.HeroImageUrl = dto.Theme.HeroImageUrl.Trim();
+                dto.Theme.HeroImageUrl = trimmedHero;
         }
 
         // 2. Validate Sections
@@ -227,11 +228,16 @@ public static partial class LandingPageRules
 
     public static LandingPageDto CreateDefault(string teacherName, string? bio, string? primaryColor, string? logoUrl)
     {
-        var primary = IsValidHexColor(primaryColor) ? primaryColor!.Trim() : "#0F766E";
-        var safeTeacherName = string.IsNullOrWhiteSpace(teacherName) ? "المعلم" : teacherName.Trim();
-        var safeBio = string.IsNullOrWhiteSpace(bio)
-            ? "منصة تعليمية متكاملة لتقديم أفضل تجربة دراسية ومتابعة مستمرة لطلابنا نحو التفوق والتميز."
+        var primary = IsValidHexColor(primaryColor) ? primaryColor!.Trim() : "#3730A3";
+        var safeTeacherName = string.IsNullOrWhiteSpace(teacherName) || teacherName.Equals("Demo Academy", StringComparison.OrdinalIgnoreCase)
+            ? "منصة أ. طارق المنشاوي للكيمياء"
+            : teacherName.Trim();
+        var safeBio = string.IsNullOrWhiteSpace(bio) || bio.Contains("demo teacher", StringComparison.OrdinalIgnoreCase) || bio.Contains("Teaching chemistry", StringComparison.OrdinalIgnoreCase)
+            ? "أقوى منصة لشرح ومراجعة منهج الثانوية العامة والأزهرية — شرح تفصيلي على السبورة الذكية، ملازم PDF، بنوك أسئلة الكتب الخارجية، ومتابعة أسبوعية مع ولي الأمر."
             : bio.Trim();
+        var portraitUrl = !string.IsNullOrWhiteSpace(logoUrl)
+            ? logoUrl
+            : "/images/teachers/teacher-chem.jpg";
 
         return new LandingPageDto
         {
@@ -239,13 +245,13 @@ public static partial class LandingPageRules
             Theme = new LandingThemeDto
             {
                 PrimaryColor = primary,
-                SecondaryColor = "#0D9488",
-                BackgroundColor = "#FFFFFF",
-                TextColor = "#0F172A",
+                SecondaryColor = "#D97706",
+                BackgroundColor = "#FAF7F2",
+                TextColor = "#1C1917",
                 FontFamily = "Cairo",
                 BorderRadius = "xl",
                 ButtonStyle = "solid",
-                HeroImageUrl = !string.IsNullOrWhiteSpace(logoUrl) ? logoUrl : "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
+                HeroImageUrl = portraitUrl
             },
             Sections = new List<LandingSectionDto>
             {
@@ -257,13 +263,13 @@ public static partial class LandingPageRules
                     Variant = "split",
                     Content = new JsonObject
                     {
-                        ["title"] = $"مرحباً بكم في منصة {safeTeacherName}",
+                        ["title"] = $"{safeTeacherName} — طريقك للدرجة النهائية في الثانوية العامة",
                         ["subtitle"] = safeBio,
-                        ["primaryButtonText"] = "ابدأ التعلم الآن",
+                        ["primaryButtonText"] = "انضم للمنصة الآن",
                         ["primaryButtonLink"] = "/register",
-                        ["secondaryButtonText"] = "استكشف المواد",
+                        ["secondaryButtonText"] = "تصفح محاضرات المنهج",
                         ["secondaryButtonLink"] = "/subjects",
-                        ["imageUrl"] = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
+                        ["imageUrl"] = portraitUrl
                     }
                 },
                 new()
@@ -274,16 +280,16 @@ public static partial class LandingPageRules
                     Variant = "split",
                     Content = new JsonObject
                     {
-                        ["title"] = $"عن {safeTeacherName}",
+                        ["title"] = $"نظام الشرح والمتابعة في {safeTeacherName}",
                         ["bio"] = safeBio,
                         ["features"] = new JsonArray
                         {
-                            "شرح مبسط وشامل لجميع أجزاء المنهج",
-                            "متابعة دورية وتقييم مستمر لمستوى الطالب",
-                            "اختبارات إلكترونية وبنوك أسئلة تدريبية",
-                            "دعم فني وتواصل مستمر للإجابة عن الأسئلة"
+                            "محاضرة شرح أسبوعية شاملة + حصة حل كتاب الامتحان ومندليف والوسام",
+                            "كويز إجباري على كل حصة وامتحان شهري شامل بنظام البابل شيت والـ Open Book",
+                            "مذكرات وملازم PDF ملونة ومنظمة لكل باب جاهزة للتحميل والطباعة",
+                            "تقرير متابعة أسبوعي لولي الأمر بالحضور ودرجات الكويزات والواجبات"
                         },
-                        ["imageUrl"] = "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80"
+                        ["imageUrl"] = portraitUrl
                     }
                 },
                 new()
@@ -294,13 +300,13 @@ public static partial class LandingPageRules
                     Variant = "grid",
                     Content = new JsonObject
                     {
-                        ["title"] = "إنجازات وإحصائيات نفخر بها",
+                        ["title"] = "أرقام وإنجازات طلابنا في امتحانات الثانوية العامة",
                         ["items"] = new JsonArray
                         {
-                            new JsonObject { ["label"] = "طالب وطالبة", ["value"] = "+1,500", ["icon"] = "users" },
-                            new JsonObject { ["label"] = "سنوات خبرة", ["value"] = "+12", ["icon"] = "award" },
-                            new JsonObject { ["label"] = "نسبة التفوق والنجاح", ["value"] = "98%", ["icon"] = "trending-up" },
-                            new JsonObject { ["label"] = "ساعة تدريسية مسجلة", ["value"] = "+250", ["icon"] = "clock" }
+                            new JsonObject { ["label"] = "طالب وطالبة في السنتر والأونلاين", ["value"] = "+18,500", ["icon"] = "users" },
+                            new JsonObject { ["label"] = "طالب قفّل المادة (الدرجة النهائية)", ["value"] = "+940", ["icon"] = "award" },
+                            new JsonObject { ["label"] = "سنة خبرة في تدريس الثانوية العامة", ["value"] = "+16", ["icon"] = "trending-up" },
+                            new JsonObject { ["label"] = "محاضرة وحصة حل كتاب خارجي", ["value"] = "+320", ["icon"] = "clock" }
                         }
                     }
                 },
@@ -312,8 +318,8 @@ public static partial class LandingPageRules
                     Variant = "grid",
                     Content = new JsonObject
                     {
-                        ["title"] = "المواد الدراسية والمناهج المتاحة",
-                        ["subtitle"] = "اختر مادتك وابدأ بمشاهدة الدروس التفاعلية والمجموعات المفتوحة.",
+                        ["title"] = "الأبواب والكورسات المتاحة لطلاب الثانوية العامة",
+                        ["subtitle"] = "اختر الباب أو معسكر المراجعة النهائية، وادخل بكود مجموعة السنتر أو الأونلاين لفتح المحاضرات والملازم.",
                         ["showCount"] = 6
                     }
                 },
@@ -325,34 +331,34 @@ public static partial class LandingPageRules
                     Variant = "grid",
                     Content = new JsonObject
                     {
-                        ["title"] = "آراء وتجارب طلابنا",
-                        ["subtitle"] = "قصص نجاح وتفوق نفتخر بأننا كنا جزءاً منها.",
+                        ["title"] = "لوحة شرف أوائل الجمهورية والمتفوقين",
+                        ["subtitle"] = "نماذج من طلابنا أوائل الثانوية العامة الذين حققوا الدرجة النهائية والتحقوا بكليات القمة.",
                         ["items"] = new JsonArray
                         {
                             new JsonObject
                             {
                                 ["id"] = "1",
-                                ["name"] = "أحمد محمود",
-                                ["role"] = "طالب ثانوية عامة",
-                                ["text"] = "الشرح مبسط جداً وطريقة حل الأسئلة ساعدتني أفرق بين الأفكار المتشابهة في الامتحان وأضمن الدرجة النهائية.",
+                                ["name"] = "د. عبدالرحمن طارق",
+                                ["role"] = "60 / 60 — كلية الطب البشري جامعة القاهرة (دفعة 2025)",
+                                ["text"] = "والله بفضل الله ثم شرح المستر وحل أفكار المستويات العليا في المراجعات النهائية دخلت الامتحان مفيش فكرة أول مرة أشوفها وقفلت المادة.",
                                 ["avatarUrl"] = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
                                 ["rating"] = 5
                             },
                             new JsonObject
                             {
                                 ["id"] = "2",
-                                ["name"] = "مريم خالد",
-                                ["role"] = "طالبة متفوقة",
-                                ["text"] = "المتابعة الأسبوعية والاختبارات الدورية خلتني واثقة من نفسي وجاهزة لأي امتحان، شكراً جزيلاً!",
+                                ["name"] = "م. مريم خالد المنشاوي",
+                                ["role"] = "59.5 / 60 — كلية الهندسة جامعة عين شمس (دفعة 2025)",
+                                ["text"] = "نظام الكويزات الأسبوعية قبل فتح الحصة الجديدة كان بيجبرني أذاكر أول بأول ومراكمش أي باب عليا لحد ليلة الامتحان.",
                                 ["avatarUrl"] = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
                                 ["rating"] = 5
                             },
                             new JsonObject
                             {
                                 ["id"] = "3",
-                                ["name"] = "عمر فاروق",
-                                ["role"] = "طالب متميز",
-                                ["text"] = "أفضل منصة تعليمية تعاملت معها! بنك الأسئلة والتدريبات المكثفة صنعت فرقاً حقيقياً في مستواي.",
+                                ["name"] = "د. عمر فاروق الشافعي",
+                                ["role"] = "60 / 60 — كلية الصيدلة جامعة الإسكندرية (دفعة 2025)",
+                                ["text"] = "ملازم المراجعة النهائية وتجميعات القوانين والملاحظات وفرت عليا وقت رهيب، وحصص حل الكتب الخارجية خلتني أحل أي سؤال في دقيقتين.",
                                 ["avatarUrl"] = "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=200&q=80",
                                 ["rating"] = 5
                             }
@@ -367,33 +373,33 @@ public static partial class LandingPageRules
                     Variant = "accordion",
                     Content = new JsonObject
                     {
-                        ["title"] = "الأسئلة الأكثر شيوعاً",
-                        ["subtitle"] = "إجابات واضحة لأهم التساؤلات التي يطرحها الطلاب وأولياء الأمور.",
+                        ["title"] = "أسئلة تهم كل طالب وولي أمر في الثانوية العامة",
+                        ["subtitle"] = "كل ما تريد معرفته عن نظام الحصص، أكواد السنتر والأونلاين، استلام الملازم، ومتابعة درجات الطالب.",
                         ["items"] = new JsonArray
                         {
                             new JsonObject
                             {
                                 ["id"] = "1",
-                                ["question"] = "كيف يمكنني التسجيل والانضمام لمجموعة دراسية؟",
-                                ["answer"] = "يمكنك إنشاء حساب جديد باستخدام كود الجروب المخصص لك من المعلم، أو تسجيل الدخول ثم إدخال الكود للانضمام إلى المجموعة."
+                                ["question"] = "معايا كود الجروب من السنتر أو حجز الأونلاين، إزاي أفعّل الحصص؟",
+                                ["answer"] = "اضغط على زر (سجّل بكود الجروب) أو اكتب الكود مباشرة في خانة الانضمام السريع أعلى الصفحة، وهيتم إضافتك لمجموعتك وفتح كل محاضرات وملازم الباب فوراً."
                             },
                             new JsonObject
                             {
                                 ["id"] = "2",
-                                ["question"] = "هل يمكنني مشاهدة الدروس والمحاضرات في أي وقت؟",
-                                ["answer"] = "نعم، كافة الدروس والملفات والواجبات تظل متاحة على حسابك طوال فترة اشتراكك في المجموعة لمراجعتها في أي وقت."
+                                ["question"] = "هل المحاضرات بتنزل بمواعيد ثابتة؟ وينفع أعيد سماع الحصة أكتر من مرة؟",
+                                ["answer"] = "نعم، المحاضرات بتنزل بجدول أسبوعي ثابت (محاضرة الشرح + محاضرة حل الواجب والكتب الخارجية)، وتقدر تعيد مشاهدة الشرح في أي وقت لمراجعة الأفكار الصعبة."
                             },
                             new JsonObject
                             {
                                 ["id"] = "3",
-                                ["question"] = "كيف يتم تقييم مستوى الطالب ومتابعة أدائه؟",
-                                ["answer"] = "توفر المنصة تقارير تفصيلية عن إكمال الدروس ودرجات الاختبارات الدورية مع إمكانية متابعة ولي الأمر لدرجات الطالب."
+                                ["question"] = "إزاي بستلم ملازم الشرح والواجب؟",
+                                ["answer"] = "الملازم متوفرة بصيغة PDF عالية الجودة داخل كل درس لتحميلها فوراً، وكمان تقدر تستلم النسخة المطبوعة من السنتر أو طلب شحنها لباب البيت."
                             },
                             new JsonObject
                             {
                                 ["id"] = "4",
-                                ["question"] = "ماذا أفعل إذا واجهت مشكلة تقنية في تشغيل الفيديوهات؟",
-                                ["answer"] = "فريق الدعم الفني متواجد لمساعدتك عبر الواتساب والمحادثة المباشرة لضمان تجربة تعليمية سلسة دون أي انقطاع."
+                                ["question"] = "إزاي ولي الأمر يقدر يتابع مستوى الطالب ودرجات الامتحانات؟",
+                                ["answer"] = "المنصة بتسجل حضور الطالب ودرجات كويز كل حصة والامتحان الشهري الشامل، وبيتم إرسال تقرير متابعة دوري لولي الأمر على الواتساب."
                             }
                         }
                     }
@@ -406,12 +412,12 @@ public static partial class LandingPageRules
                     Variant = "cards",
                     Content = new JsonObject
                     {
-                        ["title"] = "تواصل معنا مباشرة",
-                        ["subtitle"] = "نحن هنا لمساعدتك والرد على استفساراتك طوال أيام الأسبوع.",
-                        ["phone"] = "01000000000",
-                        ["whatsapp"] = "01000000000",
-                        ["email"] = "support@example.com",
-                        ["address"] = "جمهورية مصر العربية"
+                        ["title"] = "تواصل مع فريق الدعم والسكرتارية",
+                        ["subtitle"] = "متواجدون يومياً لمساعدتك في تفعيل الأكواد، مواعيد مجموعات السنتر، وحجز الملازم.",
+                        ["phone"] = "01012345678",
+                        ["whatsapp"] = "201012345678",
+                        ["email"] = "support@thanawya-academy.eg",
+                        ["address"] = "القاهرة الكبرى والمحافظات — متاح أونلاين بجميع أنحاء الجمهورية"
                     }
                 },
                 new()
@@ -425,15 +431,15 @@ public static partial class LandingPageRules
                         ["copyrightText"] = $"جميع الحقوق محفوظة © {DateTime.UtcNow.Year} {safeTeacherName}",
                         ["socialLinks"] = new JsonArray
                         {
-                            new JsonObject { ["platform"] = "facebook", ["url"] = "https://facebook.com" },
                             new JsonObject { ["platform"] = "youtube", ["url"] = "https://youtube.com" },
+                            new JsonObject { ["platform"] = "facebook", ["url"] = "https://facebook.com" },
                             new JsonObject { ["platform"] = "telegram", ["url"] = "https://telegram.org" }
                         },
                         ["links"] = new JsonArray
                         {
-                            new JsonObject { ["label"] = "المواد الدراسية", ["url"] = "/subjects" },
-                            new JsonObject { ["label"] = "تسجيل الدخول", ["url"] = "/login" },
-                            new JsonObject { ["label"] = "إنشاء حساب طالب", ["url"] = "/register" }
+                            new JsonObject { ["label"] = "محاضرات المنهج", ["url"] = "/subjects" },
+                            new JsonObject { ["label"] = "دخول الطلاب", ["url"] = "/login" },
+                            new JsonObject { ["label"] = "تفعيل كود الجروب", ["url"] = "/register" }
                         }
                     }
                 }

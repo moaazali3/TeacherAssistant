@@ -1,5 +1,5 @@
 import React from 'react';
-import { MotionConfig } from 'framer-motion';
+import { MotionConfig, motion, useScroll, useSpring } from 'framer-motion';
 import { LandingPageConfig } from './types';
 import { HeroSection } from './sections/HeroSection';
 import { AboutSection } from './sections/AboutSection';
@@ -30,20 +30,44 @@ export const LandingRenderer: React.FC<LandingRendererProps> = ({
   className = '',
 }) => {
   const { theme, sections } = config;
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 140,
+    damping: 28,
+    restDelta: 0.001,
+  });
 
-  // Build CSS variable overrides for live theming on the page wrapper
+  // Build CSS variable overrides for live theming on the page wrapper (Warm Alabaster Paper system)
+  const rawBg = theme.backgroundColor;
+  const resolvedBg =
+    !rawBg || rawBg.toUpperCase() === '#FFFFFF' || rawBg.toUpperCase() === '#F8FAFC'
+      ? `color-mix(in srgb, ${theme.primaryColor || '#3730A3'} 2.5%, #FAF7F2)`
+      : rawBg;
+
+  const rawText = theme.textColor;
+  const resolvedText =
+    !rawText || rawText.toUpperCase() === '#0F172A' ? '#1C1917' : rawText;
+
+  const primaryHex = theme.primaryColor || '#3730A3';
+
   const themeStyles: React.CSSProperties & Record<string, string> = {
-    '--color-primary': theme.primaryColor || '#0F766E',
-    '--color-primary-hover': `color-mix(in srgb, ${theme.primaryColor || '#0F766E'} 85%, black)`,
-    '--color-primary-active': `color-mix(in srgb, ${theme.primaryColor || '#0F766E'} 70%, black)`,
-    '--color-primary-light': `color-mix(in srgb, ${theme.primaryColor || '#0F766E'} 15%, white)`,
-    '--color-primary-subtle': `color-mix(in srgb, ${theme.primaryColor || '#0F766E'} 5%, white)`,
-    '--color-secondary': theme.secondaryColor || '#0D9488',
-    '--color-bg': theme.backgroundColor || '#FFFFFF',
-    '--color-text-main': theme.textColor || '#0F172A',
+    '--color-primary': primaryHex,
+    '--color-primary-hover': `color-mix(in srgb, ${primaryHex} 86%, #1C1917)`,
+    '--color-primary-active': `color-mix(in srgb, ${primaryHex} 72%, #1C1917)`,
+    '--color-primary-light': `color-mix(in srgb, ${primaryHex} 14%, #FFFDF9)`,
+    '--color-primary-subtle': `color-mix(in srgb, ${primaryHex} 6.5%, #FAF7F2)`,
+    '--color-secondary': theme.secondaryColor || '#D97706',
+    '--color-bg': resolvedBg,
+    '--color-surface': '#FFFDF9',
+    '--color-surface-hover': `color-mix(in srgb, ${primaryHex} 5%, #F4EFE6)`,
+    '--color-surface-subtle': `color-mix(in srgb, ${primaryHex} 4%, #F3EDE2)`,
+    '--color-border': `color-mix(in srgb, ${primaryHex} 10%, #E6DFD3)`,
+    '--color-border-subtle': `color-mix(in srgb, ${primaryHex} 6%, #EFE9DF)`,
+    '--color-text-main': resolvedText,
+    '--color-text-muted': '#57534E',
     fontFamily: `"${theme.fontFamily || 'Cairo'}", Cairo, system-ui, sans-serif`,
-    backgroundColor: theme.backgroundColor || '#FFFFFF',
-    color: theme.textColor || '#0F172A',
+    backgroundColor: resolvedBg,
+    color: resolvedText,
   };
 
   const enabledSections = (sections || []).filter((s) => s.enabled);
@@ -52,9 +76,16 @@ export const LandingRenderer: React.FC<LandingRendererProps> = ({
     <MotionConfig reducedMotion="user">
       <div
         style={themeStyles}
-        className={`w-full min-h-screen transition-colors duration-200 ${className}`}
+        className={`relative w-full min-h-screen transition-colors duration-200 ${className}`}
         dir="rtl"
       >
+        {/* Top Spring Scroll Progress Indicator */}
+        <motion.div
+          style={{ scaleX, transformOrigin: '100% 50%' }}
+          className="fixed top-0 inset-x-0 h-1 bg-primary z-50 pointer-events-none"
+          aria-hidden="true"
+        />
+
         {enabledSections.map((section) => {
           const key = section.id || section.type;
           const content = section.content || {};

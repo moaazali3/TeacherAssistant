@@ -53,12 +53,12 @@ export const PlatformLayout: React.FC = () => {
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo & Brand */}
-          <Link to={platformPath('/')} className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xl shadow-xs overflow-hidden">
+          <Link to={platformPath('/')} className="flex items-center gap-3 shrink-0 group">
+            <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xl shadow-xs overflow-hidden group-hover:scale-105 transition-transform">
               <img
                 src="/logo.svg"
-                alt="المساعد التعليمي"
-                className="w-full h-full object-contain p-1"
+                alt="طرابيزة | Tarabeza"
+                className="w-full h-full object-contain"
                 onError={(e) => {
                   (e.currentTarget as HTMLElement).style.display = 'none';
                   const fallback = e.currentTarget.nextElementSibling as HTMLElement;
@@ -70,11 +70,16 @@ export const PlatformLayout: React.FC = () => {
               </div>
             </div>
             <div className="text-start">
-              <span className="text-lg font-black font-heading text-text-main tracking-tight block leading-tight">
-                المساعد التعليمي
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg font-black font-heading text-text-main tracking-tight leading-tight">
+                  طرابيزة
+                </span>
+                <span className="text-[11px] font-bold font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary-subtle text-primary">
+                  Tarabeza
+                </span>
+              </div>
               <span className="text-xs text-text-muted font-medium block">
-                {isTeacher ? 'لوحة تحكم المعلم' : 'منصة تعليمية متكاملة'}
+                {isTeacher ? 'لوحة تحكم المعلم' : 'شوبيفاي المنصات التعليمية'}
               </span>
             </div>
           </Link>
@@ -389,11 +394,12 @@ export const PlatformLayout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-start">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold font-heading text-text-main">
-                منصة المساعد التعليمي
+              <img src="/logo.svg" alt="طرابيزة" className="w-6 h-6 rounded-md" />
+              <span className="text-sm font-black font-heading text-text-main">
+                طرابيزة (Tarabeza)
               </span>
               <span className="text-xs text-text-muted">
-                — الجيل الجديد من المنصات التعليمية المستقلة للمعلمين
+                — امتلك منصتك التعليمية المستقلة بهويتك الكاملة
               </span>
             </div>
 

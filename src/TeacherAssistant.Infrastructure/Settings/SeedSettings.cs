@@ -13,13 +13,13 @@ public class SeedSettings
     public string AdminEmail { get; set; } = "admin@platform.local";
     public string AdminPassword { get; set; } = "Admin@12345";
 
-    public string DemoTenantName { get; set; } = "Demo Academy";
+    public string DemoTenantName { get; set; } = "منصة أ. طارق المنشاوي للكيمياء";
     public string DemoSubdomain { get; set; } = "demo";
-    public string DemoTeacherName { get; set; } = "Demo Teacher";
+    public string DemoTeacherName { get; set; } = "أ. طارق المنشاوي";
     public string DemoTeacherEmail { get; set; } = "teacher@demo.local";
     public string DemoTeacherPassword { get; set; } = "Demo@12345";
-    public string? DemoPrimaryColor { get; set; } = "#0F766E";
-    public string? DemoBio { get; set; } = "A demo teacher platform for testing.";
+    public string? DemoPrimaryColor { get; set; } = "#3730A3";
+    public string? DemoBio { get; set; } = "منصة أ. طارق المنشاوي لشرح ومراجعة الكيمياء للثانوية العامة والأزهرية — افهم الكيمياء صح وحل أصعب أفكار العضوية والكهربية والاتزان مع متابعة أسبوعية وامتحانات دورية.";
 
     public string DemoSubjectTitle { get; set; } = "كيمياء - تالتة ثانوي";
     public string DemoSubjectDescription { get; set; } = "شرح منهج الكيمياء للثانوية العامة، يشمل الكيمياء العضوية والتحليلية والاتزان الكيميائي والكهربية.";

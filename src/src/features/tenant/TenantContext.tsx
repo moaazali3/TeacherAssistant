@@ -25,10 +25,14 @@ function applyThemeColorToDOM(color: string) {
   if (!color || !/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color)) return;
   const root = document.documentElement;
   root.style.setProperty('--color-primary', color);
-  root.style.setProperty('--color-primary-hover', `color-mix(in srgb, ${color} 85%, black)`);
-  root.style.setProperty('--color-primary-active', `color-mix(in srgb, ${color} 70%, black)`);
-  root.style.setProperty('--color-primary-light', `color-mix(in srgb, ${color} 15%, white)`);
-  root.style.setProperty('--color-primary-subtle', `color-mix(in srgb, ${color} 5%, white)`);
+  root.style.setProperty('--color-primary-hover', `color-mix(in srgb, ${color} 86%, #1C1917)`);
+  root.style.setProperty('--color-primary-active', `color-mix(in srgb, ${color} 72%, #1C1917)`);
+  root.style.setProperty('--color-primary-light', `color-mix(in srgb, ${color} 14%, #FFFDF9)`);
+  root.style.setProperty('--color-primary-subtle', `color-mix(in srgb, ${color} 6%, #FAF7F2)`);
+  root.style.setProperty('--color-bg', `color-mix(in srgb, ${color} 2.5%, #FAF7F2)`);
+  root.style.setProperty('--color-surface', '#FFFDF9');
+  root.style.setProperty('--color-surface-subtle', `color-mix(in srgb, ${color} 4%, #F4EFE6)`);
+  root.style.setProperty('--color-border', `color-mix(in srgb, ${color} 10%, #E6DFD3)`);
 }
 
 /**
@@ -41,6 +45,10 @@ function resetThemeColorInDOM() {
   root.style.removeProperty('--color-primary-active');
   root.style.removeProperty('--color-primary-light');
   root.style.removeProperty('--color-primary-subtle');
+  root.style.removeProperty('--color-bg');
+  root.style.removeProperty('--color-surface');
+  root.style.removeProperty('--color-surface-subtle');
+  root.style.removeProperty('--color-border');
 }
 
 export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -94,16 +102,16 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         favicon.href = tenantData.logoUrl;
       }
     } else if (!slug) {
-      document.title = 'المساعد التعليمي | المنصة الذكية لإدارة المعلمين والطلاب';
+      document.title = 'طرابيزة | Tarabeza — منصتك التعليمية المستقلة في دقيقة';
       if (favicon) {
-        favicon.href = '/vite.svg';
+        favicon.href = '/logo.svg';
       }
     }
 
     return () => {
       resetThemeColorInDOM();
       if (favicon) {
-        favicon.href = '/vite.svg';
+        favicon.href = '/logo.svg';
       }
     };
   }, [tenantData, slug]);

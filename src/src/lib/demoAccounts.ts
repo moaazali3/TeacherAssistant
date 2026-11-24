@@ -14,34 +14,34 @@ export interface DemoAccount {
 export const TEACHER_DEMO_ACCOUNTS: DemoAccount[] = import.meta.env.DEV
   ? [
       {
-        label: 'معلم كيمياء (أ. أحمد محمد - demo)',
+        label: 'أ. طارق المنشاوي — كيمياء (demo)',
         email: 'teacher@demo.local',
         password: 'Demo@12345',
-        roleHint: 'كيمياء',
+        roleHint: 'كيمياء ثانوية عامة',
       },
       {
-        label: 'معلم رياضيات (أ. محمد حسن - maths)',
+        label: 'أ. محمود الشافعي — رياضيات (maths)',
         email: 'teacher@maths.local',
         password: 'Demo@12345',
-        roleHint: 'رياضيات',
+        roleHint: 'رياضيات بحتة وتطبيقية',
       },
       {
-        label: 'معلم فيزياء (أ. سارة إبراهيم - physics)',
+        label: 'أ. حسام الدين رأفت — فيزياء (physics)',
         email: 'teacher@physics.local',
         password: 'Demo@12345',
-        roleHint: 'فيزياء',
+        roleHint: 'فيزياء ثانوية عامة',
       },
       {
-        label: 'معلم عربي (أ. نور علي - arabic)',
+        label: 'أ. عبدالرحمن السوهاجي — لغة عربية (arabic)',
         email: 'teacher@arabic.local',
         password: 'Demo@12345',
-        roleHint: 'لغة عربية',
+        roleHint: 'لغة عربية 80/80',
       },
       {
-        label: 'معلم أحياء (أ. كريم منصور - bio)',
+        label: 'أ. سلمى عبدالحميد — أحياء (bio)',
         email: 'teacher@bio.local',
         password: 'Demo@12345',
-        roleHint: 'أحياء',
+        roleHint: 'أحياء وجيولوجيا',
       },
     ]
   : [];
@@ -53,21 +53,21 @@ export const STUDENT_DEMO_ACCOUNTS: DemoAccount[] = import.meta.env.DEV
         email: 'student1@demo.local',
         password: 'Demo@12345',
         groupCode: 'SAT5CHEM',
-        roleHint: 'جروب السبت',
+        roleHint: 'مجموعة السبت 5 م',
       },
       {
         label: 'طالب 2 (مريم حسن)',
         email: 'student2@demo.local',
         password: 'Demo@12345',
         groupCode: 'MND7CHEM',
-        roleHint: 'جروب الإثنين',
+        roleHint: 'مجموعة الإثنين 7 م',
       },
       {
         label: 'طالب 3 (عمر خالد)',
         email: 'student3@demo.local',
         password: 'Demo@12345',
         groupCode: 'SAT5CHEM',
-        roleHint: 'جروب السبت',
+        roleHint: 'مجموعة السبت 5 م',
       },
     ]
   : [];

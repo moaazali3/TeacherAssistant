@@ -25,7 +25,6 @@ import {
   Menu,
   X,
   ExternalLink,
-  GraduationCap,
 } from 'lucide-react';
 
 export const TenantLayout: React.FC = () => {
@@ -388,8 +387,8 @@ export const TenantLayout: React.FC = () => {
             <p className="flex items-center gap-1.5">
               <span>مشغل بواسطة</span>
               <a href={platformPath('/')} className="font-bold text-primary hover:underline inline-flex items-center gap-1">
-                <GraduationCap className="w-3.5 h-3.5" />
-                <span>المساعد التعليمي</span>
+                <img src="/logo.svg" alt="طرابيزة" className="w-4 h-4 rounded-xs" />
+                <span>طرابيزة Tarabeza</span>
               </a>
             </p>
           </div>

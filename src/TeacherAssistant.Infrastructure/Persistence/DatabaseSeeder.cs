@@ -82,21 +82,48 @@ public class DatabaseSeeder
         var demoTenant = await _context.Tenants
             .FirstOrDefaultAsync(t => t.Subdomain == demoSubdomain, cancellationToken);
 
+        const string defaultChemPortrait = "/images/teachers/teacher-chem.jpg";
+
         if (demoTenant is null)
         {
             demoTenant = new Tenant
             {
-                Name = string.IsNullOrWhiteSpace(_settings.DemoTenantName) ? "أكاديمية الكيمياء" : _settings.DemoTenantName,
+                Name = string.IsNullOrWhiteSpace(_settings.DemoTenantName) || _settings.DemoTenantName == "Demo Academy"
+                    ? "منصة أ. طارق المنشاوي للكيمياء"
+                    : _settings.DemoTenantName,
                 Subdomain = demoSubdomain,
-                PrimaryColor = _settings.DemoPrimaryColor ?? "#0F766E",
-                Bio = _settings.DemoBio ?? "منصة تعليمية متخصصة في شرح ومراجعة الكيمياء للثانوية العامة."
+                PrimaryColor = _settings.DemoPrimaryColor ?? "#3730A3",
+                LogoUrl = defaultChemPortrait,
+                Bio = string.IsNullOrWhiteSpace(_settings.DemoBio) || _settings.DemoBio.Contains("demo teacher", StringComparison.OrdinalIgnoreCase)
+                    ? "منصة أ. طارق المنشاوي لشرح ومراجعة الكيمياء للثانوية العامة والأزهرية — افهم الكيمياء صح وحل أصعب أفكار العضوية والكهربية والاتزان مع متابعة أسبوعية وامتحانات دورية."
+                    : _settings.DemoBio
             };
             _context.Tenants.Add(demoTenant);
             await _context.SaveChangesAsync(cancellationToken);
         }
+        else if (demoTenant.Name == "Demo Academy" || demoTenant.Name.Contains("خالد صقر") || demoTenant.PrimaryColor == "#0F766E" || demoTenant.LogoUrl != defaultChemPortrait)
+        {
+            demoTenant.Name = "منصة أ. طارق المنشاوي للكيمياء";
+            demoTenant.PrimaryColor = "#3730A3";
+            demoTenant.LogoUrl = defaultChemPortrait;
+            demoTenant.Bio = "منصة أ. طارق المنشاوي لشرح ومراجعة الكيمياء للثانوية العامة والأزهرية — افهم الكيمياء صح وحل أصعب أفكار العضوية والكهربية والاتزان مع متابعة أسبوعية وامتحانات دورية.";
+            var refreshedLanding = LandingPageRules.CreateDefault(
+                demoTenant.Name,
+                demoTenant.Bio,
+                demoTenant.PrimaryColor,
+                demoTenant.LogoUrl);
+            demoTenant.LandingPageJson = System.Text.Json.JsonSerializer.Serialize(
+                refreshedLanding,
+                new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                    WriteIndented = false
+                });
+            await _context.SaveChangesAsync(cancellationToken);
+        }
 
-        // Seed Landing Page for Demo Tenant if empty
-        if (string.IsNullOrWhiteSpace(demoTenant.LandingPageJson))
+        // Seed Landing Page for Demo Tenant if empty or still carrying old strings
+        if (string.IsNullOrWhiteSpace(demoTenant.LandingPageJson) || demoTenant.LandingPageJson.Contains("Demo Academy") || demoTenant.LandingPageJson.Contains("خالد صقر"))
         {
             var landingDto = LandingPageRules.CreateDefault(
                 demoTenant.Name,
@@ -124,13 +151,20 @@ public class DatabaseSeeder
         {
             teacher = new User
             {
-                Name = string.IsNullOrWhiteSpace(_settings.DemoTeacherName) ? "أ. أحمد محمد" : _settings.DemoTeacherName,
+                Name = string.IsNullOrWhiteSpace(_settings.DemoTeacherName) || _settings.DemoTeacherName == "Demo Teacher"
+                    ? "أ. طارق المنشاوي"
+                    : _settings.DemoTeacherName,
                 Email = teacherEmail,
                 Role = UserRole.Instructor,
                 TenantId = demoTenant.Id
             };
             teacher.PasswordHash = _passwordHasher.HashPassword(teacher, _settings.DemoTeacherPassword);
             _context.Users.Add(teacher);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        else if (teacher.Name == "Demo Teacher" || teacher.Name.Contains("خالد صقر"))
+        {
+            teacher.Name = "أ. طارق المنشاوي";
             await _context.SaveChangesAsync(cancellationToken);
         }
 

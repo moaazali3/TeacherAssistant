@@ -172,7 +172,8 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
           <div>{content.copyrightText}</div>
           <div className="flex items-center gap-1.5">
             <span>مدعوم بواسطة</span>
-            <span className="font-bold text-text-main">المساعد التعليمي LMS</span>
+            <img src="/logo.svg" alt="طرابيزة" className="w-4 h-4 rounded-xs" />
+            <span className="font-bold text-text-main">طرابيزة Tarabeza</span>
           </div>
         </div>
       </div>

@@ -51,12 +51,12 @@ public class RichDemoDataSeeder
     [
         new(
             Subdomain:     "maths",
-            Name:          "أكاديمية الرياضيات",
+            Name:          "منصة أ. محمود الشافعي للرياضيات",
             PrimaryColor:  "#1D4ED8",
-            Bio:           "منصة متخصصة في شرح الرياضيات للثانوية العامة بأسلوب مبسط وشامل.",
+            Bio:           "منصة أ. محمود الشافعي لشرح الرياضيات البحتة والتطبيقية (التفاضل والتكامل، الجبر والهندسة الفراغية، الإحصاء) لطلاب علمي رياضة بالثانوية العامة مع حل كتاب المعاصر كامل.",
             TeacherEmail:  "teacher@maths.local",
-            TeacherName:   "أ. محمد حسن",
-            LogoUrl:       "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=400&q=80",
+            TeacherName:   "أ. محمود الشافعي",
+            LogoUrl:       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=85",
             Subjects: [
                 new("رياضيات - تالتة ثانوي",
                     "مراجعة شاملة لمنهج الرياضيات للصف الثالث الثانوي.",
@@ -97,12 +97,12 @@ public class RichDemoDataSeeder
 
         new(
             Subdomain:     "physics",
-            Name:          "أكاديمية الفيزياء",
+            Name:          "منصة أ. حسام الدين رأفت للفيزياء",
             PrimaryColor:  "#7C3AED",
-            Bio:           "شرح مبسط وعميق لمنهج الفيزياء للثانوية العامة، تجارب وحل مسائل.",
+            Bio:           "منصة أ. حسام الدين رأفت لتبسيط الفيزياء الكهربية والحديثة للثانوية العامة — تجارب عملية، تأسيس قوانين كيرشوف وأوم، وحل أفكار المستويات العليا من كتاب الامتحان ونيوتن.",
             TeacherEmail:  "teacher@physics.local",
-            TeacherName:   "أ. سارة إبراهيم",
-            LogoUrl:       "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?auto=format&fit=crop&w=400&q=80",
+            TeacherName:   "أ. حسام الدين رأفت",
+            LogoUrl:       "/images/teachers/teacher-physics.jpg",
             Subjects: [
                 new("فيزياء - تالتة ثانوي",
                     "منهج الفيزياء كامل للصف الثالث الثانوي - الجزء الأول.",
@@ -143,12 +143,12 @@ public class RichDemoDataSeeder
 
         new(
             Subdomain:     "arabic",
-            Name:          "أكاديمية اللغة العربية",
+            Name:          "منصة أ. عبدالرحمن السوهاجي للغة العربية",
             PrimaryColor:  "#059669",
-            Bio:           "تعليم اللغة العربية وآدابها للمرحلة الثانوية بأسلوب ممتع وتفاعلي.",
+            Bio:           "منصة العميد أ. عبدالرحمن السوهاجي للدرجة النهائية (80 من 80) في اللغة العربية للثانوية العامة — تأسيس شامل في النحو والبلاغة والأدب والنصوص المتحررة والقراءة والتعبير.",
             TeacherEmail:  "teacher@arabic.local",
-            TeacherName:   "أ. نور علي",
-            LogoUrl:       "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=400&q=80",
+            TeacherName:   "أ. عبدالرحمن السوهاجي",
+            LogoUrl:       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=900&q=85",
             Subjects: [
                 new("لغة عربية - تالتة ثانوي",
                     "منهج اللغة العربية للصف الثالث الثانوي - نصوص وقواعد.",
@@ -189,12 +189,12 @@ public class RichDemoDataSeeder
 
         new(
             Subdomain:     "bio",
-            Name:          "أكاديمية الأحياء",
+            Name:          "منصة أ. سلمى عبدالحميد للأحياء",
             PrimaryColor:  "#16A34A",
-            Bio:           "شرح منهج الأحياء للثانوية العامة بالرسوم التوضيحية والتجارب العملية.",
+            Bio:           "منصة الأستاذة سلمى عبدالحميد لشرح الأحياء والجيولوجيا لطلاب علمي علوم بالثانوية العامة — شرح الدعامة والحركة والهرمونات والمناعة وDNA بالأنيميشن الطبي والرسوم التوضيحية.",
             TeacherEmail:  "teacher@bio.local",
-            TeacherName:   "أ. كريم منصور",
-            LogoUrl:       "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&w=400&q=80",
+            TeacherName:   "أ. سلمى عبدالحميد",
+            LogoUrl:       "/images/teachers/teacher-bio.jpg",
             Subjects: [
                 new("أحياء - تالتة ثانوي",
                     "منهج الأحياء للصف الثالث الثانوي - الجزء الأول والثاني.",
@@ -253,9 +253,41 @@ public class RichDemoDataSeeder
                 LogoUrl      = spec.LogoUrl,
                 IsActive     = true,
             };
+            var landingDto = LandingPageRules.CreateDefault(
+                tenant.Name,
+                tenant.Bio,
+                tenant.PrimaryColor,
+                tenant.LogoUrl);
+            tenant.LandingPageJson = System.Text.Json.JsonSerializer.Serialize(
+                landingDto,
+                new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                    WriteIndented = false
+                });
             _context.Tenants.Add(tenant);
             await _context.SaveChangesAsync(ct);
             _logger.LogInformation("RichDemoDataSeeder: Created tenant '{Subdomain}'.", subdomain);
+        }
+        else
+        {
+            tenant.Name = spec.Name;
+            tenant.Bio = spec.Bio;
+            tenant.PrimaryColor = spec.PrimaryColor;
+            tenant.LogoUrl = spec.LogoUrl;
+            var landingDto = LandingPageRules.CreateDefault(
+                tenant.Name,
+                tenant.Bio,
+                tenant.PrimaryColor,
+                tenant.LogoUrl);
+            tenant.LandingPageJson = System.Text.Json.JsonSerializer.Serialize(
+                landingDto,
+                new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                    WriteIndented = false
+                });
+            await _context.SaveChangesAsync(ct);
         }
 
         // 2. Teacher
@@ -275,6 +307,11 @@ public class RichDemoDataSeeder
             };
             teacher.PasswordHash = _passwordHasher.HashPassword(teacher, DemoPassword);
             _context.Users.Add(teacher);
+            await _context.SaveChangesAsync(ct);
+        }
+        else if (teacher.Name != spec.TeacherName)
+        {
+            teacher.Name = spec.TeacherName;
             await _context.SaveChangesAsync(ct);
         }
 

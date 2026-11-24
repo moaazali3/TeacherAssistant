@@ -1,78 +1,74 @@
 /**
  * ==============================================================================
- * DESIGN TOKENS
+ * DESIGN TOKENS — WARM ALABASTER PAPER & ROYAL INDIGO EDITION
  * ==============================================================================
- * All design tokens (colors, fonts, radii, spacing) are defined here as CSS variables.
- * These are wired directly into the Tailwind configuration.
- *
- * NOTE FOR DEVELOPER:
- * You can replace these placeholder values with your custom tokens at any time.
- * The tenant's `PrimaryColor` from GET /tenants/current will override `--color-primary`
- * and its variants dynamically at runtime.
+ * Editorial Light Palette crafted for comfortable long-form study and high visual
+ * distinction. Uses Warm Alabaster Paper (#FAF7F2), Warm Ivory Cards (#FFFDF9),
+ * Royal Indigo (#3730A3), and Warm Amber Gold accents (#D97706).
  * ==============================================================================
  */
 
 :root {
   /* ----------------------------------------------------------------------------
-   * BRAND & THEME COLORS (Placeholder values - overridden by tenant at runtime)
+   * BRAND & THEME COLORS (Overridden dynamically per teacher tenant at runtime)
    * ---------------------------------------------------------------------------- */
-  --color-primary: #0F766E;                 /* Teal 700 - Default brand color */
-  --color-primary-hover: #115E59;           /* Teal 800 - Button hover */
-  --color-primary-active: #134E4A;          /* Teal 900 - Button pressed */
-  --color-primary-light: #CCFBF1;           /* Teal 100 - Subtle badges, highlights */
-  --color-primary-subtle: #F0FDFA;          /* Teal 50 - Tinted backgrounds */
+  --color-primary: #3730A3;                 /* Royal Indigo 800 - Default brand color */
+  --color-primary-hover: #312E81;           /* Indigo 900 - Button hover */
+  --color-primary-active: #1E1B4B;          /* Indigo 950 - Button pressed */
+  --color-primary-light: #E0E7FF;           /* Indigo 100 - Subtle badges, highlights */
+  --color-primary-subtle: #F2F0FB;          /* Warm Indigo tint - Tinted backgrounds */
   --color-primary-foreground: #FFFFFF;      /* Text on primary buttons */
-  --color-secondary: #0D9488;               /* Teal 600 - Secondary theme color */
-  --color-secondary-hover: #0F766E;         /* Secondary hover */
+  --color-secondary: #D97706;               /* Warm Amber Gold - Editorial secondary accent */
+  --color-secondary-hover: #B45309;         /* Amber 700 - Secondary hover */
   --color-secondary-foreground: #FFFFFF;    /* Text on secondary */
 
   /* ----------------------------------------------------------------------------
-   * SURFACE & BACKGROUND COLORS
+   * SURFACE & BACKGROUND COLORS (Warm Alabaster Paper Architecture)
    * ---------------------------------------------------------------------------- */
-  --color-bg: #F8FAFC;                      /* Main application background (Slate 50) */
-  --color-surface: #FFFFFF;                 /* Cards, modals, dropdowns */
-  --color-surface-hover: #F1F5F9;           /* Surface hover state (Slate 100) */
-  --color-surface-subtle: #F8FAFC;          /* Inner nested card/wells */
+  --color-bg: #FAF7F2;                      /* Warm Alabaster Paper main canvas */
+  --color-surface: #FFFDF9;                 /* Warm Ivory elevated cards & modals */
+  --color-surface-hover: #F4EFE6;           /* Warm Sand hover surface */
+  --color-surface-subtle: #F3EDE2;          /* Warm Parchment wells & inner containers */
 
   /* ----------------------------------------------------------------------------
-   * TEXT & CONTENT COLORS
+   * TEXT & CONTENT COLORS (Deep Espresso Ink)
    * ---------------------------------------------------------------------------- */
-  --color-text-main: #0F172A;               /* Headings & primary body text (Slate 900) */
-  --color-text-muted: #475569;              /* Secondary labels & helper copy (Slate 600) */
-  --color-text-subtle: #94A3B8;             /* Placeholders & disabled text (Slate 400) */
-  --color-text-inverse: #FFFFFF;            /* Text on dark backgrounds */
+  --color-text-main: #1C1917;               /* Stone 900 - Deep warm ink headings */
+  --color-text-muted: #57534E;              /* Stone 600 - Secondary labels & body copy */
+  --color-text-subtle: #78716C;             /* Stone 500 - Helper copy & placeholders */
+  --color-text-inverse: #FFFDF9;            /* Warm Ivory text on deep brand surfaces */
 
   /* ----------------------------------------------------------------------------
-   * BORDER COLORS
+   * BORDER COLORS (Warm Sandstone Hairlines)
    * ---------------------------------------------------------------------------- */
-  --color-border: #E2E8F0;                  /* Card & input borders (Slate 200) */
-  --color-border-hover: #CBD5E1;            /* Border hover / focus ring border (Slate 300) */
-  --color-border-subtle: #F1F5F9;           /* Dividers and table rows */
+  --color-border: #E6DFD3;                  /* Warm sandstone border */
+  --color-border-hover: #D4C9B8;            /* Warm stone active/hover border */
+  --color-border-subtle: #EFE9DF;           /* Subtle warm dividers */
 
   /* ----------------------------------------------------------------------------
    * FEEDBACK & SEMANTIC COLORS
    * ---------------------------------------------------------------------------- */
-  --color-success: #16A34A;                 /* Success green */
+  --color-success: #15803D;                 /* Botanical green */
   --color-success-bg: #DCFCE7;              /* Success pill background */
   --color-success-foreground: #14532D;      /* Success text on pill */
 
-  --color-warning: #D97706;                 /* Warning amber */
+  --color-warning: #D97706;                 /* Warm Amber Gold */
   --color-warning-bg: #FEF3C7;              /* Warning pill background */
   --color-warning-foreground: #78350F;      /* Warning text on pill */
 
-  --color-danger: #DC2626;                  /* Error red */
+  --color-danger: #DC2626;                  /* Crimson red */
   --color-danger-hover: #B91C1C;            /* Error red hover */
   --color-danger-bg: #FEE2E2;               /* Error alert background */
   --color-danger-foreground: #FFFFFF;       /* Text on danger buttons */
 
-  --color-info: #0284C7;                    /* Info blue */
-  --color-info-bg: #E0F2FE;                 /* Info alert background */
+  --color-info: #1D4ED8;                    /* Cobalt info blue */
+  --color-info-bg: #DBEAFE;                 /* Info alert background */
 
   /* ----------------------------------------------------------------------------
    * TYPOGRAPHY / FONTS
    * ---------------------------------------------------------------------------- */
-  --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Cairo', 'Tajawal', sans-serif;
-  --font-family-heading: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Cairo', 'Tajawal', sans-serif;
+  --font-family-base: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
+  --font-family-heading: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
 
   /* ----------------------------------------------------------------------------
    * BORDER RADIUS
