@@ -102,6 +102,14 @@ public class AuthService : IAuthService
         }
 
         var email = NormalizeEmail(request.Email);
+        var phoneNumber = request.PhoneNumber.Trim();
+        var parentPhoneNumber = request.ParentPhoneNumber.Trim();
+
+        if (string.Equals(phoneNumber, parentPhoneNumber, StringComparison.Ordinal))
+        {
+            return ApiResponse<AuthResponseDto>.FailureResponse(
+                "رقم هاتف ولي الأمر يجب أن يكون مختلفاً عن رقم الطالب.");
+        }
 
         // The global tenant filter keeps this check inside the current platform.
         if (await _context.Users.AnyAsync(u => u.Email == email, cancellationToken))
@@ -138,6 +146,8 @@ public class AuthService : IAuthService
         {
             Name = request.Name.Trim(),
             Email = email,
+            PhoneNumber = phoneNumber,
+            ParentPhoneNumber = parentPhoneNumber,
             Role = UserRole.Student,
             TenantId = _tenantService.TenantId
         };

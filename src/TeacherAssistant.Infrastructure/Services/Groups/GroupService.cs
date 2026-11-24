@@ -274,6 +274,8 @@ public class GroupService : IGroupService
                 StudentId = m.StudentId,
                 Name = m.Student != null ? m.Student.Name : string.Empty,
                 Email = m.Student != null ? m.Student.Email : string.Empty,
+                PhoneNumber = m.Student != null ? m.Student.PhoneNumber : null,
+                ParentPhoneNumber = m.Student != null ? m.Student.ParentPhoneNumber : null,
                 JoinedAt = m.JoinedAt
             })
             .ToListAsync(cancellationToken);
@@ -338,6 +340,8 @@ public class GroupService : IGroupService
             StudentId = membership.StudentId,
             Name = membership.Student?.Name ?? string.Empty,
             Email = membership.Student?.Email ?? string.Empty,
+            PhoneNumber = membership.Student?.PhoneNumber,
+            ParentPhoneNumber = membership.Student?.ParentPhoneNumber,
             JoinedAt = membership.JoinedAt
         }, "Student moved successfully.");
     }

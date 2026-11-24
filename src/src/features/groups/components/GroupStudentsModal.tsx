@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 import { getApiErrorMessage } from '@/lib/api';
 import { formatDateArabic } from '@/lib/date';
-import { Users, Search, UserMinus, KeyRound, ArrowRightLeft, Calendar } from 'lucide-react';
+import { Users, Search, UserMinus, KeyRound, ArrowRightLeft, Calendar, Phone, PhoneCall } from 'lucide-react';
 
 interface GroupStudentsModalProps {
   isOpen: boolean;
@@ -104,7 +104,9 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
   const filteredStudents = students.filter(
     (s) =>
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.email.toLowerCase().includes(searchQuery.toLowerCase())
+      s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.phoneNumber && s.phoneNumber.includes(searchQuery)) ||
+      (s.parentPhoneNumber && s.parentPhoneNumber.includes(searchQuery))
   );
 
   return (
@@ -131,7 +133,7 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
             <div className="relative">
               <input
                 type="text"
-                placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                placeholder="ابحث بالاسم أو البريد أو رقم الهاتف..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full ps-10 pe-4 py-2.5 text-sm rounded-xl border border-border bg-surface text-text-main placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
@@ -167,6 +169,7 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
                       <tr>
                         <th className="py-2.5 px-3.5 font-semibold text-start">الطالب</th>
                         <th className="py-2.5 px-3.5 font-semibold text-start">البريد الإلكتروني</th>
+                        <th className="py-2.5 px-3.5 font-semibold text-start">أرقام التواصل</th>
                         <th className="py-2.5 px-3.5 font-semibold text-start">تاريخ الانضمام</th>
                         <th className="py-2.5 px-3.5 font-semibold text-end">الإجراءات</th>
                       </tr>
@@ -184,6 +187,22 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
                           </td>
                           <td className="py-3 px-3.5 font-mono text-xs text-text-muted">
                             {student.email}
+                          </td>
+                          <td className="py-3 px-3.5 text-xs text-text-muted">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5">
+                                <Phone className="w-3 h-3 text-primary shrink-0" />
+                                <span dir="ltr" className="font-mono text-text-main">
+                                  {student.phoneNumber || '—'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <PhoneCall className="w-3 h-3 text-text-subtle shrink-0" />
+                                <span dir="ltr" className="font-mono text-text-muted">
+                                  {student.parentPhoneNumber || '—'}
+                                </span>
+                              </div>
+                            </div>
                           </td>
                           <td className="py-3 px-3.5 text-xs text-text-muted">
                             {formatDateArabic(student.joinedAt)}
@@ -246,6 +265,21 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
                             <span className="font-bold text-sm text-text-main block">{student.name}</span>
                             <span className="text-xs font-mono text-text-muted">{student.email}</span>
                           </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-muted pt-1 border-t border-border-subtle">
+                        <div className="flex items-center gap-1.5">
+                          <Phone className="w-3.5 h-3.5 text-primary" />
+                          <span dir="ltr" className="font-mono text-text-main">
+                            {student.phoneNumber || '—'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <PhoneCall className="w-3.5 h-3.5 text-text-subtle" />
+                          <span dir="ltr" className="font-mono">
+                            {student.parentPhoneNumber || '—'}
+                          </span>
                         </div>
                       </div>
 

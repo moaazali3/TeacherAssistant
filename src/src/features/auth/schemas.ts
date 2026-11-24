@@ -67,25 +67,39 @@ export const registerTeacherSchema = z.object({
 
 export type RegisterTeacherFormData = z.infer<typeof registerTeacherSchema>;
 
-export const registerStudentSchema = z.object({
-  name: z
-    .string()
-    .min(2, 'الاسم الكامل يجب ألا يقل عن حرفين')
-    .max(150, 'الاسم الكامل يجب ألا يتجاوز 150 حرفاً'),
-  email: z
-    .string()
-    .min(1, 'البريد الإلكتروني مطلوب')
-    .email('صيغة البريد الإلكتروني غير صحيحة')
-    .max(256, 'البريد الإلكتروني طويل جداً'),
-  password: passwordRuleSchema,
-  joinCode: z
+const phoneRuleSchema = (requiredMessage: string) =>
+  z
     .string()
     .trim()
-    .min(1, 'كود الجروب مطلوب للتسجيل')
-    .length(8, 'كود الجروب يجب أن يتكون من 8 أحرف وأرقام بالضبط')
-    .regex(/^[A-Za-z0-9]{8}$/, 'كود الجروب يجب أن يتكون من 8 أحرف وأرقام إنجليزية فقط')
-    .transform((val) => val.toUpperCase()),
-});
+    .min(1, requiredMessage)
+    .regex(/^\+?[0-9]{10,15}$/, 'أدخل رقم هاتف صحيح مكون من 10 إلى 15 رقماً (مثال: 01012345678)');
+
+export const registerStudentSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, 'الاسم الكامل يجب ألا يقل عن حرفين')
+      .max(150, 'الاسم الكامل يجب ألا يتجاوز 150 حرفاً'),
+    email: z
+      .string()
+      .min(1, 'البريد الإلكتروني مطلوب')
+      .email('صيغة البريد الإلكتروني غير صحيحة')
+      .max(256, 'البريد الإلكتروني طويل جداً'),
+    password: passwordRuleSchema,
+    phoneNumber: phoneRuleSchema('رقم هاتف الطالب مطلوب'),
+    parentPhoneNumber: phoneRuleSchema('رقم هاتف ولي الأمر مطلوب'),
+    joinCode: z
+      .string()
+      .trim()
+      .min(1, 'كود الجروب مطلوب للتسجيل')
+      .length(8, 'كود الجروب يجب أن يتكون من 8 أحرف وأرقام بالضبط')
+      .regex(/^[A-Za-z0-9]{8}$/, 'كود الجروب يجب أن يتكون من 8 أحرف وأرقام إنجليزية فقط')
+      .transform((val) => val.toUpperCase()),
+  })
+  .refine((data) => data.phoneNumber !== data.parentPhoneNumber, {
+    message: 'رقم هاتف ولي الأمر يجب أن يكون مختلفاً عن رقم الطالب',
+    path: ['parentPhoneNumber'],
+  });
 
 export type RegisterStudentFormData = z.infer<typeof registerStudentSchema>;
 

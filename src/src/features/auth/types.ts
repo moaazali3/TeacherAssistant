@@ -44,5 +44,7 @@ export interface RegisterStudentRequestDto {
   name: string;
   email: string;
   password: string;
+  phoneNumber: string;
+  parentPhoneNumber: string;
   joinCode: string;
 }

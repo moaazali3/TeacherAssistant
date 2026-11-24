@@ -90,7 +90,9 @@ public static class ApiTestHelpers
         string? tenant,
         string email,
         string joinCode,
-        string password = DefaultPassword)
+        string password = DefaultPassword,
+        string phoneNumber = "01012345678",
+        string parentPhoneNumber = "01112345678")
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/auth/register-student")
         {
@@ -99,6 +101,8 @@ public static class ApiTestHelpers
                 Name = $"Student {email}",
                 Email = email,
                 Password = password,
+                PhoneNumber = phoneNumber,
+                ParentPhoneNumber = parentPhoneNumber,
                 JoinCode = joinCode
             })
         };

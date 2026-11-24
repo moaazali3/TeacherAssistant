@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { registerStudentSchema, RegisterStudentFormData } from '../schemas';
 import { useAuth } from '../useAuth';
@@ -12,15 +12,18 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { getApiErrorMessage, applyServerValidationErrors, useRateLimitCooldown } from '@/lib/api';
-import { User, Mail, Lock, KeyRound, UserPlus, Clock } from 'lucide-react';
+import { User, Mail, Lock, KeyRound, UserPlus, Clock, Phone, PhoneCall } from 'lucide-react';
 
 export const StudentRegisterPage: React.FC = () => {
   const { registerStudent } = useAuth();
   const { tenant } = useTenant();
   const { success, error: toastError } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isCoolingDown, countdown, startCooldown } = useRateLimitCooldown(30);
+
+  const initialJoinCode = searchParams.get('joinCode')?.trim().toUpperCase() || '';
 
   const {
     register,
@@ -33,7 +36,9 @@ export const StudentRegisterPage: React.FC = () => {
       name: '',
       email: '',
       password: '',
-      joinCode: '',
+      phoneNumber: '',
+      parentPhoneNumber: '',
+      joinCode: initialJoinCode,
     },
     mode: 'onTouched',
   });
@@ -111,6 +116,33 @@ export const StudentRegisterPage: React.FC = () => {
                 error={errors.password?.message}
                 helperText="8 أحرف على الأقل، تتضمن حرفاً ورقماً."
                 {...register('password')}
+              />
+
+              <Input
+                label="رقم هاتف الطالب"
+                type="tel"
+                inputMode="tel"
+                dir="ltr"
+                autoComplete="tel"
+                required
+                placeholder="01012345678"
+                startAdornment={<Phone className="w-4 h-4 text-text-subtle" />}
+                error={errors.phoneNumber?.message}
+                {...register('phoneNumber')}
+              />
+
+              <Input
+                label="رقم هاتف ولي الأمر"
+                type="tel"
+                inputMode="tel"
+                dir="ltr"
+                autoComplete="tel"
+                required
+                placeholder="01112345678"
+                startAdornment={<PhoneCall className="w-4 h-4 text-text-subtle" />}
+                error={errors.parentPhoneNumber?.message}
+                helperText="يُستخدم لمتابعة الحضور والمستوى مع ولي الأمر."
+                {...register('parentPhoneNumber')}
               />
 
               <div>

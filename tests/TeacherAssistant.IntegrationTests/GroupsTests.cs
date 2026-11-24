@@ -113,7 +113,39 @@ public class GroupsTests : IAsyncLifetime
         Assert.Equal("Saturday 5pm", only.GroupName);
 
         var members = await GetStudentsAsync(_groupId, _owner.Token);
-        Assert.Contains(members, m => m.Email == "member@example.com");
+        var member = Assert.Single(members, m => m.Email == "member@example.com");
+        Assert.Equal("01012345678", member.PhoneNumber);
+        Assert.Equal("01112345678", member.ParentPhoneNumber);
+    }
+
+    [Fact]
+    public async Task Registration_requires_valid_distinct_phone_and_parent_phone_numbers()
+    {
+        var missingPhones = await _client.SendAsync(ApiTestHelpers.CreateRequest(
+            HttpMethod.Post,
+            "/api/v1/auth/register-student",
+            Tenant,
+            body: new
+            {
+                Name = "No Phones",
+                Email = "nophones@example.com",
+                Password = ApiTestHelpers.DefaultPassword,
+                JoinCode = _joinCode
+            }));
+        Assert.Equal(HttpStatusCode.BadRequest, missingPhones.StatusCode);
+
+        var invalidPhone = await ApiTestHelpers.RegisterStudentAsync(
+            _client, Tenant, "badphone@example.com", _joinCode,
+            phoneNumber: "abc", parentPhoneNumber: "01112345678");
+        Assert.Equal(HttpStatusCode.BadRequest, invalidPhone.StatusCode);
+
+        var samePhones = await ApiTestHelpers.RegisterStudentAsync(
+            _client, Tenant, "samephones@example.com", _joinCode,
+            phoneNumber: "01012345678", parentPhoneNumber: "01012345678");
+        Assert.Equal(HttpStatusCode.BadRequest, samePhones.StatusCode);
+
+        var sameBody = await ApiTestHelpers.ReadApiResponseAsync<AuthResponseDto>(samePhones);
+        Assert.False(sameBody.Success);
     }
 
     [Fact]
