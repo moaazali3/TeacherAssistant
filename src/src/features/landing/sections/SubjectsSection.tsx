@@ -168,15 +168,14 @@ export const SubjectsSection: React.FC<SubjectsSectionProps> = ({
           className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14"
         >
           <div className="space-y-3 text-start max-w-2xl">
-            <motion.div variants={fadeUpItem} className="w-12 h-1 rounded-full bg-primary" aria-hidden="true" />
             <motion.h2
               variants={fadeUpItem}
-              className="text-3xl sm:text-4xl font-black font-heading text-text-main tracking-[-0.02em]"
+              className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
             >
               {content.title || 'المواد الدراسية المتاحة'}
             </motion.h2>
             {content.subtitle && (
-              <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-relaxed">
+              <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.85]">
                 {content.subtitle}
               </motion.p>
             )}

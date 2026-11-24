@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ContactContent, LandingTheme } from '../types';
 import { getRadiusClass } from './common';
-import { VIEWPORT_ONCE, staggerContainer, staggerFast, fadeUpItem, blurUp, drawLine } from './motion';
+import { VIEWPORT_ONCE, staggerContainer, staggerFast, fadeUpItem, blurUp } from './motion';
 import { Phone, MessageCircle, Mail, MapPin, ArrowUpLeft } from 'lucide-react';
 
 interface ContactSectionProps {
@@ -64,7 +64,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ content, variant
           viewport={VIEWPORT_ONCE}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6"
         >
-          <motion.h2 variants={blurUp} className="text-2xl sm:text-3xl font-black font-heading text-text-main tracking-[-0.02em]">
+          <motion.h2 variants={blurUp} className="text-2xl sm:text-3xl font-bold font-heading text-text-main leading-[1.45]">
             {content.title || 'تواصل معنا مباشرة'}
           </motion.h2>
           <motion.div variants={staggerFast} className="flex flex-wrap items-center justify-center gap-3.5">
@@ -116,8 +116,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ content, variant
               viewport={VIEWPORT_ONCE}
               className="lg:col-span-5 space-y-5 text-start"
             >
-              <motion.div variants={drawLine} className="w-12 h-1 rounded-full bg-primary" aria-hidden="true" />
-              <motion.h2 variants={blurUp} className="text-3xl sm:text-4xl font-black font-heading text-text-main tracking-[-0.02em]">
+              <motion.h2 variants={blurUp} className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
                 {content.title || 'هل لديك أي استفسار؟'}
               </motion.h2>
               <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.8]">
@@ -185,12 +184,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ content, variant
           viewport={VIEWPORT_ONCE}
           className="text-center max-w-2xl mx-auto mb-14 space-y-3.5"
         >
-          <motion.div variants={drawLine} className="w-10 h-1 rounded-full bg-primary mx-auto" aria-hidden="true" />
-          <motion.h2 variants={blurUp} className="text-3xl sm:text-4xl font-black font-heading text-text-main tracking-[-0.02em]">
+          <motion.h2 variants={blurUp} className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
             {content.title || 'تواصل معنا في أي وقت'}
           </motion.h2>
           {content.subtitle && (
-            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted">
+            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.85]">
               {content.subtitle}
             </motion.p>
           )}
@@ -212,16 +210,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ content, variant
               className={`p-6 bg-bg border border-border hover:border-primary/40 transition-colors text-start flex flex-col justify-between space-y-5 ${radiusClass}`}
             >
               <div className="space-y-4">
-                <div className="relative w-11 h-11">
-                  <div className="absolute inset-0 rounded-xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
-                    {c.icon}
-                  </div>
-                  <motion.span
-                    className="absolute inset-0 rounded-xl border border-primary/25"
-                    animate={{ scale: [1, 1.5], opacity: [0.4, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeOut', delay: i * 0.4 }}
-                    aria-hidden="true"
-                  />
+                <div className="w-11 h-11 rounded-xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
+                  {c.icon}
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-xs font-bold text-text-muted">{c.label}</h3>

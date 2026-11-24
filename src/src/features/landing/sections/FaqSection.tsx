@@ -3,7 +3,7 @@ import * as Accordion from '@radix-ui/react-accordion';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaqContent, LandingTheme } from '../types';
 import { getRadiusClass } from './common';
-import { EASE_OUT_EXPO, VIEWPORT_ONCE, staggerContainer, blurUp, fadeUpItem, drawLine } from './motion';
+import { EASE_OUT_EXPO, VIEWPORT_ONCE, staggerContainer, blurUp, fadeUpItem } from './motion';
 import { ChevronDown } from 'lucide-react';
 
 interface FaqSectionProps {
@@ -31,12 +31,11 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ content, variant, theme 
           viewport={VIEWPORT_ONCE}
           className="text-center max-w-2xl mx-auto mb-14 space-y-3.5"
         >
-          <motion.div variants={drawLine} className="w-10 h-1 rounded-full bg-primary mx-auto" aria-hidden="true" />
-          <motion.h2 variants={blurUp} className="text-3xl sm:text-4xl font-black font-heading text-text-main tracking-[-0.02em]">
+          <motion.h2 variants={blurUp} className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
             {content.title || 'الأسئلة الأكثر شيوعاً'}
           </motion.h2>
           {content.subtitle && (
-            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted">
+            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.85]">
               {content.subtitle}
             </motion.p>
           )}

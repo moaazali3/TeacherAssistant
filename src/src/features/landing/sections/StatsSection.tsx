@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, useInView, animate, useReducedMotion } from 'framer-motion';
 import { StatsContent, LandingTheme } from '../types';
 import { getRadiusClass } from './common';
-import { VIEWPORT_ONCE, staggerContainer, staggerFast, fadeUpItem, zoomIn, drawLine, EASE_OUT_EXPO } from './motion';
+import { VIEWPORT_ONCE, staggerContainer, staggerFast, fadeUpItem, zoomIn, EASE_OUT_EXPO } from './motion';
 import { Users, Award, TrendingUp, Clock, BookOpen, Star } from 'lucide-react';
 
 interface StatsSectionProps {
@@ -107,10 +107,9 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
               viewport={VIEWPORT_ONCE}
               className="text-center max-w-2xl mx-auto mb-12 space-y-3"
             >
-              <motion.div variants={drawLine} className="w-10 h-1 rounded-full bg-primary mx-auto" aria-hidden="true" />
               <motion.h2
                 variants={fadeUpItem}
-                className="text-2xl sm:text-3xl font-black font-heading text-text-main tracking-[-0.02em]"
+                className="text-2xl sm:text-3xl font-bold font-heading text-text-main leading-[1.45]"
               >
                 {content.title}
               </motion.h2>
@@ -131,17 +130,8 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
                 transition={{ type: 'spring', stiffness: 300, damping: 22 }}
                 className={`p-7 bg-surface border border-border hover:border-primary/40 transition-colors flex flex-col items-start text-start space-y-4 ${radiusClass}`}
               >
-                <div className="relative w-11 h-11">
-                  <div className="absolute inset-0 rounded-xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
-                    {renderStatIcon(stat.icon)}
-                  </div>
-                  {/* Ping ring */}
-                  <motion.span
-                    className="absolute inset-0 rounded-xl border border-primary/30"
-                    animate={{ scale: [1, 1.5], opacity: [0.4, 0] }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut', delay: idx * 0.3 }}
-                    aria-hidden="true"
-                  />
+                <div className="w-11 h-11 rounded-xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
+                  {renderStatIcon(stat.icon)}
                 </div>
                 <div className="space-y-1">
                   <div className="text-3xl sm:text-4xl font-black font-heading text-text-main tabular-nums tracking-tight">
@@ -175,8 +165,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
             transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
             className="text-center max-w-2xl mx-auto mb-12 space-y-3"
           >
-            <div className="w-10 h-1 rounded-full bg-secondary mx-auto" aria-hidden="true" />
-            <h2 className="text-2xl sm:text-3xl font-black font-heading tracking-[-0.02em] text-text-main">
+            <h2 className="text-2xl sm:text-3xl font-bold font-heading leading-[1.45] text-text-main">
               {content.title}
             </h2>
           </motion.div>
@@ -196,18 +185,10 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
               transition={{ type: 'spring', stiffness: 280, damping: 22 }}
               className={`p-6 bg-surface border border-border shadow-[0_14px_34px_-15px_rgba(28,25,23,0.08)] space-y-2.5 ${radiusClass}`}
             >
-              <div className="relative w-12 h-12 mx-auto">
-                <div className="absolute inset-0 rounded-2xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
-                  {renderStatIcon(stat.icon, 'w-5 h-5 text-primary')}
-                </div>
-                <motion.span
-                  className="absolute inset-0 rounded-2xl border border-primary/25"
-                  animate={{ scale: [1, 1.45], opacity: [0.45, 0] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: idx * 0.4 }}
-                  aria-hidden="true"
-                />
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
+                {renderStatIcon(stat.icon, 'w-5 h-5 text-primary')}
               </div>
-              <div className="text-3xl sm:text-5xl font-black font-heading tracking-tight tabular-nums text-primary">
+              <div className="text-3xl sm:text-4xl font-bold font-heading tabular-nums text-primary">
                 <AnimatedStatValue value={stat.value} />
               </div>
               <div className="text-xs sm:text-sm font-bold text-text-muted">{stat.label}</div>

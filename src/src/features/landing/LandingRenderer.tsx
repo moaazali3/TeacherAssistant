@@ -65,7 +65,9 @@ export const LandingRenderer: React.FC<LandingRendererProps> = ({
     '--color-border-subtle': `color-mix(in srgb, ${primaryHex} 6%, #EFE9DF)`,
     '--color-text-main': resolvedText,
     '--color-text-muted': '#57534E',
-    fontFamily: `"${theme.fontFamily || 'Cairo'}", Cairo, system-ui, sans-serif`,
+    '--font-family-heading': `"Readex Pro", "${theme.fontFamily || 'IBM Plex Sans Arabic'}", sans-serif`,
+    '--font-family-base': `"IBM Plex Sans Arabic", "${theme.fontFamily || 'Readex Pro'}", sans-serif`,
+    fontFamily: `"IBM Plex Sans Arabic", "Readex Pro", "${theme.fontFamily || 'Cairo'}", system-ui, sans-serif`,
     backgroundColor: resolvedBg,
     color: resolvedText,
   };

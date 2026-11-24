@@ -9,7 +9,6 @@ import {
   fadeUpItem,
   blurUp,
   slideInFromEnd,
-  drawLine,
   VIEWPORT_ONCE,
   EASE_OUT_EXPO,
 } from '@/features/landing/sections/motion';
@@ -300,22 +299,16 @@ export const PlatformLandingPage: React.FC = () => {
               animate="visible"
               className="lg:col-span-6 space-y-6 text-start"
             >
-              <motion.div
-                variants={drawLine}
-                className="w-14 h-1.5 rounded-full bg-primary"
-                aria-hidden="true"
-              />
-
               <motion.h1
                 variants={blurUp}
-                className="text-4xl sm:text-5xl lg:text-[3.35rem] font-black text-text-main font-heading tracking-[-0.025em] leading-[1.15] text-balance"
+                className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-text-main font-heading leading-[1.48] text-balance"
               >
                 طرابيزة.. اصنع منصتك التعليمية المستقلة باسمك وهويتك الكاملة
               </motion.h1>
 
               <motion.p
                 variants={fadeUpItem}
-                className="text-base sm:text-lg text-text-muted leading-[1.85] max-w-xl"
+                className="text-base sm:text-lg text-text-muted leading-[1.9] max-w-xl"
               >
                 منصة سحابية متكاملة مصممة لأساتذة الثانوية العامة والأكاديميات التعليمية. أطلق موقعك الخاص بصورتك وألوانك، وارفع محاضراتك وملازمك، وأدر مجموعات طلابك بخصوصية تامة.
               </motion.p>
@@ -406,18 +399,13 @@ export const PlatformLandingPage: React.FC = () => {
           className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
         >
           <div className="space-y-3 max-w-2xl">
-            <motion.div
-              variants={drawLine}
-              className="w-12 h-1 rounded-full bg-secondary"
-              aria-hidden="true"
-            />
             <motion.h2
               variants={blurUp}
-              className="text-3xl sm:text-4xl font-black text-text-main font-heading tracking-[-0.02em]"
+              className="text-3xl sm:text-4xl font-bold text-text-main font-heading leading-[1.45]"
             >
               جرّب نماذج منصات الأساتذة الحية الآن
             </motion.h2>
-            <motion.p variants={fadeUpItem} className="text-text-muted text-base leading-relaxed">
+            <motion.p variants={fadeUpItem} className="text-text-muted text-base leading-[1.85]">
               تصفح منصات الأساتذة المتكاملة في الكيمياء والفيزياء واللغة العربية والأحياء والرياضيات، وشاهد كيف يرى الطالب محاضراته وملازمه واختباراته.
             </motion.p>
           </div>
@@ -512,18 +500,13 @@ export const PlatformLandingPage: React.FC = () => {
             viewport={VIEWPORT_ONCE}
             className="text-center max-w-3xl mx-auto mb-14 space-y-3"
           >
-            <motion.div
-              variants={drawLine}
-              className="w-10 h-1 rounded-full bg-primary mx-auto"
-              aria-hidden="true"
-            />
             <motion.h2
               variants={blurUp}
-              className="text-3xl sm:text-4xl font-black text-text-main font-heading tracking-[-0.02em]"
+              className="text-3xl sm:text-4xl font-bold text-text-main font-heading leading-[1.45]"
             >
               كيف تصنع منصتك على «طرابيزة» في 3 خطوات؟
             </motion.h2>
-            <motion.p variants={fadeUpItem} className="text-text-muted text-base">
+            <motion.p variants={fadeUpItem} className="text-text-muted text-base leading-[1.85]">
               بدون أي خبرة برمجية أو تكاليف استضافة معقدة — كل شيء جاهز لتبدأ الشرح فوراً.
             </motion.p>
           </motion.div>
@@ -578,18 +561,13 @@ export const PlatformLandingPage: React.FC = () => {
           viewport={VIEWPORT_ONCE}
           className="text-center max-w-3xl mx-auto mb-14 space-y-3"
         >
-          <motion.div
-            variants={drawLine}
-            className="w-10 h-1 rounded-full bg-primary mx-auto"
-            aria-hidden="true"
-          />
           <motion.h2
             variants={blurUp}
-            className="text-3xl sm:text-4xl font-black text-text-main font-heading tracking-[-0.02em]"
+            className="text-3xl sm:text-4xl font-bold text-text-main font-heading leading-[1.45]"
           >
             كل ما يحتاجه المعلم العصري في مكان واحد
           </motion.h2>
-          <motion.p variants={fadeUpItem} className="text-text-muted text-base">
+          <motion.p variants={fadeUpItem} className="text-text-muted text-base leading-[1.85]">
             بنية سحابية متعددة المستأجرين (Multi-Tenant SaaS) تمنح كل أستاذ استقلالاً كاملاً.
           </motion.p>
         </motion.div>
@@ -666,7 +644,7 @@ export const PlatformLandingPage: React.FC = () => {
             alt="طرابيزة"
             className="w-14 h-14 rounded-2xl mx-auto shadow-sm"
           />
-          <h2 className="text-3xl sm:text-4xl font-black text-text-main font-heading tracking-[-0.02em] max-w-2xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-text-main font-heading leading-[1.45] max-w-2xl mx-auto">
             جاهز لإطلاق منصتك التعليمية الخاصة على «طرابيزة»؟
           </h2>
           <p className="text-text-muted max-w-xl mx-auto text-base leading-relaxed">

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Tajawal:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Cairo:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap');
 @import './styles/tokens.css';
 
 @tailwind base;
@@ -11,8 +11,42 @@
     background-color: var(--color-bg);
     color: var(--color-text-main);
     scroll-behavior: smooth;
+    line-height: 1.75;
+    letter-spacing: 0em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Prevent connected Arabic cursive glyphs from ever overlapping due to negative letter-spacing or tight leading */
+  [dir='rtl'],
+  :lang(ar) {
+    letter-spacing: 0em !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-heading {
+    font-family: var(--font-family-heading);
+    letter-spacing: 0em !important;
+  }
+
+  h1 {
+    line-height: 1.48 !important;
+  }
+
+  h2 {
+    line-height: 1.45 !important;
+  }
+
+  h3,
+  h4 {
+    line-height: 1.5 !important;
+  }
+
+  p {
+    line-height: 1.85;
   }
 
   body {

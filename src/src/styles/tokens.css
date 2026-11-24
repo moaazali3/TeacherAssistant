@@ -65,10 +65,10 @@
   --color-info-bg: #DBEAFE;                 /* Info alert background */
 
   /* ----------------------------------------------------------------------------
-   * TYPOGRAPHY / FONTS
+   * TYPOGRAPHY / FONTS — Readex Pro (Display) + IBM Plex Sans Arabic (Body)
    * ---------------------------------------------------------------------------- */
-  --font-family-base: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
-  --font-family-heading: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
+  --font-family-base: 'IBM Plex Sans Arabic', 'Readex Pro', 'Cairo', system-ui, -apple-system, sans-serif;
+  --font-family-heading: 'Readex Pro', 'IBM Plex Sans Arabic', 'Cairo', system-ui, -apple-system, sans-serif;
 
   /* ----------------------------------------------------------------------------
    * BORDER RADIUS

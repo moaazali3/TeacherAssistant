@@ -10,7 +10,6 @@ import {
   blurUp,
   scaleReveal,
   slideInFromStart,
-  drawLine,
 } from './motion';
 import { CheckCircle2, GraduationCap } from 'lucide-react';
 
@@ -35,10 +34,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
           viewport={VIEWPORT_ONCE}
           className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6"
         >
-          <motion.div variants={drawLine} className="w-10 h-1 rounded-full bg-primary mx-auto" aria-hidden="true" />
           <motion.h2
             variants={blurUp}
-            className="text-3xl sm:text-4xl font-black font-heading text-text-main tracking-[-0.02em]"
+            className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
           >
             {content.title}
           </motion.h2>
@@ -88,18 +86,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
               style={{ background: 'var(--color-primary)' }}
             />
             <div className="text-center space-y-4 relative">
-              <motion.div
-                variants={drawLine}
-                initial="hidden"
-                whileInView="visible"
-                viewport={VIEWPORT_ONCE}
-                className="w-10 h-1 rounded-full bg-primary mx-auto"
-                aria-hidden="true"
-              />
-              <h2 className="text-3xl sm:text-4xl font-black font-heading text-text-main tracking-[-0.02em]">
+              <h2 className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
                 {content.title}
               </h2>
-              <p className="text-base sm:text-lg text-text-muted leading-[1.85] max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg text-text-muted leading-[1.9] max-w-3xl mx-auto">
                 {content.bio}
               </p>
             </div>
@@ -183,14 +173,13 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
             viewport={VIEWPORT_ONCE}
             className="lg:col-span-7 order-1 lg:order-2 space-y-6 text-start"
           >
-            <motion.div variants={drawLine} className="w-12 h-1 rounded-full bg-primary" aria-hidden="true" />
             <motion.h2
               variants={blurUp}
-              className="text-3xl sm:text-4xl font-black font-heading text-text-main tracking-[-0.02em] leading-[1.2]"
+              className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
             >
               {content.title}
             </motion.h2>
-            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.85] max-w-2xl">
+            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.9] max-w-2xl">
               {content.bio}
             </motion.p>
             {features.length > 0 && (

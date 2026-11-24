@@ -11,7 +11,6 @@ import {
   blurUp,
   scaleReveal,
   slideInFromEnd,
-  drawLine,
   EASE_OUT_EXPO,
 } from './motion';
 import {
@@ -590,7 +589,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
         >
           <motion.h1
             variants={blurUp}
-            className="text-4xl sm:text-5xl lg:text-[3.5rem] font-black font-heading tracking-[-0.025em] leading-[1.14] text-balance"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading leading-[1.48] text-balance"
           >
             {content.title}
           </motion.h1>
@@ -629,7 +628,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
         >
           <motion.h1
             variants={blurUp}
-            className="text-4xl sm:text-5xl lg:text-[3.5rem] font-black font-heading text-text-main tracking-[-0.025em] leading-[1.14] text-balance"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-text-main leading-[1.48] text-balance"
           >
             {content.title}
           </motion.h1>
@@ -674,14 +673,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
             animate="visible"
             className="lg:col-span-5 space-y-6 text-start"
           >
-            <motion.div variants={drawLine} className="w-14 h-1.5 rounded-full bg-primary" aria-hidden="true" />
             <motion.h1
               variants={blurUp}
-              className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black font-heading text-text-main tracking-[-0.025em] leading-[1.18] text-balance"
+              className="text-3xl sm:text-4xl lg:text-[2.6rem] font-bold font-heading text-text-main leading-[1.48] text-balance"
             >
               {content.title}
             </motion.h1>
-            <motion.p variants={fadeUpItem} className="text-base text-text-muted leading-[1.85]">
+            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.9]">
               {content.subtitle}
             </motion.p>
             <motion.div variants={fadeUpItem} className="flex flex-wrap items-center gap-3.5 pt-1">
