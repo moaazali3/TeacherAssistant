@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { subjectsApi } from '@/features/subjects/api';
 import { SubjectsContent, LandingTheme } from '../types';
@@ -31,7 +31,7 @@ interface SubjectsSectionProps {
   }>;
 }
 
-/** 3D Spring Tilt Subject Card with Cursor Spotlight */
+/** Editorial Subject Card with Warm Spotlight & Clean Elevation (No 3D Wobble) */
 const InteractiveSubjectCard: React.FC<{
   sub: {
     id: string;
@@ -46,44 +46,23 @@ const InteractiveSubjectCard: React.FC<{
   const [spotlightPos, setSpotlightPos] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
 
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [4.5, -4.5]), {
-    stiffness: 260,
-    damping: 24,
-  });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-4.5, 4.5]), {
-    stiffness: 260,
-    damping: 24,
-  });
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const relX = (e.clientX - rect.left) / rect.width;
     const relY = (e.clientY - rect.top) / rect.height;
-    mouseX.set(relX - 0.5);
-    mouseY.set(relY - 0.5);
     setSpotlightPos({ x: relX * 100, y: relY * 100 });
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-    setIsHovered(false);
   };
 
   return (
     <motion.div
       variants={fadeUpItem}
-      style={{ perspective: '1000px' }}
+      whileHover={{ y: -5 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 24 }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative h-full bg-surface border border-border hover:border-primary/40 shadow-[0_14px_34px_-15px_rgba(28,25,23,0.08)] transition-colors duration-300 flex flex-col justify-between overflow-hidden group ${radiusClass}`}
     >
-      <motion.div
-        style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-        className={`relative h-full bg-surface shadow-[0_18px_45px_-15px_rgba(15,23,42,0.12)] hover:shadow-[0_28px_60px_-15px_rgba(15,23,42,0.18)] transition-shadow duration-300 flex flex-col justify-between overflow-hidden group ${radiusClass}`}
-      >
         {/* Dynamic Cursor Spotlight Overlay */}
         <div
           aria-hidden="true"
@@ -152,7 +131,6 @@ const InteractiveSubjectCard: React.FC<{
             <ArrowLeft className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" />
           </Link>
         </div>
-      </motion.div>
     </motion.div>
   );
 };
