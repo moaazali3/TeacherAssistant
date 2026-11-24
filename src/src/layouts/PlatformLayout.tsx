@@ -54,8 +54,20 @@ export const PlatformLayout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo & Brand */}
           <Link to={platformPath('/')} className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xl shadow-xs">
-              <GraduationCap className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xl shadow-xs overflow-hidden">
+              <img
+                src="/logo.svg"
+                alt="المساعد التعليمي"
+                className="w-full h-full object-contain p-1"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = 'none';
+                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+              <div className="hidden w-full h-full items-center justify-center">
+                <GraduationCap className="w-6 h-6" />
+              </div>
             </div>
             <div className="text-start">
               <span className="text-lg font-black font-heading text-text-main tracking-tight block leading-tight">
@@ -88,6 +100,12 @@ export const PlatformLayout: React.FC = () => {
                   className="hover:text-primary transition-colors"
                 >
                   المظهر والهوية
+                </Link>
+                <Link
+                  to={platformPath('/dashboard/teacher/landing')}
+                  className="hover:text-primary transition-colors"
+                >
+                  تخصيص الصفحة الرئيسية
                 </Link>
               </>
             ) : (
@@ -170,6 +188,13 @@ export const PlatformLayout: React.FC = () => {
                       <Link to={platformPath('/dashboard/teacher/branding')} className="w-full">
                         <Palette className="w-4 h-4 text-primary" />
                         <span>المظهر والهوية</span>
+                      </Link>
+                    </DropdownItem>
+
+                    <DropdownItem asChild>
+                      <Link to={platformPath('/dashboard/teacher/landing')} className="w-full">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <span>تخصيص الصفحة الرئيسية</span>
                       </Link>
                     </DropdownItem>
 
@@ -276,6 +301,14 @@ export const PlatformLayout: React.FC = () => {
                   >
                     <Palette className="w-4 h-4 text-primary" />
                     <span>المظهر والهوية</span>
+                  </Link>
+                  <Link
+                    to={platformPath('/dashboard/teacher/landing')}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span>تخصيص الصفحة الرئيسية</span>
                   </Link>
                   {studentPlatformUrl && (
                     <a

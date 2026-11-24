@@ -472,18 +472,26 @@ one digit. Students get `403`.
 
 ---
 
-## 7. Tenant branding
+## 7. Tenant branding & Landing page
 
 | Method | Route | Auth |
 | --- | --- | --- |
 | GET | `/tenants/check-subdomain?name=demo` | anonymous (20 requests / 10 minutes per IP) |
 | GET | `/tenants/current` | anonymous |
 | PUT | `/tenants/current` | Instructor of the resolved tenant |
+| GET | `/tenants/current/landing` | anonymous (resolved tenant) |
+| PUT | `/tenants/current/landing` | Instructor of the resolved tenant |
+| POST | `/tenants/current/landing/reset` | Instructor of the resolved tenant |
 
 `PUT /tenants/current` only updates the tenant resolved from `X-Tenant`/the subdomain, and
 only when the `tenantId` claim in the caller's JWT matches that tenant. A teacher of tenant A
 calling it with tenant B gets `403` and tenant B is not modified. A missing tenant or a
 missing/mismatched tenant claim is also `403`.
+
+`PUT /tenants/current/landing` and `POST /tenants/current/landing/reset` enforce the same
+ownership check (JWT tenantId must match the resolved tenant, else `403`).
+Payload validation: max JSON size (~50KB), only known section types (`hero`, `about`, `stats`, `subjects`, `testimonials`, `faq`, `contact`, `footer`) and variants, valid hex colors, valid URLs (http/https), plain text sanitization (HTML/scripts stripped). Invalid requests return `400`.
+Reset restores the default Arabic landing page template.
 
 ---
 

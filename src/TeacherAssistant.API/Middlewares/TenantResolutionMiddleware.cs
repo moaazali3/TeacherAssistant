@@ -51,6 +51,13 @@ public class TenantResolutionMiddleware
         var tenant = await tenantRepository.GetBySubdomainAsync(subdomain, context.RequestAborted);
         if (tenant is null || !tenant.IsActive)
         {
+            // Allow non-API requests (e.g. SPA navigation) to fall through to the frontend router
+            if (!context.Request.Path.StartsWithSegments("/api"))
+            {
+                await _next(context);
+                return;
+            }
+
             _logger.LogWarning("Tenant resolution failed for '{Identifier}' (active: {Active}).",
                 subdomain, tenant?.IsActive);
 

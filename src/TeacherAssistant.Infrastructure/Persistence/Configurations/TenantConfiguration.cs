@@ -30,6 +30,8 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
         builder.Property(t => t.Bio)
             .HasMaxLength(1000);
 
+        builder.Property(t => t.LandingPageJson);
+
         builder.HasMany(t => t.Users)
             .WithOne(u => u.Tenant)
             .HasForeignKey(u => u.TenantId)

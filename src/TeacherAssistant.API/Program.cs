@@ -107,10 +107,10 @@ builder.Services.AddAuthentication(options =>
 
             if (tenantMismatch)
             {
-                // Branding updates run an explicit ownership check in the application
+                // Branding and landing updates run an explicit ownership check in the application
                 // service so a foreign instructor gets 403. Every other endpoint keeps
                 // the global 401 behaviour for a token used on another tenant.
-                if (IsBrandingUpdateRequest(context.HttpContext))
+                if (IsTenantManagementUpdateRequest(context.HttpContext))
                     return Task.CompletedTask;
 
                 context.Fail("This token does not belong to the requested tenant.");
@@ -210,11 +210,18 @@ if (builder.Configuration.GetValue<bool>("Database:AutoMigrate"))
     await scope.ServiceProvider.GetRequiredService<DatabaseSeeder>().SeedAsync();
 }
 
+// 9b. Rich demo data (4 extra tenants + students) — opt-in via Database:SeedRichData=true
+if (builder.Configuration.GetValue<bool>("Database:SeedRichData"))
+{
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<RichDemoDataSeeder>().SeedAsync();
+}
+
 // 10. Middlewares
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Scalar:Enabled"))
 {
     app.MapOpenApi();
     app.MapScalarApiReference(options =>
@@ -225,6 +232,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseCors("Frontend");
 
@@ -241,6 +251,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();
 
@@ -320,13 +331,22 @@ static string RateLimitMessage(PathString path)
     return "تم تجاوز عدد الطلبات المسموح بها. يرجى المحاولة مرة أخرى لاحقًا.";
 }
 
-static bool IsBrandingUpdateRequest(HttpContext context)
+static bool IsTenantManagementUpdateRequest(HttpContext context)
 {
-    if (!HttpMethods.IsPut(context.Request.Method))
-        return false;
-
     var path = context.Request.Path.Value?.TrimEnd('/');
-    return string.Equals(path, "/api/v1/tenants/current", StringComparison.OrdinalIgnoreCase);
+
+    if (HttpMethods.IsPut(context.Request.Method))
+    {
+        return string.Equals(path, "/api/v1/tenants/current", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(path, "/api/v1/tenants/current/landing", StringComparison.OrdinalIgnoreCase);
+    }
+
+    if (HttpMethods.IsPost(context.Request.Method))
+    {
+        return string.Equals(path, "/api/v1/tenants/current/landing/reset", StringComparison.OrdinalIgnoreCase);
+    }
+
+    return false;
 }
 
 public partial class Program;

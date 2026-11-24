@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Tajawal:wght@400;500;700;900&display=swap');
 @import './styles/tokens.css';
 
 @tailwind base;
@@ -9,6 +10,9 @@
     font-family: var(--font-family-base);
     background-color: var(--color-bg);
     color: var(--color-text-main);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
@@ -17,4 +21,37 @@
     padding: 0;
     overflow-x: hidden;
   }
+
+  ::selection {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-active);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

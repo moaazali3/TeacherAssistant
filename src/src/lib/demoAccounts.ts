@@ -14,10 +14,34 @@ export interface DemoAccount {
 export const TEACHER_DEMO_ACCOUNTS: DemoAccount[] = import.meta.env.DEV
   ? [
       {
-        label: 'معلم تجريبي (أ. أحمد محمد)',
+        label: 'معلم كيمياء (أ. أحمد محمد - demo)',
         email: 'teacher@demo.local',
         password: 'Demo@12345',
-        roleHint: 'معلم - مالك المنصة',
+        roleHint: 'كيمياء',
+      },
+      {
+        label: 'معلم رياضيات (أ. محمد حسن - maths)',
+        email: 'teacher@maths.local',
+        password: 'Demo@12345',
+        roleHint: 'رياضيات',
+      },
+      {
+        label: 'معلم فيزياء (أ. سارة إبراهيم - physics)',
+        email: 'teacher@physics.local',
+        password: 'Demo@12345',
+        roleHint: 'فيزياء',
+      },
+      {
+        label: 'معلم عربي (أ. نور علي - arabic)',
+        email: 'teacher@arabic.local',
+        password: 'Demo@12345',
+        roleHint: 'لغة عربية',
+      },
+      {
+        label: 'معلم أحياء (أ. كريم منصور - bio)',
+        email: 'teacher@bio.local',
+        password: 'Demo@12345',
+        roleHint: 'أحياء',
       },
     ]
   : [];

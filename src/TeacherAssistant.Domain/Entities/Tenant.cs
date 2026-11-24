@@ -12,6 +12,7 @@ public class Tenant : BaseEntity
     public string? LogoUrl { get; set; }
     public string? PrimaryColor { get; set; }
     public string? Bio { get; set; }
+    public string? LandingPageJson { get; set; }
     public bool IsActive { get; set; } = true;
 
     public ICollection<User> Users { get; set; } = new List<User>();

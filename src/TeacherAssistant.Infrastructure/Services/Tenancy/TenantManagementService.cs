@@ -124,6 +124,115 @@ public class TenantManagementService : ITenantManagementService
         return ServiceResult<TenantBrandingDto>.Ok(Map(tenant), "Branding updated successfully.");
     }
 
+    public Task<ApiResponse<LandingPageDto>> GetLandingPageAsync(CancellationToken cancellationToken = default)
+    {
+        var tenant = _tenantService.Tenant;
+        if (tenant is null)
+        {
+            return Task.FromResult(ApiResponse<LandingPageDto>.FailureResponse(
+                "No tenant was resolved for this request."));
+        }
+
+        if (!string.IsNullOrWhiteSpace(tenant.LandingPageJson))
+        {
+            try
+            {
+                var options = new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var dto = System.Text.Json.JsonSerializer.Deserialize<LandingPageDto>(tenant.LandingPageJson, options);
+                if (dto != null && dto.Sections != null && dto.Sections.Count > 0)
+                {
+                    if (tenant.PrimaryColor is not null && dto.Theme != null)
+                    {
+                        dto.Theme.PrimaryColor = tenant.PrimaryColor;
+                    }
+                    return Task.FromResult(ApiResponse<LandingPageDto>.SuccessResponse(dto));
+                }
+            }
+            catch
+            {
+                // Fallback to default if stored JSON is corrupted
+            }
+        }
+
+        var defaultDto = LandingPageRules.CreateDefault(tenant.Name, tenant.Bio, tenant.PrimaryColor, tenant.LogoUrl);
+        return Task.FromResult(ApiResponse<LandingPageDto>.SuccessResponse(defaultDto));
+    }
+
+    public async Task<ServiceResult<LandingPageDto>> UpdateLandingPageAsync(
+        LandingPageDto request,
+        CancellationToken cancellationToken = default)
+    {
+        if (_tenantService.TenantId is not { } tenantId)
+        {
+            return ServiceResult<LandingPageDto>.Forbidden(
+                "No tenant was resolved for this request.");
+        }
+
+        if (_currentUserService.TenantId is not { } callerTenantId || callerTenantId != tenantId)
+        {
+            return ServiceResult<LandingPageDto>.Forbidden(
+                "You can only update the landing page of your own tenant.");
+        }
+
+        var errors = LandingPageRules.ValidateAndSanitize(request);
+        if (errors.Count > 0)
+        {
+            return ServiceResult<LandingPageDto>.BadRequest("Validation failed.", errors);
+        }
+
+        var tenant = await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
+        if (tenant is null)
+        {
+            return ServiceResult<LandingPageDto>.NotFound("Tenant not found.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Theme?.PrimaryColor))
+        {
+            tenant.PrimaryColor = request.Theme.PrimaryColor.Trim();
+        }
+
+        var options = new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        };
+        tenant.LandingPageJson = System.Text.Json.JsonSerializer.Serialize(request, options);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return ServiceResult<LandingPageDto>.Ok(request, "Landing page updated successfully.");
+    }
+
+    public async Task<ServiceResult<LandingPageDto>> ResetLandingPageAsync(CancellationToken cancellationToken = default)
+    {
+        if (_tenantService.TenantId is not { } tenantId)
+        {
+            return ServiceResult<LandingPageDto>.Forbidden(
+                "No tenant was resolved for this request.");
+        }
+
+        if (_currentUserService.TenantId is not { } callerTenantId || callerTenantId != tenantId)
+        {
+            return ServiceResult<LandingPageDto>.Forbidden(
+                "You can only update the landing page of your own tenant.");
+        }
+
+        var tenant = await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
+        if (tenant is null)
+        {
+            return ServiceResult<LandingPageDto>.NotFound("Tenant not found.");
+        }
+
+        tenant.LandingPageJson = null;
+        await _context.SaveChangesAsync(cancellationToken);
+
+        var defaultDto = LandingPageRules.CreateDefault(tenant.Name, tenant.Bio, tenant.PrimaryColor, tenant.LogoUrl);
+        return ServiceResult<LandingPageDto>.Ok(defaultDto, "Landing page reset to defaults successfully.");
+    }
+
     private static TenantBrandingDto Map(Tenant tenant) => new()
     {
         Id = tenant.Id,

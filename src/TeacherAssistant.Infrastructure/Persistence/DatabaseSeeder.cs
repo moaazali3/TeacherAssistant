@@ -95,6 +95,24 @@ public class DatabaseSeeder
             await _context.SaveChangesAsync(cancellationToken);
         }
 
+        // Seed Landing Page for Demo Tenant if empty
+        if (string.IsNullOrWhiteSpace(demoTenant.LandingPageJson))
+        {
+            var landingDto = LandingPageRules.CreateDefault(
+                demoTenant.Name,
+                demoTenant.Bio,
+                demoTenant.PrimaryColor,
+                demoTenant.LogoUrl);
+            demoTenant.LandingPageJson = System.Text.Json.JsonSerializer.Serialize(
+                landingDto,
+                new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                    WriteIndented = false
+                });
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         // 3. Seed Demo Teacher
         var teacherEmail = NormalizeEmail(_settings.DemoTeacherEmail);
         var teacher = await _context.Users

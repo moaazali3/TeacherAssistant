@@ -10,6 +10,8 @@
 .env.*.local
 !.env.example
 !.env.*.example
+appsettings.Production.json
+appsettings.*.local.json
 
 # User-specific files
 *.rsuser
@@ -191,6 +193,7 @@ DocProject/Help/html
 
 # Click-Once directory
 publish/
+publish-backend/
 
 # Publish Web Output
 *.[Pp]ublish.xml

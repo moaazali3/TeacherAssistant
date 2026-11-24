@@ -415,6 +415,9 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<string>("LandingPageJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");

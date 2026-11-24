@@ -52,6 +52,7 @@ public static class DependencyInjection
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<ITenantManagementService, TenantManagementService>();
         services.AddScoped<DatabaseSeeder>();
+        services.AddScoped<RichDemoDataSeeder>();
         services.AddScoped<ISubjectService, SubjectService>();
         services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<IStudentService, StudentService>();

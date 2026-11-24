@@ -15,6 +15,11 @@ export default {
           subtle: 'var(--color-primary-subtle)',
           foreground: 'var(--color-primary-foreground)',
         },
+        secondary: {
+          DEFAULT: 'var(--color-secondary)',
+          hover: 'var(--color-secondary-hover)',
+          foreground: 'var(--color-secondary-foreground)',
+        },
         bg: 'var(--color-bg)',
         surface: {
           DEFAULT: 'var(--color-surface)',

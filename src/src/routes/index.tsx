@@ -31,6 +31,9 @@ const TeacherDashboardPage = lazy(() =>
 const BrandingSettingsPage = lazy(() =>
   import('@/features/tenant/pages/BrandingSettingsPage').then((m) => ({ default: m.BrandingSettingsPage }))
 );
+const LandingEditorPage = lazy(() =>
+  import('@/features/landing/pages/LandingEditorPage').then((m) => ({ default: m.LandingEditorPage }))
+);
 const TeacherSubjectsPage = lazy(() =>
   import('@/features/subjects/pages/TeacherSubjectsPage').then((m) => ({ default: m.TeacherSubjectsPage }))
 );
@@ -140,6 +143,14 @@ export const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute requiredRole="Instructor">
             <BrandingSettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="dashboard/teacher/landing"
+        element={
+          <ProtectedRoute requiredRole="Instructor">
+            <LandingEditorPage />
           </ProtectedRoute>
         }
       />

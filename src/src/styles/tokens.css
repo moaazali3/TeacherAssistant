@@ -22,6 +22,9 @@
   --color-primary-light: #CCFBF1;           /* Teal 100 - Subtle badges, highlights */
   --color-primary-subtle: #F0FDFA;          /* Teal 50 - Tinted backgrounds */
   --color-primary-foreground: #FFFFFF;      /* Text on primary buttons */
+  --color-secondary: #0D9488;               /* Teal 600 - Secondary theme color */
+  --color-secondary-hover: #0F766E;         /* Secondary hover */
+  --color-secondary-foreground: #FFFFFF;    /* Text on secondary */
 
   /* ----------------------------------------------------------------------------
    * SURFACE & BACKGROUND COLORS

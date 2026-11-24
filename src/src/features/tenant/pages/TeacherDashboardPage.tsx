@@ -25,6 +25,7 @@ import {
   Video,
   ArrowLeft,
   Globe,
+  Sparkles,
 } from 'lucide-react';
 
 export const TeacherDashboardPage: React.FC = () => {
@@ -91,6 +92,11 @@ export const TeacherDashboardPage: React.FC = () => {
           <Link to={platformPath('/dashboard/teacher/subjects')}>
             <Button variant="outline" size="sm" startIcon={<BookOpen className="w-4 h-4" />}>
               المواد الدراسية ({subjects.length})
+            </Button>
+          </Link>
+          <Link to={platformPath('/dashboard/teacher/landing')}>
+            <Button variant="outline" size="sm" className="font-bold text-primary border-primary/30 bg-primary-subtle/50 hover:bg-primary-subtle" startIcon={<Sparkles className="w-4 h-4 text-primary" />}>
+              تخصيص الصفحة الرئيسية
             </Button>
           </Link>
           <Link to={platformPath('/dashboard/teacher/branding')}>
@@ -210,6 +216,26 @@ export const TeacherDashboardPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Landing Page Customizer Banner */}
+        <div className="bg-gradient-to-l from-primary-subtle via-surface to-surface border border-primary/20 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="p-1 rounded-md bg-primary-light text-primary">
+                <Sparkles className="w-4 h-4" />
+              </span>
+              <h4 className="font-bold text-text-main text-base">تخصيص الصفحة الرئيسية (Landing Page)</h4>
+            </div>
+            <p className="text-xs sm:text-sm text-text-muted max-w-2xl leading-relaxed">
+              تحكّم في الصفحة الأولى التي يراها زوارك وطلابك: اختر الألوان والخطوط، ورتّب الأقسام، واكتب نبذة عنك وعن مناهجك مع معاينة حية ومباشرة.
+            </p>
+          </div>
+          <Link to={platformPath('/dashboard/teacher/landing')} className="shrink-0">
+            <Button variant="primary" size="sm" className="font-bold" endIcon={<ArrowLeft className="w-4 h-4 rtl:rotate-0" />}>
+              تخصيص الصفحة الآن
+            </Button>
+          </Link>
         </div>
 
         {/* Subjects Section */}

@@ -49,4 +49,33 @@ public class TenantsController : BaseApiController
         var result = await _tenantService.UpdateCurrentAsync(request, cancellationToken);
         return StatusCode(result.StatusCode, result.Response);
     }
+
+    /// <summary>Public landing page configuration for the resolved tenant.</summary>
+    [HttpGet("current/landing")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<LandingPageDto>>> GetLandingPage(CancellationToken cancellationToken)
+    {
+        var response = await _tenantService.GetLandingPageAsync(cancellationToken);
+        return response.Success ? Ok(response) : NotFound(response);
+    }
+
+    /// <summary>Updates the landing page of the resolved tenant. Instructors only.</summary>
+    [HttpPut("current/landing")]
+    [Authorize(Policy = AuthorizationPolicies.InstructorOnly)]
+    public async Task<ActionResult<ApiResponse<LandingPageDto>>> UpdateLandingPage(
+        [FromBody] LandingPageDto request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _tenantService.UpdateLandingPageAsync(request, cancellationToken);
+        return StatusCode(result.StatusCode, result.Response);
+    }
+
+    /// <summary>Resets the landing page of the resolved tenant to default template. Instructors only.</summary>
+    [HttpPost("current/landing/reset")]
+    [Authorize(Policy = AuthorizationPolicies.InstructorOnly)]
+    public async Task<ActionResult<ApiResponse<LandingPageDto>>> ResetLandingPage(CancellationToken cancellationToken)
+    {
+        var result = await _tenantService.ResetLandingPageAsync(cancellationToken);
+        return StatusCode(result.StatusCode, result.Response);
+    }
 }

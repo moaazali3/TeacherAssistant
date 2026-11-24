@@ -5,6 +5,11 @@ node_modules/
 # Production build output
 dist/
 dist-ssr/
+publish/
+
+# Production configurations with secrets
+appsettings.Production.json
+appsettings.*.local.json
 
 # .NET Build artifacts
 [Bb]in/
