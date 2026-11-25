@@ -148,18 +148,16 @@ export const TeacherLoginPage: React.FC = () => {
           </Card>
         </form>
 
-        {/* Demo Accounts Helper Box (Visible strictly in Development) */}
-        {import.meta.env.DEV && (
-          <div className="mt-4">
-            <DemoAccountsBox
-              accounts={TEACHER_DEMO_ACCOUNTS}
-              onSelectAccount={(acc) => {
-                setValue('email', acc.email, { shouldValidate: true, shouldDirty: true });
-                setValue('password', acc.password, { shouldValidate: true, shouldDirty: true });
-              }}
-            />
-          </div>
-        )}
+        {/* Quick Teacher Demo Accounts Box */}
+        <div className="mt-4">
+          <DemoAccountsBox
+            accounts={TEACHER_DEMO_ACCOUNTS}
+            onSelectAccount={(acc) => {
+              setValue('email', acc.email, { shouldValidate: true, shouldDirty: true });
+              setValue('password', acc.password, { shouldValidate: true, shouldDirty: true });
+            }}
+          />
+        </div>
       </div>
     </div>
   );

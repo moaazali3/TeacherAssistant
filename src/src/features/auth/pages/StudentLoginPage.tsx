@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { getApiErrorMessage, applyServerValidationErrors, useRateLimitCooldown } from '@/lib/api';
 import { DemoAccountsBox } from '@/components/ui/DemoAccountsBox';
-import { STUDENT_DEMO_ACCOUNTS } from '@/lib/demoAccounts';
+import { getStudentDemoAccounts } from '@/lib/demoAccounts';
 import { Mail, Lock, LogIn, Clock } from 'lucide-react';
 
 export const StudentLoginPage: React.FC = () => {
@@ -24,6 +24,7 @@ export const StudentLoginPage: React.FC = () => {
   const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isCoolingDown, countdown, startCooldown } = useRateLimitCooldown(30);
+  const studentDemoAccounts = getStudentDemoAccounts(tenant?.subdomain);
 
   const {
     register,
@@ -151,11 +152,11 @@ export const StudentLoginPage: React.FC = () => {
           </Card>
         </form>
 
-        {/* Demo Accounts Helper Box (Visible strictly in Development) */}
-        {import.meta.env.DEV && (
+        {/* Quick Student Demo Accounts Box (Tenant-Aware) */}
+        {studentDemoAccounts.length > 0 && (
           <div className="mt-4">
             <DemoAccountsBox
-              accounts={STUDENT_DEMO_ACCOUNTS}
+              accounts={studentDemoAccounts}
               onSelectAccount={(acc) => {
                 setValue('email', acc.email, { shouldValidate: true, shouldDirty: true });
                 setValue('password', acc.password, { shouldValidate: true, shouldDirty: true });

@@ -5,20 +5,21 @@ import { FlaskConical, ChevronDown, ChevronUp, UserCheck, ArrowLeft } from 'luci
 interface DemoAccountsBoxProps {
   accounts: DemoAccount[];
   onSelectAccount: (account: DemoAccount) => void;
+  defaultOpen?: boolean;
   className?: string;
 }
 
 export const DemoAccountsBox: React.FC<DemoAccountsBoxProps> = ({
   accounts,
   onSelectAccount,
+  defaultOpen = true,
   className = '',
 }) => {
-  // Only render in development mode
-  if (!import.meta.env.DEV || accounts.length === 0) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  if (accounts.length === 0) {
     return null;
   }
-
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div
@@ -33,7 +34,7 @@ export const DemoAccountsBox: React.FC<DemoAccountsBoxProps> = ({
       >
         <div className="flex items-center gap-2">
           <FlaskConical className="w-3.5 h-3.5 text-primary shrink-0" />
-          <span>حسابات تجريبية (بيئة التطوير)</span>
+          <span>حسابات تجريبية سريعة</span>
           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
             {accounts.length}
           </span>
@@ -74,6 +75,11 @@ export const DemoAccountsBox: React.FC<DemoAccountsBoxProps> = ({
                       {acc.roleHint && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-subtle text-text-muted border border-border font-medium">
                           {acc.roleHint}
+                        </span>
+                      )}
+                      {acc.groupCode && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary-subtle text-primary border border-primary/20 font-bold">
+                          {acc.groupCode}
                         </span>
                       )}
                     </div>

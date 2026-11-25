@@ -160,7 +160,19 @@ npm run dev
 ويمكنك الدخول إلى **محرر صفحة الهبوط** من لوحة المعلم عبر الرابط:
 `/dashboard/teacher/landing` (محلياً: `http://localhost:5173/dashboard/teacher/landing` أو أونلاين: `http://tarabeza.runasp.net/dashboard/teacher/landing`).
 
-#### بقية الحسابات التجريبية (الطلاب ومدير المنصة)
+#### حسابات التجربة السريعة للطلاب (كلمة المرور لجميع الطلاب: `Demo@12345`)
+
+يمكن تسجيل الدخول كطالب عبر صفحة `/login` الخاصة بكل منصة (محلياً مثل `http://demo.localhost:5173/login` أو أونلاين مثل `http://tarabeza.runasp.net/t/demo/login`):
+
+| المنصة | الطالب 1 | الطالب 2 | الطالب 3 |
+| :--- | :--- | :--- | :--- |
+| **`demo` (الكيمياء)** | `student1@demo.local` (`SAT5CHEM`) | `student2@demo.local` (`MND7CHEM`) | `student3@demo.local` (`SAT5CHEM`) |
+| **`maths` (الرياضيات)** | `student1@maths.local` (`SUN8MATH`) | `student2@maths.local` (`TUE6MATH`) | `student3@maths.local` (`SUN8MATH`) |
+| **`physics` (الفيزياء)** | `student1@physics.local` (`FRI10PHY`) | `student2@physics.local` (`SAT3PHY`) | `student3@physics.local` (`FRI10PHY`) |
+| **`arabic` (العربية)** | `student1@arabic.local` (`MON5ARB`) | `student2@arabic.local` (`WED8ARB`) | `student3@arabic.local` (`MON5ARB`) |
+| **`bio` (الأحياء)** | `student1@bio.local` (`MON8BIO`) | `student2@bio.local` (`WED5BIO`) | `student3@bio.local` (`MON8BIO`) |
+
+#### بقية الحسابات التجريبية (تفاصيل `demo` ومدير المنصة)
 
 عند تشغيل الباك إند في بيئة التطوير (`Development`) يتم إنشاء الحسابات التجريبية التالية تلقائياً:
 
@@ -172,7 +184,7 @@ npm run dev
 | **طالب 3 (عمر خالد)** | Student | `student3@demo.local` | `Demo@12345` | منصة المعلم (`/t/demo/login` أو `http://demo.localhost:5173/login`) | مسجل في جروب السبت `SAT5CHEM` |
 | **مدير المنصة** | Admin | `admin@platform.local` | `Admin@12345` | موقع المنصة (`http://localhost:5173/teacher/login`) | حساب الإدارة العامة للنظام |
 
-> 💡 **ميزة التعبئة التلقائية السريعة**: في كلا صفحتي تسجيل الدخول بالفرونت إند، يوجد صندوق **«حسابات تجريبية»** يظهر فقط أثناء التطوير؛ بنقرة واحدة يتم ملء البريد وكلمة المرور مباشرة لاختبار الحساب بسرعة.
+> 💡 **ميزة التعبئة التلقائية السريعة**: في كلا صفحتي تسجيل الدخول للمعلم والطالب، يظهر صندوق **«حسابات تجريبية سريعة»** متوافق مع المنصة الحالية؛ بنقرة واحدة يتم ملء البريد وكلمة المرور مباشرة لاختبار الحساب بسرعة.
 
 ---
 
