@@ -11,7 +11,6 @@ import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SubjectCard } from '@/features/subjects/components/SubjectCard';
 import { SkeletonCard } from '@/components/ui/Skeleton';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { getApiErrorMessage } from '@/lib/api';
 import {
   Plus,
@@ -29,6 +28,14 @@ import {
   Users,
   UserCog,
 } from 'lucide-react';
+
+interface QuickNavItem {
+  to: string;
+  title: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  iconBgClass: string;
+}
 
 export const TeacherDashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -54,6 +61,44 @@ export const TeacherDashboardPage: React.FC = () => {
     }
   };
 
+  const quickNavItems: QuickNavItem[] = [
+    {
+      to: platformPath('/dashboard/teacher/subjects'),
+      title: 'المواد الدراسية',
+      subtitle: `${subjects.length} مادة مسجلة`,
+      icon: <BookOpen className="w-5 h-5" />,
+      iconBgClass: 'bg-primary-light text-primary',
+    },
+    {
+      to: platformPath('/dashboard/teacher/students'),
+      title: 'متابعة الطلاب',
+      subtitle: 'التقدم والدرجات والحضور',
+      icon: <Users className="w-5 h-5" />,
+      iconBgClass: 'bg-info-bg text-info',
+    },
+    {
+      to: platformPath('/dashboard/teacher/assistants'),
+      title: 'فريق المساعدين',
+      subtitle: 'إدارة الصلاحيات والمساعدين',
+      icon: <UserCog className="w-5 h-5" />,
+      iconBgClass: 'bg-success-bg text-success',
+    },
+    {
+      to: platformPath('/dashboard/teacher/landing'),
+      title: 'الصفحة الرئيسية',
+      subtitle: 'القوالب والأقسام والمعاينة',
+      icon: <Sparkles className="w-5 h-5" />,
+      iconBgClass: 'bg-primary-subtle text-primary',
+    },
+    {
+      to: platformPath('/dashboard/teacher/branding'),
+      title: 'المظهر والهوية',
+      subtitle: 'الشعار والألوان والنبذة',
+      icon: <Palette className="w-5 h-5" />,
+      iconBgClass: 'bg-warning-bg text-warning',
+    },
+  ];
+
   return (
     <PageLayout
       title={`مرحباً بك، أستاذ ${user?.name || ''}`}
@@ -61,8 +106,15 @@ export const TeacherDashboardPage: React.FC = () => {
       isLoading={isLoading}
       skeleton={
         <div className="space-y-6">
-          <div className="h-20 bg-surface-hover rounded-2xl animate-pulse" />
+          <div className="h-14 bg-surface-hover rounded-xl animate-pulse" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="h-28 bg-surface-hover rounded-2xl animate-pulse" />
+            <div className="h-28 bg-surface-hover rounded-2xl animate-pulse" />
+            <div className="h-28 bg-surface-hover rounded-2xl animate-pulse" />
+            <div className="h-28 bg-surface-hover rounded-2xl animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="h-28 bg-surface-hover rounded-2xl animate-pulse" />
             <div className="h-28 bg-surface-hover rounded-2xl animate-pulse" />
             <div className="h-28 bg-surface-hover rounded-2xl animate-pulse" />
             <div className="h-28 bg-surface-hover rounded-2xl animate-pulse" />
@@ -77,85 +129,48 @@ export const TeacherDashboardPage: React.FC = () => {
       }
       error={error ? getApiErrorMessage(error) : null}
       onRetry={refetch}
-      breadcrumbs={
-        <Breadcrumbs
-          items={[
-            { label: 'لوحة التحكم' },
-          ]}
-        />
-      }
       actions={
-        <div className="flex flex-wrap items-center gap-2.5">
+        <>
+          {tenantFullUrl && (
+            <a href={tenantFullUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm" endIcon={<ExternalLink className="w-3.5 h-3.5" />}>
+                زيارة المنصة
+              </Button>
+            </a>
+          )}
           <Link to={platformPath('/dashboard/teacher/subjects/new')}>
             <Button variant="primary" size="sm" className="font-bold" startIcon={<Plus className="w-4 h-4" />}>
               إضافة مادة جديدة
             </Button>
           </Link>
-          <Link to={platformPath('/dashboard/teacher/subjects')}>
-            <Button variant="outline" size="sm" startIcon={<BookOpen className="w-4 h-4" />}>
-              المواد الدراسية ({subjects.length})
-            </Button>
-          </Link>
-          <Link to={platformPath('/dashboard/teacher/students')}>
-            <Button variant="outline" size="sm" startIcon={<Users className="w-4 h-4" />}>
-              متابعة الطلاب
-            </Button>
-          </Link>
-          <Link to={platformPath('/dashboard/teacher/assistants')}>
-            <Button variant="outline" size="sm" startIcon={<UserCog className="w-4 h-4" />}>
-              فريق المساعدين
-            </Button>
-          </Link>
-          <Link to={platformPath('/dashboard/teacher/landing')}>
-            <Button variant="outline" size="sm" className="font-bold text-primary border-primary/30 bg-primary-subtle/50 hover:bg-primary-subtle" startIcon={<Sparkles className="w-4 h-4 text-primary" />}>
-              تخصيص الصفحة الرئيسية
-            </Button>
-          </Link>
-          <Link to={platformPath('/dashboard/teacher/branding')}>
-            <Button variant="ghost" size="sm" className="text-text-muted hover:text-text-main" startIcon={<Palette className="w-4 h-4" />}>
-              المظهر والهوية
-            </Button>
-          </Link>
-          {tenantFullUrl && (
-            <a href={tenantFullUrl} target="_blank" rel="noopener noreferrer">
-              <Button variant="secondary" size="sm" endIcon={<ExternalLink className="w-3.5 h-3.5" />}>
-                موقع الطلاب
-              </Button>
-            </a>
-          )}
-        </div>
+        </>
       }
     >
       <div className="space-y-8 text-start">
-        {/* Student Platform Link Banner */}
+        {/* Slim Platform Link Bar */}
         {tenantFullUrl && (
-          <div className="bg-surface border border-primary/20 rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center shrink-0">
-                <Globe className="w-5 h-5" />
+          <div className="bg-surface border border-border rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-lg bg-primary-light text-primary flex items-center justify-center shrink-0">
+                <Globe className="w-4 h-4" />
               </div>
-              <div>
-                <p className="text-sm font-bold text-text-main">رابط منصتك التعليمية للطلاب</p>
-                <p className="text-xs text-text-muted font-mono mt-0.5">{tenantFullUrl}</p>
+              <div className="min-w-0 flex flex-col sm:flex-row sm:items-center sm:gap-2.5">
+                <span className="text-xs font-bold text-text-main shrink-0">رابط منصتك للطلاب:</span>
+                <span className="text-xs text-text-muted font-mono truncate" dir="ltr">
+                  {tenantFullUrl}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
-                variant={copiedLink ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={handleCopyTenantLink}
-                startIcon={copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
-                className="font-bold text-xs"
-              >
-                {copiedLink ? 'تم نسخ الرابط!' : 'نسخ الرابط للطلاب'}
-              </Button>
-              <a href={tenantFullUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="primary" size="sm" className="text-xs font-bold" endIcon={<ExternalLink className="w-3.5 h-3.5" />}>
-                  زيارة المنصة
-                </Button>
-              </a>
-            </div>
+            <Button
+              variant={copiedLink ? 'secondary' : 'outline'}
+              size="sm"
+              onClick={handleCopyTenantLink}
+              startIcon={copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
+              className="font-bold text-xs shrink-0 self-start sm:self-auto"
+            >
+              {copiedLink ? 'تم النسخ!' : 'نسخ الرابط'}
+            </Button>
           </div>
         )}
 
@@ -230,25 +245,32 @@ export const TeacherDashboardPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Landing Page Customizer Banner */}
-        <div className="bg-gradient-to-l from-primary-subtle via-surface to-surface border border-primary/20 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="p-1 rounded-md bg-primary-light text-primary">
-                <Sparkles className="w-4 h-4" />
-              </span>
-              <h4 className="font-bold text-text-main text-base">تخصيص الصفحة الرئيسية (Landing Page)</h4>
-            </div>
-            <p className="text-xs sm:text-sm text-text-muted max-w-2xl leading-relaxed">
-              تحكّم في الصفحة الأولى التي يراها زوارك وطلابك: اختر الألوان والخطوط، ورتّب الأقسام، واكتب نبذة عنك وعن مناهجك مع معاينة حية ومباشرة.
-            </p>
+        {/* Quick Management & Customization Navigation */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-bold text-text-muted">أدوات الإدارة والتخصيص</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {quickNavItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="group bg-surface border border-border rounded-2xl p-4 hover:border-primary/40 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 flex flex-col justify-between gap-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.iconBgClass}`}>
+                    {item.icon}
+                  </div>
+                  <ArrowLeft className="w-4 h-4 text-text-subtle group-hover:text-primary group-hover:-translate-x-0.5 transition-all rtl:rotate-0" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-text-main group-hover:text-primary transition-colors">
+                    {item.title}
+                  </p>
+                  <p className="text-xs text-text-muted mt-0.5 line-clamp-1">{item.subtitle}</p>
+                </div>
+              </Link>
+            ))}
           </div>
-          <Link to={platformPath('/dashboard/teacher/landing')} className="shrink-0">
-            <Button variant="primary" size="sm" className="font-bold" endIcon={<ArrowLeft className="w-4 h-4 rtl:rotate-0" />}>
-              تخصيص الصفحة الآن
-            </Button>
-          </Link>
-        </div>
+        </section>
 
         {/* Subjects Section */}
         <div className="space-y-4">

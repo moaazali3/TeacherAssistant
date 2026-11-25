@@ -37,7 +37,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
       {/* Header section */}
       {(title || actions) && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border mb-6">
-          <div className="text-start">
+          <div className="text-start min-w-0">
             {title && (
               <h1 className="text-2xl sm:text-3xl font-extrabold text-text-main font-heading tracking-tight">
                 {title}
@@ -49,7 +49,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
               </p>
             )}
           </div>
-          {actions && <div className="flex items-center gap-3 shrink-0">{actions}</div>}
+          {actions && <div className="flex flex-wrap items-center gap-2.5 shrink-0">{actions}</div>}
         </div>
       )}
 
