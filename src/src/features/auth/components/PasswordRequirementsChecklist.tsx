@@ -17,7 +17,7 @@ export const PasswordRequirementsChecklist: React.FC<PasswordRequirementsCheckli
   const rules: PasswordRule[] = [
     {
       id: 'length',
-      label: 'من 8 إلى 100 حرف',
+      label: 'على الأقل 8 أحرف',
       met: password.length >= 8 && password.length <= 100,
     },
     {
