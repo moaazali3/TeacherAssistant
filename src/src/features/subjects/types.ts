@@ -17,6 +17,8 @@ export interface LessonSummary {
   contentType: ContentType | number;
   sortOrder: number;
   isPublished: boolean;
+  price?: number;
+  isPurchased?: boolean;
   moduleTitle?: string | null;
   availableAt?: string | null;
   requiresPreviousCompletion?: boolean;
@@ -50,6 +52,8 @@ export interface LessonDetail {
   contentUrl: string;
   sortOrder: number;
   isPublished: boolean;
+  price?: number;
+  isPurchased?: boolean;
   moduleTitle?: string | null;
   availableAt?: string | null;
   requiresPreviousCompletion?: boolean;
@@ -78,6 +82,8 @@ export interface CreateLessonDto {
   contentType: ContentType | number;
   contentUrl: string;
   isPublished: boolean;
+  price?: number;
+  isPurchased?: boolean;
   moduleTitle?: string | null;
   availableAt?: string | null;
   requiresPreviousCompletion?: boolean;
@@ -90,6 +96,8 @@ export interface UpdateLessonDto {
   contentType: ContentType | number;
   contentUrl: string;
   isPublished: boolean;
+  price?: number;
+  isPurchased?: boolean;
   moduleTitle?: string | null;
   availableAt?: string | null;
   requiresPreviousCompletion?: boolean;

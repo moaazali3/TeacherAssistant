@@ -139,6 +139,11 @@ export const LessonItem: React.FC<LessonItemProps> = ({
             <Badge variant={lesson.isPublished ? 'success' : 'warning'} size="sm">
               {lesson.isPublished ? 'منشور' : 'مسودة'}
             </Badge>
+            {lesson.price !== undefined && lesson.price > 0 && (
+              <Badge variant="info" size="sm">
+                {lesson.price} ج.م
+              </Badge>
+            )}
             {lesson.moduleTitle && (
               <Badge variant="primary" size="sm" className="gap-1">
                 <FolderOpen className="w-3 h-3" />

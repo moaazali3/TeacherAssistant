@@ -28,6 +28,10 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
             .IsRequired()
             .HasDefaultValue(false);
 
+        builder.Property(l => l.Price)
+            .HasPrecision(18, 2)
+            .HasDefaultValue(0m);
+
         builder.Property(l => l.ModuleTitle)
             .HasMaxLength(150);
 

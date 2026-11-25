@@ -49,6 +49,7 @@ export const LessonModal: React.FC<LessonModalProps> = ({
       contentType: 'Video',
       contentUrl: '',
       isPublished: true,
+      price: 0,
       moduleTitle: '',
       availableAt: '',
       requiresPreviousCompletion: false,
@@ -68,6 +69,7 @@ export const LessonModal: React.FC<LessonModalProps> = ({
           contentType: normalizeContentType(initialData.contentType),
           contentUrl: 'contentUrl' in initialData ? (initialData as LessonDetail).contentUrl : '',
           isPublished: initialData.isPublished ?? true,
+          price: initialData.price ?? 0,
           moduleTitle: initialData.moduleTitle || '',
           availableAt: toLocalDateTimeInput(initialData.availableAt),
           requiresPreviousCompletion: initialData.requiresPreviousCompletion ?? false,
@@ -80,6 +82,7 @@ export const LessonModal: React.FC<LessonModalProps> = ({
           contentType: 'Video',
           contentUrl: '',
           isPublished: true,
+          price: 0,
           moduleTitle: '',
           availableAt: '',
           requiresPreviousCompletion: false,
@@ -241,6 +244,17 @@ export const LessonModal: React.FC<LessonModalProps> = ({
           startAdornment={<Paperclip className="w-4 h-4 text-text-subtle" />}
           error={errors.attachmentUrl?.message}
           {...register('attachmentUrl')}
+        />
+
+        <Input
+          label="سعر المحاضرة (ج.م — اتركه 0 للمجاني)"
+          type="number"
+          min={0}
+          step="1"
+          dir="ltr"
+          error={errors.price?.message}
+          helperText="إذا كان أكبر من 0، سيظهر للطالب خيار الشراء بفوري أو المحافظ أو البطاقة البنكية."
+          {...register('price')}
         />
 
         {/* Published & Sequential Lock Toggles */}

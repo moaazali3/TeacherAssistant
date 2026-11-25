@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -237,6 +238,14 @@ app.UseHttpsRedirection();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+var storagePath = Path.Combine(app.Environment.ContentRootPath, "storage");
+Directory.CreateDirectory(storagePath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(storagePath),
+    RequestPath = "/storage"
+});
 
 app.UseCors("Frontend");
 

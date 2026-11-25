@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { subjectSchema, SubjectFormData } from '../schemas';
 import { SubjectDetail, SubjectSummary } from '../types';
 import { Input } from '@/components/ui/Input';
+import { ImageUploadField } from '@/components/ui/ImageUploadField';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
 import { applyServerValidationErrors } from '@/lib/api';
@@ -27,6 +28,7 @@ export const SubjectForm: React.FC<SubjectFormProps> = ({
     register,
     handleSubmit,
     watch,
+    setValue,
     setError,
     formState: { errors, isDirty },
   } = useForm<SubjectFormData>({
@@ -89,43 +91,17 @@ export const SubjectForm: React.FC<SubjectFormProps> = ({
             )}
           </div>
 
-          {/* Thumbnail URL with Live Preview */}
-          <div className="space-y-3">
-            <Input
-              label="رابط الصورة المصغرة (Thumbnail URL)"
-              type="url"
-              placeholder="https://example.com/subject-cover.jpg"
-              error={errors.thumbnailUrl?.message}
-              helperText="رابط صورة مباشر لصورة غلاف المادة (JPG, PNG, WebP)"
-              {...register('thumbnailUrl')}
-            />
-
-            {/* Live Thumbnail Preview */}
-            <div className="p-3 bg-surface-subtle border border-border rounded-lg">
-              <span className="block text-xs font-medium text-text-muted mb-2">
-                معاينة صورة الغلاف:
-              </span>
-              <div className="relative aspect-video max-w-sm rounded-md overflow-hidden bg-surface border border-border flex items-center justify-center">
-                {watchedThumbnail ? (
-                  <img
-                    src={watchedThumbnail}
-                    alt="معاينة الغلاف"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <div className="text-center p-4 text-text-subtle text-xs">
-                    <svg className="w-8 h-8 mx-auto mb-1 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>أدخل رابط الصورة بالأعلى لمعاينتها هنا</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          {/* Thumbnail Upload or URL */}
+          <ImageUploadField
+            label="صورة غلاف المادة"
+            folder="subjects"
+            value={watchedThumbnail || ''}
+            onChange={(url) =>
+              setValue('thumbnailUrl', url, { shouldDirty: true, shouldValidate: true })
+            }
+            error={errors.thumbnailUrl?.message}
+            helperText="ارفع غلاف المادة على السيرفر أو الصق رابط صورة مباشر (JPG, PNG, WebP)."
+          />
 
           {/* Published Toggle */}
           <div className="pt-2">

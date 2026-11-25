@@ -25,6 +25,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<GroupMembership> GroupMemberships => Set<GroupMembership>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
     public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
+    public DbSet<LessonPurchase> LessonPurchases => Set<LessonPurchase>();
     public DbSet<Quiz> Quizzes => Set<Quiz>();
     public DbSet<Submission> Submissions => Set<Submission>();
 

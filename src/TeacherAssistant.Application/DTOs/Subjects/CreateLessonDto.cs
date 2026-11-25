@@ -20,6 +20,9 @@ public class CreateLessonDto
 
     public bool IsPublished { get; set; }
 
+    [Range(0, 100000)]
+    public decimal Price { get; set; }
+
     [StringLength(150)]
     public string? ModuleTitle { get; set; }
 

@@ -14,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<GroupMembership> GroupMemberships { get; }
     DbSet<Enrollment> Enrollments { get; }
     DbSet<PaymentTransaction> PaymentTransactions { get; }
+    DbSet<LessonPurchase> LessonPurchases { get; }
     DbSet<Quiz> Quizzes { get; }
     DbSet<Submission> Submissions { get; }
 

@@ -19,6 +19,7 @@ public class Lesson : BaseEntity, ITenantEntity
 
     public int SortOrder { get; set; }
     public bool IsPublished { get; set; }
+    public decimal Price { get; set; }
 
     public string? ModuleTitle { get; set; }
     public DateTime? AvailableAt { get; set; }

@@ -12,7 +12,15 @@ export const subjectSchema = z.object({
     .or(z.literal('')),
   thumbnailUrl: z
     .string()
-    .url('رابط الصورة المصغرة يجب أن يكون رابطاً صالحاً (URL)')
+    .refine(
+      (val) =>
+        !val ||
+        val.startsWith('http://') ||
+        val.startsWith('https://') ||
+        val.startsWith('/storage/') ||
+        val.startsWith('/images/'),
+      'رابط الصورة يجب أن يكون رابطاً صالحاً أو صورة مرفوعة'
+    )
     .optional()
     .or(z.literal('')),
   isPublished: z.boolean().default(false),
@@ -42,6 +50,7 @@ export const lessonSchema = z.object({
       'الرابط يجب أن يبدأ بـ http:// أو https://'
     ),
   isPublished: z.boolean().default(true),
+  price: z.coerce.number().min(0, 'السعر يجب أن يكون 0 أو أكبر').max(100000, 'السعر كبير جداً').default(0),
   moduleTitle: z
     .string()
     .max(150, 'اسم الباب أو الشهر يجب ألا يتجاوز 150 حرفاً')

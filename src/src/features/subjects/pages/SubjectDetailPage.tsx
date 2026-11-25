@@ -5,6 +5,7 @@ import { useAuth } from '@/features/auth/useAuth';
 import { LessonSummary, normalizeContentType, CONTENT_TYPE_LABELS } from '../types';
 import { quizzesApi } from '@/features/quizzes/api';
 import { QuizSummaryItemDto, normalizeAssessmentType } from '@/features/quizzes/types';
+import { LessonCheckoutModal } from '@/features/payments/components/LessonCheckoutModal';
 import { tenantPath } from '@/lib/tenant';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Button } from '@/components/ui/Button';
@@ -30,6 +31,7 @@ import {
   ClipboardList,
   Clock,
   Award,
+  CreditCard,
 } from 'lucide-react';
 
 export const SubjectDetailPage: React.FC = () => {
@@ -38,6 +40,11 @@ export const SubjectDetailPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
   const [quizzes, setQuizzes] = useState<QuizSummaryItemDto[]>([]);
+  const [checkoutLesson, setCheckoutLesson] = useState<{
+    id: string;
+    title: string;
+    price: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!subjectId || !isAuthenticated) {
@@ -231,10 +238,13 @@ export const SubjectDetailPage: React.FC = () => {
                         {group.items.map(({ lesson, idx }) => {
                           const normType = normalizeContentType(lesson.contentType);
                           const isLocked = !!lesson.isLocked;
+                          const isPaymentLocked = isLocked && lesson.lockReason === 'payment_required';
                           const scheduledLabel =
                             lesson.lockReason === 'scheduled' && lesson.availableAt
                               ? `يُفتح في ${formatDateArabic(lesson.availableAt)}`
-                              : lesson.lockReason;
+                              : isPaymentLocked
+                                ? `محاضرة مدفوعة — افتحها الآن عبر فوري أو المحافظ أو البطاقة (${lesson.price} ج.م)`
+                                : lesson.lockReason;
 
                           return (
                             <Card
@@ -286,6 +296,14 @@ export const SubjectDetailPage: React.FC = () => {
                                           <span>ملزمة مرفقة</span>
                                         </Badge>
                                       )}
+                                      {lesson.price !== undefined && lesson.price > 0 && (
+                                        <Badge
+                                          variant={lesson.isPurchased ? 'success' : 'info'}
+                                          size="sm"
+                                        >
+                                          {lesson.isPurchased ? 'تم الشراء ✓' : `${lesson.price} ج.م`}
+                                        </Badge>
+                                      )}
                                       {!lesson.isPublished && (
                                         <Badge variant="warning" size="sm">
                                           مسودة
@@ -310,7 +328,24 @@ export const SubjectDetailPage: React.FC = () => {
 
                                 <div className="shrink-0 self-end sm:self-center">
                                   {isAuthenticated ? (
-                                    isLocked ? (
+                                    isPaymentLocked ? (
+                                      <Button
+                                        type="button"
+                                        variant="primary"
+                                        size="sm"
+                                        className="font-bold bg-amber-600 hover:bg-amber-700 text-white"
+                                        startIcon={<CreditCard className="w-3.5 h-3.5" />}
+                                        onClick={() =>
+                                          setCheckoutLesson({
+                                            id: lesson.id,
+                                            title: lesson.title,
+                                            price: lesson.price || 0,
+                                          })
+                                        }
+                                      >
+                                        شراء المحاضرة ({lesson.price} ج.م)
+                                      </Button>
+                                    ) : isLocked ? (
                                       <Button
                                         variant="outline"
                                         size="sm"
@@ -418,6 +453,15 @@ export const SubjectDetailPage: React.FC = () => {
           )}
         </div>
       )}
+
+      <LessonCheckoutModal
+        isOpen={!!checkoutLesson}
+        onClose={() => setCheckoutLesson(null)}
+        lesson={checkoutLesson}
+        onPurchased={() => {
+          void refetch();
+        }}
+      />
     </PageLayout>
   );
 };

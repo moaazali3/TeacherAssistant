@@ -13,6 +13,12 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true, // Listen on all addresses to allow *.localhost resolution
+    proxy: {
+      '/storage': {
+        target: 'http://localhost:5014',
+        changeOrigin: true,
+      },
+    },
     watch: {
       ignored: [
         '**/bin/**',

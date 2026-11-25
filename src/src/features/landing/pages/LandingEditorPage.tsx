@@ -19,12 +19,14 @@ import { toast } from 'sonner';
 import { landingApi } from '../api';
 import { LandingPageConfig, LandingTheme, FontFamily, BorderRadius, ButtonStyle } from '../types';
 import { landingThemeSchema } from '../schemas';
+import { LANDING_TEMPLATES, LandingTemplate, applyLandingTemplate } from '../templates';
 import { LandingRenderer } from '../LandingRenderer';
 import { SortableSectionItem } from '../components/SortableSectionItem';
 import { SectionContentEditor } from '../components/SectionContentEditor';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
+import { ImageUploadField } from '@/components/ui/ImageUploadField';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Spinner } from '@/components/ui/Spinner';
 import { getApiErrorMessage } from '@/lib/api';
@@ -39,6 +41,8 @@ import {
   Smartphone,
   Laptop,
   AlertTriangle,
+  LayoutTemplate,
+  Check,
 } from 'lucide-react';
 
 const FONTS: Array<{ id: FontFamily; label: string }> = [
@@ -65,8 +69,9 @@ export const LandingEditorPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { tenant } = useTenant();
 
-  // Active form tab: 'theme' | 'sections' | 'content'
-  const [activeTab, setActiveTab] = useState<'theme' | 'sections' | 'content'>('sections');
+  // Active form tab: 'templates' | 'sections' | 'content' | 'theme'
+  const [activeTab, setActiveTab] = useState<'templates' | 'sections' | 'content' | 'theme'>('templates');
+  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
   // Preview mode: 'desktop' | 'mobile'
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   // Selected section for content editing
@@ -345,44 +350,57 @@ export const LandingEditorPage: React.FC = () => {
         {/* Left Pane: Editor Controls & Tabs (Cols 5) */}
         <div className="lg:col-span-5 border-e border-border bg-surface flex flex-col h-full lg:max-h-[calc(100vh-135px)] overflow-y-auto">
           {/* Navigation Tabs */}
-          <div className="flex items-center border-b border-border bg-surface sticky top-0 z-10 px-4 pt-2">
+          <div className="flex items-center border-b border-border bg-surface sticky top-0 z-10 px-3 pt-2 overflow-x-auto gap-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab('templates')}
+              className={`shrink-0 px-2.5 pb-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border-b-2 transition-colors cursor-pointer ${
+                activeTab === 'templates'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-text-muted hover:text-text-main'
+              }`}
+            >
+              <LayoutTemplate className="w-4 h-4" />
+              <span>القوالب الجاهزة</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setActiveTab('sections')}
-              className={`flex-1 pb-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 transition-colors cursor-pointer ${
+              className={`shrink-0 px-2.5 pb-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'sections'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-text-muted hover:text-text-main'
               }`}
             >
               <Layers className="w-4 h-4" />
-              <span>الأقسام والترتيب</span>
+              <span>الأقسام</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('content')}
-              className={`flex-1 pb-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 transition-colors cursor-pointer ${
+              className={`shrink-0 px-2.5 pb-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'content'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-text-muted hover:text-text-main'
               }`}
             >
               <FileText className="w-4 h-4" />
-              <span>محتوى النصوص</span>
+              <span>النصوص والصور</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('theme')}
-              className={`flex-1 pb-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 transition-colors cursor-pointer ${
+              className={`shrink-0 px-2.5 pb-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'theme'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-text-muted hover:text-text-main'
               }`}
             >
               <Palette className="w-4 h-4" />
-              <span>الألوان والخطوط</span>
+              <span>الألوان</span>
             </button>
           </div>
 
@@ -398,6 +416,90 @@ export const LandingEditorPage: React.FC = () => {
                   <li key={i}>{err}</li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {/* TAB 0: READY LANDING PAGE TEMPLATES */}
+          {activeTab === 'templates' && (
+            <div className="p-4 sm:p-6 space-y-4 text-start">
+              <div>
+                <h3 className="text-sm font-bold text-text-main">اختر تصميم صفحتك الرئيسية</h3>
+                <p className="text-xs text-text-muted mt-0.5">
+                  اختر من 4 قوالب مختلفة في الشكل وترتيب الأقسام والألوان مع الحفاظ التلقائي على نصوصك وصورك.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {LANDING_TEMPLATES.map((tpl: LandingTemplate) => {
+                  const isApplied = activeTemplateId === tpl.id;
+                  return (
+                    <div
+                      key={tpl.id}
+                      className={`p-4 rounded-2xl border-2 transition-all space-y-3 ${
+                        isApplied
+                          ? 'border-primary bg-primary-subtle/50 shadow-xs'
+                          : 'border-border bg-bg hover:border-border-strong'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-sm text-text-main font-heading">
+                              {tpl.name}
+                            </h4>
+                            <Badge variant={isApplied ? 'primary' : 'neutral'} size="sm">
+                              {tpl.badge}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-text-muted mt-1 leading-relaxed">
+                            {tpl.subtitle}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-border-subtle">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="w-5 h-5 rounded-full border border-border"
+                            style={{ backgroundColor: tpl.theme.primaryColor }}
+                            title="اللون الرئيسي"
+                          />
+                          <span
+                            className="w-5 h-5 rounded-full border border-border"
+                            style={{ backgroundColor: tpl.theme.secondaryColor }}
+                            title="اللون الثانوي"
+                          />
+                          <span
+                            className="w-5 h-5 rounded-full border border-border"
+                            style={{ backgroundColor: tpl.theme.backgroundColor }}
+                            title="خلفية الصفحة"
+                          />
+                          <span className="text-[11px] text-text-subtle ms-1">
+                            {tpl.theme.fontFamily}
+                          </span>
+                        </div>
+
+                        <Button
+                          type="button"
+                          variant={isApplied ? 'outline' : 'primary'}
+                          size="sm"
+                          className="font-bold text-xs"
+                          startIcon={isApplied ? <Check className="w-3.5 h-3.5" /> : undefined}
+                          onClick={() => {
+                            setDraftConfig((prev) =>
+                              prev ? applyLandingTemplate(prev, tpl) : prev
+                            );
+                            setActiveTemplateId(tpl.id);
+                            toast.success(`تم تطبيق قالب «${tpl.name}» في المعاينة. اضغط حفظ لاعتماده.`);
+                          }}
+                        >
+                          {isApplied ? 'مطبّق في المعاينة' : 'تطبيق القالب'}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -650,13 +752,14 @@ export const LandingEditorPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Hero Image URL */}
+              {/* Hero Image URL / Upload */}
               <div className="pt-2 border-t border-border-subtle">
-                <Input
-                  label="رابط صورة الهيرو / الشعار الكبير (Hero Image URL)"
+                <ImageUploadField
+                  label="صورة الهيرو / الغلاف الرئيسي"
+                  folder="landing"
                   value={draftConfig.theme.heroImageUrl || ''}
-                  onChange={(e) => handleThemeChange('heroImageUrl', e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
+                  onChange={(val) => handleThemeChange('heroImageUrl', val)}
+                  placeholder="https://... أو ارفع صورة من جهازك"
                 />
               </div>
             </div>

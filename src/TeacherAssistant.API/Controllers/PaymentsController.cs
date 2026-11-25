@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TeacherAssistant.API.Authorization;
 using TeacherAssistant.Application.Common.Models;
 using TeacherAssistant.Application.DTOs.Payments;
 using TeacherAssistant.Application.Interfaces;
@@ -13,6 +14,39 @@ public class PaymentsController : BaseApiController
     public PaymentsController(IPaymentService paymentService)
     {
         _paymentService = paymentService;
+    }
+
+    /// <summary>Initiate a mock payment session (Fawry / VodafoneCash / PaymobCard) for a paid lesson.</summary>
+    [Authorize(Policy = AuthorizationPolicies.StudentOnly)]
+    [HttpPost("lessons/{lessonId:guid}/initiate")]
+    public async Task<ActionResult<ApiResponse<LessonPaymentSessionDto>>> InitiateLessonPayment(
+        [FromRoute] Guid lessonId,
+        [FromBody] InitiateLessonPaymentDto request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _paymentService.InitiateLessonPaymentAsync(lessonId, request, cancellationToken);
+        return StatusCode(result.StatusCode, result.Response);
+    }
+
+    /// <summary>Confirm a pending mock payment and immediately unlock the lesson.</summary>
+    [Authorize(Policy = AuthorizationPolicies.StudentOnly)]
+    [HttpPost("purchases/{purchaseId:guid}/confirm-mock")]
+    public async Task<ActionResult<ApiResponse<LessonPaymentSessionDto>>> ConfirmMockPurchase(
+        [FromRoute] Guid purchaseId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _paymentService.ConfirmMockPurchaseAsync(purchaseId, cancellationToken);
+        return StatusCode(result.StatusCode, result.Response);
+    }
+
+    /// <summary>List the logged-in student's lesson purchases.</summary>
+    [Authorize(Policy = AuthorizationPolicies.StudentOnly)]
+    [HttpGet("my-purchases")]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<LessonPaymentSessionDto>>>> GetMyPurchases(
+        CancellationToken cancellationToken)
+    {
+        var result = await _paymentService.GetMyPurchasesAsync(cancellationToken);
+        return StatusCode(result.StatusCode, result.Response);
     }
 
     /// <summary>

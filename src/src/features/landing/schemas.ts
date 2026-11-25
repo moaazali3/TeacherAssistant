@@ -26,8 +26,16 @@ export const landingThemeSchema = z.object({
   }),
   heroImageUrl: z
     .string()
-    .refine((val) => !val || val.startsWith('http://') || val.startsWith('https://'), {
-      message: 'رابط الصورة يجب أن يبدأ بـ http:// أو https://',
-    })
+    .refine(
+      (val) =>
+        !val ||
+        val.startsWith('http://') ||
+        val.startsWith('https://') ||
+        val.startsWith('/storage/') ||
+        val.startsWith('/images/'),
+      {
+        message: 'رابط الصورة غير صالح',
+      }
+    )
     .optional(),
 });

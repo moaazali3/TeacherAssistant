@@ -3,6 +3,12 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Publish / Storage directories
+publish-backend/
+storage/
+src/TeacherAssistant.API/storage/
+src/TeacherAssistant.Api/storage/
+
 # dotenv files
 .env
 .env.*

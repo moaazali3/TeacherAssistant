@@ -2,6 +2,7 @@ import React from 'react';
 import { LandingSection } from '../types';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { ImageUploadField } from '@/components/ui/ImageUploadField';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface SectionContentEditorProps {
@@ -70,19 +71,13 @@ export const SectionContentEditor: React.FC<SectionContentEditorProps> = ({
             placeholder="/subjects"
           />
         </div>
-        <div>
-          <Input
-            label="رابط الصورة (URL)"
-            value={content.imageUrl || ''}
-            onChange={(e) => updateField('imageUrl', e.target.value)}
-            placeholder="https://example.com/image.jpg"
-          />
-          {content.imageUrl && (
-            <div className="mt-2 relative w-36 h-24 rounded-xl overflow-hidden border border-border">
-              <img src={content.imageUrl} alt="معاينة" className="w-full h-full object-cover" />
-            </div>
-          )}
-        </div>
+        <ImageUploadField
+          label="صورة الهيرو"
+          folder="landing"
+          value={content.imageUrl || ''}
+          onChange={(val) => updateField('imageUrl', val)}
+          placeholder="https://example.com/image.jpg أو ارفع صورة"
+        />
       </div>
     );
   }
@@ -126,19 +121,14 @@ export const SectionContentEditor: React.FC<SectionContentEditorProps> = ({
             placeholder="اكتب نبذة عن مسيرتك الأكاديمية والمهنية..."
           />
         </div>
-        <div>
-          <Input
-            label="رابط الصورة (URL)"
-            value={content.imageUrl || ''}
-            onChange={(e) => updateField('imageUrl', e.target.value)}
-            placeholder="https://example.com/teacher.jpg"
-          />
-          {content.imageUrl && (
-            <div className="mt-2 w-32 h-32 rounded-xl overflow-hidden border border-border">
-              <img src={content.imageUrl} alt="معاينة" className="w-full h-full object-cover" />
-            </div>
-          )}
-        </div>
+        <ImageUploadField
+          label="صورة القسم التعريفي"
+          folder="landing"
+          previewAspect="square"
+          value={content.imageUrl || ''}
+          onChange={(val) => updateField('imageUrl', val)}
+          placeholder="https://example.com/teacher.jpg أو ارفع صورة"
+        />
         <div className="space-y-2 pt-2 border-t border-border-subtle">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-text-main">النقاط والمميزات البارزة</label>

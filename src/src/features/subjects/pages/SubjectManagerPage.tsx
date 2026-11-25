@@ -171,6 +171,7 @@ export const SubjectManagerPage: React.FC = () => {
         contentType: data.contentType,
         contentUrl: data.contentUrl,
         isPublished: data.isPublished,
+        price: Number(data.price) || 0,
         moduleTitle: data.moduleTitle?.trim() || null,
         availableAt: data.availableAt ? new Date(data.availableAt).toISOString() : null,
         requiresPreviousCompletion: data.requiresPreviousCompletion,

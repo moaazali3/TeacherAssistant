@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { getApiErrorMessage } from '@/lib/api';
+import { ImageUploadField } from '@/components/ui/ImageUploadField';
 
 const brandingSchema = z.object({
   name: z
@@ -22,7 +23,15 @@ const brandingSchema = z.object({
     .max(150, 'اسم المنصة يجب ألا يتجاوز 150 حرفاً'),
   logoUrl: z
     .string()
-    .url('رابط الشعار يجب أن يكون رابطاً صالحاً (URL)')
+    .refine(
+      (val) =>
+        !val ||
+        val.startsWith('http://') ||
+        val.startsWith('https://') ||
+        val.startsWith('/storage/') ||
+        val.startsWith('/images/'),
+      'رابط الشعار يجب أن يكون رابطاً صالحاً أو صورة مرفوعة'
+    )
     .optional()
     .or(z.literal('')),
   primaryColor: z
@@ -184,14 +193,17 @@ export const BrandingSettingsPage: React.FC = () => {
                   helperText="لا يمكن تغيير اسم النطاق الفرعي بعد الإنشاء حفاظاً على روابط الطلاب."
                 />
 
-                {/* Logo URL */}
-                <Input
-                  label="رابط الشعار (Logo URL)"
-                  type="url"
-                  placeholder="https://example.com/logo.png"
+                {/* Logo URL / Upload */}
+                <ImageUploadField
+                  label="شعار المنصة أو صورتك الشخصية"
+                  folder="branding"
+                  previewAspect="square"
+                  value={watchedLogoUrl || ''}
+                  onChange={(url) =>
+                    setValue('logoUrl', url, { shouldDirty: true, shouldValidate: true })
+                  }
                   error={errors.logoUrl?.message}
-                  helperText="أدخل رابط صورة مباشر بصيغة PNG أو JPG أو SVG."
-                  {...register('logoUrl')}
+                  helperText="ارفع صورتك على السيرفر مباشرة أو أدخل رابط صورة (JPG, PNG, WebP)."
                 />
 
                 {/* Primary Color Picker */}

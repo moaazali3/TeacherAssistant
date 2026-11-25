@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TeacherAssistant.Application.Common.Validation;
 
 namespace TeacherAssistant.Application.DTOs.Tenants;
 
@@ -10,7 +11,7 @@ public class UpdateTenantBrandingDto
     [StringLength(150, MinimumLength = 2)]
     public string? Name { get; set; }
 
-    [Url, StringLength(500)]
+    [HttpUrl, StringLength(500)]
     public string? LogoUrl { get; set; }
 
     [RegularExpression("^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$",

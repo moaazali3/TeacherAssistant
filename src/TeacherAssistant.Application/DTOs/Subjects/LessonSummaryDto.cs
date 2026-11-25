@@ -10,6 +10,8 @@ public class LessonSummaryDto
     public ContentType ContentType { get; set; }
     public int SortOrder { get; set; }
     public bool IsPublished { get; set; }
+    public decimal Price { get; set; }
+    public bool IsPurchased { get; set; }
     public string? ModuleTitle { get; set; }
     public DateTime? AvailableAt { get; set; }
     public bool RequiresPreviousCompletion { get; set; }

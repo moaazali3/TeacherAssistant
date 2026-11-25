@@ -187,6 +187,7 @@ public class SubjectService : ISubjectService
             ContentUrl = request.ContentUrl.Trim(),
             SortOrder = lastSortOrder + 1,
             IsPublished = request.IsPublished,
+            Price = request.Price,
             ModuleTitle = NormalizeOptional(request.ModuleTitle),
             AvailableAt = NormalizeUtc(request.AvailableAt),
             RequiresPreviousCompletion = request.RequiresPreviousCompletion,
@@ -232,6 +233,7 @@ public class SubjectService : ISubjectService
         lesson.ContentType = request.ContentType;
         lesson.ContentUrl = request.ContentUrl.Trim();
         lesson.IsPublished = request.IsPublished;
+        lesson.Price = request.Price;
         lesson.ModuleTitle = NormalizeOptional(request.ModuleTitle);
         lesson.AvailableAt = NormalizeUtc(request.AvailableAt);
         lesson.RequiresPreviousCompletion = request.RequiresPreviousCompletion;
@@ -392,6 +394,7 @@ public class SubjectService : ISubjectService
         }
 
         Dictionary<Guid, LessonProgress>? progressByLesson = null;
+        HashSet<Guid>? purchasedLessonIds = null;
         if (!isOwner && IsStudent && userId is { } progressStudentId)
         {
             var lessonIds = subject.Lessons.Select(l => l.Id).ToList();
@@ -399,10 +402,21 @@ public class SubjectService : ISubjectService
                 .AsNoTracking()
                 .Where(lp => lp.StudentId == progressStudentId && lessonIds.Contains(lp.LessonId))
                 .ToDictionaryAsync(lp => lp.LessonId, cancellationToken);
+
+            var purchasedIdsList = await _context.LessonPurchases
+                .AsNoTracking()
+                .Where(lp => lp.StudentId == progressStudentId
+                             && lessonIds.Contains(lp.LessonId)
+                             && lp.Status == PaymentStatus.Completed)
+                .Select(lp => lp.LessonId)
+                .ToListAsync(cancellationToken);
+
+            purchasedLessonIds = purchasedIdsList.ToHashSet();
         }
 
         return ServiceResult<SubjectDetailDto>.Ok(
-            MapDetail(subject, includeDrafts: isOwner, progressByLesson), "Subject fetched successfully.");
+            MapDetail(subject, includeDrafts: isOwner, progressByLesson, purchasedLessonIds),
+            "Subject fetched successfully.");
     }
 
     public async Task<ServiceResult<LessonDto>> GetLessonAsync(
@@ -472,7 +486,7 @@ public class SubjectService : ISubjectService
             await _context.SaveChangesAsync(cancellationToken);
 
             return ServiceResult<LessonDto>.Ok(
-                MapFull(lesson, lesson.Subject.Title, progress.IsCompleted, progress.ViewCount),
+                MapFull(lesson, lesson.Subject.Title, progress.IsCompleted, progress.ViewCount, isPurchased: true),
                 "Lesson fetched successfully.");
         }
 
@@ -533,7 +547,7 @@ public class SubjectService : ISubjectService
         await _context.SaveChangesAsync(cancellationToken);
 
         return ServiceResult<LessonDto>.Ok(
-            MapFull(lesson, lesson.Subject.Title, progress.IsCompleted, progress.ViewCount),
+            MapFull(lesson, lesson.Subject.Title, progress.IsCompleted, progress.ViewCount, isPurchased: true),
             "Lesson marked as completed.");
     }
 
@@ -579,6 +593,18 @@ public class SubjectService : ISubjectService
         if (lesson.AvailableAt.HasValue && lesson.AvailableAt.Value > DateTime.UtcNow)
             return "هذه المحاضرة مجدولة ولم يحن موعد فتحها بعد.";
 
+        if (lesson.Price > 0)
+        {
+            var purchased = await _context.LessonPurchases
+                .AsNoTracking()
+                .AnyAsync(
+                    lp => lp.StudentId == studentId && lp.LessonId == lesson.Id && lp.Status == PaymentStatus.Completed,
+                    cancellationToken);
+
+            if (!purchased)
+                return "هذه المحاضرة مدفوعة. يرجى إتمام الشراء أولاً لفتحها.";
+        }
+
         if (!lesson.RequiresPreviousCompletion)
             return null;
 
@@ -614,6 +640,8 @@ public class SubjectService : ISubjectService
         ContentType = lesson.ContentType,
         SortOrder = lesson.SortOrder,
         IsPublished = lesson.IsPublished,
+        Price = lesson.Price,
+        IsPurchased = lesson.Price <= 0,
         ModuleTitle = lesson.ModuleTitle,
         AvailableAt = lesson.AvailableAt,
         RequiresPreviousCompletion = lesson.RequiresPreviousCompletion,
@@ -623,7 +651,8 @@ public class SubjectService : ISubjectService
     private static SubjectDetailDto MapDetail(
         Subject subject,
         bool includeDrafts,
-        Dictionary<Guid, LessonProgress>? progressByLesson = null)
+        Dictionary<Guid, LessonProgress>? progressByLesson = null,
+        HashSet<Guid>? purchasedLessonIds = null)
     {
         var ordered = subject.Lessons
             .Where(l => includeDrafts || l.IsPublished)
@@ -646,10 +675,18 @@ public class SubjectService : ISubjectService
 
             if (progressByLesson is not null)
             {
+                var isPurchased = lesson.Price <= 0 || (purchasedLessonIds?.Contains(lesson.Id) ?? false);
+                dto.IsPurchased = isPurchased;
+
                 if (lesson.AvailableAt.HasValue && lesson.AvailableAt.Value > now)
                 {
                     dto.IsLocked = true;
                     dto.LockReason = "scheduled";
+                }
+                else if (lesson.Price > 0 && !isPurchased)
+                {
+                    dto.IsLocked = true;
+                    dto.LockReason = "payment_required";
                 }
                 else if (lesson.RequiresPreviousCompletion && i > 0 && !summaries[i - 1].IsCompleted)
                 {
@@ -680,7 +717,8 @@ public class SubjectService : ISubjectService
         Lesson lesson,
         string subjectTitle,
         bool isCompleted = false,
-        int viewCount = 0) => new()
+        int viewCount = 0,
+        bool isPurchased = true) => new()
     {
         Id = lesson.Id,
         SubjectId = lesson.SubjectId,
@@ -691,6 +729,8 @@ public class SubjectService : ISubjectService
         ContentUrl = lesson.ContentUrl,
         SortOrder = lesson.SortOrder,
         IsPublished = lesson.IsPublished,
+        Price = lesson.Price,
+        IsPurchased = isPurchased,
         ModuleTitle = lesson.ModuleTitle,
         AvailableAt = lesson.AvailableAt,
         RequiresPreviousCompletion = lesson.RequiresPreviousCompletion,
