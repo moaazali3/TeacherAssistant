@@ -147,6 +147,21 @@ npm run dev
 
 ### 3. الحسابات التجريبية (Demo Accounts)
 
+#### حسابات التجربة السريعة للمعلمين (كلمة المرور لجميع المعلمين: `Demo@12345`)
+
+يمكنك تسجيل الدخول كمعلم عبر صفحة `/teacher/login` (محلياً: `http://localhost:5173/teacher/login` أو أونلاين: `http://tarabeza.runasp.net/teacher/login`) باستخدام أي من الحسابات التالية:
+
+- `teacher@demo.local` — منصة الكيمياء (`/t/demo` أو `http://demo.localhost:5173`)
+- `teacher@maths.local` — منصة الرياضيات (`/t/maths` أو `http://maths.localhost:5173`)
+- `teacher@physics.local` — منصة الفيزياء (`/t/physics` أو `http://physics.localhost:5173`)
+- `teacher@arabic.local` — منصة اللغة العربية (`/t/arabic` أو `http://arabic.localhost:5173`)
+- `teacher@bio.local` — منصة الأحياء (`/t/bio` أو `http://bio.localhost:5173`)
+
+ويمكنك الدخول إلى **محرر صفحة الهبوط** من لوحة المعلم عبر الرابط:
+`/dashboard/teacher/landing` (محلياً: `http://localhost:5173/dashboard/teacher/landing` أو أونلاين: `http://tarabeza.runasp.net/dashboard/teacher/landing`).
+
+#### بقية الحسابات التجريبية (الطلاب ومدير المنصة)
+
 عند تشغيل الباك إند في بيئة التطوير (`Development`) يتم إنشاء الحسابات التجريبية التالية تلقائياً:
 
 | الحساب | الدور | البريد الإلكتروني | كلمة المرور | الموقع المخصص للدخول | الملاحظات / الجروب |
