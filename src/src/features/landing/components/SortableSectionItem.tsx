@@ -128,7 +128,7 @@ export const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
             type="button"
             {...attributes}
             {...listeners}
-            className="p-1.5 text-text-muted hover:text-text-main cursor-grab active:cursor-grabbing rounded-lg hover:bg-bg transition-colors"
+            className="p-1.5 text-text-muted hover:text-text-main cursor-grab active:cursor-grabbing rounded-lg hover:bg-bg transition-colors touch-none"
             title="سحب لإعادة الترتيب"
           >
             <GripVertical className="w-5 h-5" />

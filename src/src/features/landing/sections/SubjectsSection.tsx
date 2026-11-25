@@ -96,7 +96,7 @@ const InteractiveSubjectCard: React.FC<{
         </div>
 
         {/* Body */}
-        <div className="relative z-20 p-6 flex-1 flex flex-col justify-between space-y-5 text-start">
+        <div className="relative z-20 p-4 sm:p-6 flex-1 flex flex-col justify-between space-y-4 sm:space-y-5 text-start">
           <div className="space-y-3">
             <h3 className="text-xl font-bold font-heading text-text-main group-hover:text-primary transition-colors">
               {sub.title}
@@ -157,7 +157,7 @@ export const SubjectsSection: React.FC<SubjectsSectionProps> = ({
   const subjects = rawSubjects.slice(0, limit);
 
   return (
-    <section id="subjects-section" className="py-20 sm:py-28">
+    <section id="subjects-section" className="py-12 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -165,17 +165,17 @@ export const SubjectsSection: React.FC<SubjectsSectionProps> = ({
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-14"
         >
-          <div className="space-y-3 text-start max-w-2xl">
+          <div className="space-y-2.5 sm:space-y-3 text-start max-w-2xl">
             <motion.h2
               variants={fadeUpItem}
-              className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
+              className="text-2xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
             >
               {content.title || 'المواد الدراسية المتاحة'}
             </motion.h2>
             {content.subtitle && (
-              <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.85]">
+              <motion.p variants={fadeUpItem} className="text-sm sm:text-lg text-text-muted leading-[1.8] sm:leading-[1.85]">
                 {content.subtitle}
               </motion.p>
             )}
@@ -275,7 +275,7 @@ export const SubjectsSection: React.FC<SubjectsSectionProps> = ({
           </motion.div>
         ) : variant === 'carousel' ? (
           /* ── Carousel Variant powered by Embla Carousel Adapter ──── */
-          <RtlCarouselAdapter radiusClass={radiusClass} slideClassName="min-w-[290px] sm:min-w-[350px] max-w-[350px]">
+          <RtlCarouselAdapter radiusClass={radiusClass} slideClassName="min-w-[260px] sm:min-w-[340px] max-w-[310px] sm:max-w-[350px]">
             {subjects.map((sub) => (
               <div
                 key={sub.id}
@@ -300,7 +300,7 @@ export const SubjectsSection: React.FC<SubjectsSectionProps> = ({
                     </div>
                   )}
                 </div>
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-5 text-start">
+                <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between space-y-4 sm:space-y-5 text-start">
                   <div>
                     <h3 className="text-lg font-bold font-heading text-text-main line-clamp-1 group-hover:text-primary transition-colors">
                       {sub.title}

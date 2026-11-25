@@ -78,11 +78,15 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
-            className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x md:divide-x-reverse divide-border text-center"
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-0 md:divide-x md:divide-x-reverse md:divide-border text-center"
           >
             {items.map((stat, idx) => (
-              <motion.div key={idx} variants={fadeUpItem} className="p-4 sm:p-6 space-y-1.5">
-                <div className="text-3xl sm:text-4xl font-black font-heading text-primary tabular-nums tracking-tight">
+              <motion.div
+                key={idx}
+                variants={fadeUpItem}
+                className="p-4 sm:p-6 space-y-1.5 rounded-xl bg-bg md:bg-transparent md:rounded-none"
+              >
+                <div className="text-2xl sm:text-4xl font-black font-heading text-primary tabular-nums tracking-tight">
                   <AnimatedStatValue value={stat.value} />
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-text-muted">{stat.label}</div>
@@ -97,7 +101,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
   /* ── 2. Cards Variant ───────────────────────────────────────────── */
   if (variant === 'cards') {
     return (
-      <section className="py-16 sm:py-20">
+      <section className="py-12 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {content.title && (
             <motion.div
@@ -105,7 +109,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
               initial="hidden"
               whileInView="visible"
               viewport={VIEWPORT_ONCE}
-              className="text-center max-w-2xl mx-auto mb-12 space-y-3"
+              className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-3"
             >
               <motion.h2
                 variants={fadeUpItem}
@@ -120,7 +124,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6"
           >
             {items.map((stat, idx) => (
               <motion.div
@@ -128,16 +132,16 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
                 variants={zoomIn}
                 whileHover={{ y: -6, boxShadow: '0 20px 45px -15px rgba(15,23,42,0.14)' }}
                 transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                className={`p-7 bg-surface border border-border hover:border-primary/40 transition-colors flex flex-col items-start text-start space-y-4 ${radiusClass}`}
+                className={`p-4 sm:p-7 bg-surface border border-border hover:border-primary/40 transition-colors flex flex-col items-start text-start space-y-3 sm:space-y-4 ${radiusClass}`}
               >
-                <div className="w-11 h-11 rounded-xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
                   {renderStatIcon(stat.icon)}
                 </div>
                 <div className="space-y-1">
-                  <div className="text-3xl sm:text-4xl font-black font-heading text-text-main tabular-nums tracking-tight">
+                  <div className="text-2xl sm:text-4xl font-black font-heading text-text-main tabular-nums tracking-tight">
                     <AnimatedStatValue value={stat.value} />
                   </div>
-                  <div className="text-sm font-semibold text-text-muted">{stat.label}</div>
+                  <div className="text-xs sm:text-sm font-semibold text-text-muted">{stat.label}</div>
                 </div>
               </motion.div>
             ))}
@@ -150,7 +154,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
   /* ── 3. Grid Variant (Default) — Warm Editorial Architectural Band ── */
   return (
     <section
-      className="py-16 sm:py-20 relative overflow-hidden border-y border-border"
+      className="py-12 sm:py-20 relative overflow-hidden border-y border-border"
       style={{
         background:
           'radial-gradient(circle at 85% 20%, color-mix(in srgb, var(--color-secondary) 14%, transparent), transparent 55%), linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 10%, #FFFDF9) 0%, color-mix(in srgb, var(--color-primary) 5%, #F3EDE2) 100%)',
@@ -163,7 +167,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
             whileInView={{ opacity: 1, y: 0 }}
             viewport={VIEWPORT_ONCE}
             transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="text-center max-w-2xl mx-auto mb-12 space-y-3"
+            className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-3"
           >
             <h2 className="text-2xl sm:text-3xl font-bold font-heading leading-[1.45] text-text-main">
               {content.title}
@@ -175,7 +179,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 text-center"
         >
           {items.map((stat, idx) => (
             <motion.div
@@ -183,12 +187,12 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ content, variant, th
               variants={zoomIn}
               whileHover={{ y: -4 }}
               transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-              className={`p-6 bg-surface border border-border shadow-[0_14px_34px_-15px_rgba(28,25,23,0.08)] space-y-2.5 ${radiusClass}`}
+              className={`p-4 sm:p-6 bg-surface border border-border shadow-[0_14px_34px_-15px_rgba(28,25,23,0.08)] space-y-2 sm:space-y-2.5 ${radiusClass}`}
             >
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-2xl bg-primary-subtle border border-primary/15 flex items-center justify-center">
                 {renderStatIcon(stat.icon, 'w-5 h-5 text-primary')}
               </div>
-              <div className="text-3xl sm:text-4xl font-bold font-heading tabular-nums text-primary">
+              <div className="text-2xl sm:text-4xl font-bold font-heading tabular-nums text-primary">
                 <AnimatedStatValue value={stat.value} />
               </div>
               <div className="text-xs sm:text-sm font-bold text-text-muted">{stat.label}</div>

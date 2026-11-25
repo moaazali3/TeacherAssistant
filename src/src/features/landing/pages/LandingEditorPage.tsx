@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   DndContext,
@@ -23,6 +23,7 @@ import { LANDING_TEMPLATES, LandingTemplate, applyLandingTemplate } from '../tem
 import { LandingRenderer } from '../LandingRenderer';
 import { SortableSectionItem } from '../components/SortableSectionItem';
 import { SectionContentEditor } from '../components/SectionContentEditor';
+import { PreviewIframe } from '../components/PreviewIframe';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -43,6 +44,8 @@ import {
   AlertTriangle,
   LayoutTemplate,
   Check,
+  Eye,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 const FONTS: Array<{ id: FontFamily; label: string }> = [
@@ -74,10 +77,17 @@ export const LandingEditorPage: React.FC = () => {
   const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
   // Preview mode: 'desktop' | 'mobile'
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
+  // Mobile editor view switcher: 'editor' | 'preview'
+  const [mobilePane, setMobilePane] = useState<'editor' | 'preview'>('editor');
   // Selected section for content editing
   const [selectedSectionId, setSelectedSectionId] = useState<string>('hero');
   // Reset confirmation dialog
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const editorScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    editorScrollRef.current?.scrollTo({ top: 0 });
+  }, [activeTab]);
 
   // Local draft state for live preview
   const [draftConfig, setDraftConfig] = useState<LandingPageConfig | null>(null);
@@ -297,18 +307,18 @@ export const LandingEditorPage: React.FC = () => {
   const selectedSection = draftConfig.sections.find((s) => s.id === selectedSectionId);
 
   return (
-    <div className="min-h-screen bg-bg text-text-main flex flex-col" dir="rtl">
+    <div className="min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] bg-bg text-text-main flex flex-col lg:overflow-hidden" dir="rtl">
       {/* Top Bar with Breadcrumbs & Save Actions */}
-      <div className="bg-surface border-b border-border px-4 sm:px-6 py-3.5 sticky top-16 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
-        <div className="space-y-1">
+      <div className="shrink-0 bg-surface border-b border-border px-3 sm:px-6 py-2.5 sm:py-3.5 sticky top-16 lg:static z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 shadow-2xs">
+        <div className="space-y-1 min-w-0">
           <Breadcrumbs
             items={[
               { label: 'لوحة تحكم المعلم', href: platformPath('/dashboard/teacher') },
               { label: 'تخصيص الصفحة الرئيسية' },
             ]}
           />
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg sm:text-xl font-black font-heading text-text-main">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-base sm:text-xl font-black font-heading text-text-main">
               تخصيص الصفحة الرئيسية لطلابك
             </h1>
             {isDirty && (
@@ -319,7 +329,7 @@ export const LandingEditorPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 self-end sm:self-center">
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 shrink-0">
           <Button
             type="button"
             variant="outline"
@@ -334,23 +344,55 @@ export const LandingEditorPage: React.FC = () => {
           <Button
             type="button"
             variant="primary"
-            size="md"
+            size="sm"
             onClick={handleSave}
             isLoading={saveMutation.isPending}
             startIcon={<Save className="w-4 h-4" />}
-            className="font-bold"
+            className="font-bold sm:px-5 sm:py-2.5 sm:text-sm"
           >
             حفظ التغييرات
           </Button>
         </div>
       </div>
 
+      {/* Mobile View Switcher (Editor vs Live Preview) */}
+      <div className="lg:hidden shrink-0 bg-surface border-b border-border px-3 py-2 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setMobilePane('editor')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            mobilePane === 'editor'
+              ? 'bg-primary text-primary-foreground shadow-xs'
+              : 'bg-bg text-text-muted border border-border'
+          }`}
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <span>التعديل والإعدادات</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobilePane('preview')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            mobilePane === 'preview'
+              ? 'bg-primary text-primary-foreground shadow-xs'
+              : 'bg-bg text-text-muted border border-border'
+          }`}
+        >
+          <Eye className="w-3.5 h-3.5" />
+          <span>المعاينة الحية</span>
+        </button>
+      </div>
+
       {/* Main Two-Pane Split Layout */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 lg:overflow-hidden">
         {/* Left Pane: Editor Controls & Tabs (Cols 5) */}
-        <div className="lg:col-span-5 border-e border-border bg-surface flex flex-col h-full lg:max-h-[calc(100vh-135px)] overflow-y-auto">
+        <div
+          className={`lg:col-span-5 border-e border-border bg-surface flex-col lg:h-full lg:min-h-0 lg:overflow-hidden ${
+            mobilePane === 'editor' ? 'flex' : 'hidden lg:flex'
+          }`}
+        >
           {/* Navigation Tabs */}
-          <div className="flex items-center border-b border-border bg-surface sticky top-0 z-10 px-3 pt-2 overflow-x-auto gap-1">
+          <div className="shrink-0 flex items-center border-b border-border bg-surface sticky top-16 lg:static z-20 px-3 pt-2.5 overflow-x-auto gap-1">
             <button
               type="button"
               onClick={() => setActiveTab('templates')}
@@ -404,6 +446,7 @@ export const LandingEditorPage: React.FC = () => {
             </button>
           </div>
 
+          <div ref={editorScrollRef} className="flex-1 min-h-0 overflow-y-auto">
           {/* Validation Errors Box */}
           {validationErrors.length > 0 && (
             <div className="m-4 p-4 rounded-xl bg-danger-bg text-danger border border-danger/30 text-xs space-y-1">
@@ -764,12 +807,17 @@ export const LandingEditorPage: React.FC = () => {
               </div>
             </div>
           )}
+          </div>
         </div>
 
         {/* Right Pane: LIVE PREVIEW (Cols 7) */}
-        <div className="lg:col-span-7 bg-bg/70 flex flex-col h-full lg:max-h-[calc(100vh-135px)] overflow-hidden">
+        <div
+          className={`lg:col-span-7 bg-bg/70 flex-col lg:h-full lg:min-h-0 lg:overflow-hidden ${
+            mobilePane === 'preview' ? 'flex' : 'hidden lg:flex'
+          }`}
+        >
           {/* Preview Viewport Toolbar */}
-          <div className="px-6 py-2.5 bg-surface border-b border-border flex items-center justify-between gap-4">
+          <div className="shrink-0 px-4 sm:px-6 py-2.5 bg-surface border-b border-border flex flex-wrap items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-text-muted">معاينة حية ومباشرة:</span>
               <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-primary-subtle text-primary font-bold">
@@ -809,26 +857,31 @@ export const LandingEditorPage: React.FC = () => {
           </div>
 
           {/* Preview Stage */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex justify-center items-start">
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 flex justify-center items-start">
             {previewMode === 'mobile' ? (
-              <div className="w-[390px] border-[10px] border-text-main rounded-[44px] shadow-2xl bg-surface overflow-hidden transition-all duration-300">
+              <div className="w-full max-w-[390px] border-[8px] sm:border-[10px] border-text-main rounded-[36px] sm:rounded-[44px] shadow-2xl bg-surface overflow-hidden transition-all duration-300">
                 {/* Mobile Notch Bar */}
                 <div className="h-6 bg-text-main flex items-center justify-center">
                   <div className="w-20 h-3.5 bg-black/40 rounded-full" />
                 </div>
-                {/* Mobile Screen Content */}
-                <div className="max-h-[720px] overflow-y-auto">
+                {/* True 390px Mobile Viewport via Iframe */}
+                <PreviewIframe
+                  title="معاينة الهاتف المحمول"
+                  className="w-full h-[680px] border-0 bg-surface block"
+                >
                   <LandingRenderer
                     config={draftConfig}
                     tenantName={tenant?.name || 'أكاديمية المعلم'}
+                    isPreview
                   />
-                </div>
+                </PreviewIframe>
               </div>
             ) : (
               <div className="w-full bg-surface border border-border rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
                 <LandingRenderer
                   config={draftConfig}
                   tenantName={tenant?.name || 'أكاديمية المعلم'}
+                  isPreview
                 />
               </div>
             )}

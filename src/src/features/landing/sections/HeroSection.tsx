@@ -336,7 +336,7 @@ const AcademicMagazineCoverShowcase: React.FC<{
     >
       <div className="grid grid-cols-1 sm:grid-cols-12">
         {/* Right Side (in RTL): Full Vertical Editorial Teacher Portrait */}
-        <div className="sm:col-span-5 relative bg-surface-subtle min-h-[340px] sm:min-h-[450px] overflow-hidden border-b sm:border-b-0 sm:border-e border-border">
+        <div className="sm:col-span-5 relative bg-surface-subtle h-[270px] sm:h-auto sm:min-h-[450px] overflow-hidden border-b sm:border-b-0 sm:border-e border-border">
           <img
             src={portraitSrc}
             alt={title}
@@ -351,14 +351,14 @@ const AcademicMagazineCoverShowcase: React.FC<{
           />
 
           {/* Top Grade Badge */}
-          <div className="absolute top-3.5 inset-x-3.5 flex items-center justify-between gap-2">
-            <span className="px-3 py-1 rounded-lg bg-surface/95 text-text-main text-[11px] font-bold shadow-xs border border-border/60">
+          <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-2">
+            <span className="px-2.5 py-1 rounded-lg bg-surface/95 text-text-main text-[11px] font-bold shadow-xs border border-border/60">
               {preset.gradeBadge}
             </span>
           </div>
 
           {/* Bottom Portrait Caption */}
-          <div className="absolute inset-x-0 bottom-0 p-4 text-white space-y-1.5 text-start">
+          <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-4 text-white space-y-1 text-start">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-primary text-primary-foreground text-[11px] font-bold">
               <Award className="w-3 h-3 text-secondary" />
               <span>{preset.experienceLabel}</span>
@@ -368,21 +368,21 @@ const AcademicMagazineCoverShowcase: React.FC<{
             </p>
             <p className="text-[11px] text-white/75 flex items-center gap-1">
               <Clock className="w-3 h-3 text-secondary shrink-0" />
-              <span>{preset.scheduleNote}</span>
+              <span className="line-clamp-1 sm:line-clamp-none">{preset.scheduleNote}</span>
             </p>
           </div>
         </div>
 
         {/* Left Side (in RTL): Interactive Curriculum Chapters Index */}
-        <div className="sm:col-span-7 p-5 sm:p-6 flex flex-col justify-between bg-surface text-start">
-          <div className="space-y-4">
+        <div className="sm:col-span-7 p-4 sm:p-6 flex flex-col justify-between bg-surface text-start">
+          <div className="space-y-3.5 sm:space-y-4">
             {/* Magazine Index Header */}
-            <div className="flex items-center justify-between border-b border-border-subtle pb-3.5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary-subtle text-primary flex items-center justify-center">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle pb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-primary-subtle text-primary flex items-center justify-center shrink-0">
                   <Layers className="w-4 h-4" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-sm font-black font-heading text-text-main">
                     فهرس أبواب المنهج والملازم
                   </h3>
@@ -391,7 +391,7 @@ const AcademicMagazineCoverShowcase: React.FC<{
                   </p>
                 </div>
               </div>
-              <span className="text-[11px] font-bold text-primary bg-primary-subtle px-2.5 py-1 rounded-md tabular-nums">
+              <span className="text-[11px] font-bold text-primary bg-primary-subtle px-2.5 py-1 rounded-md tabular-nums shrink-0">
                 {preset.chapters.length} أبواب رئيسية
               </span>
             </div>
@@ -417,9 +417,9 @@ const AcademicMagazineCoverShowcase: React.FC<{
                     }`}
                   >
                     <Accordion.Header className="m-0">
-                      <Accordion.Trigger className="w-full p-3.5 text-start flex items-center justify-between gap-3 cursor-pointer">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
+                      <Accordion.Trigger className="w-full p-3 sm:p-3.5 text-start flex items-center justify-between gap-2.5 sm:gap-3 cursor-pointer">
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                             <span className="px-2 py-0.5 rounded bg-primary text-primary-foreground text-[10px] font-bold">
                               {ch.number}
                             </span>
@@ -484,7 +484,7 @@ const AcademicMagazineCoverShowcase: React.FC<{
           </div>
 
           {/* Bottom Direct Link to All Subjects */}
-          <div className="mt-4 pt-3.5 border-t border-border-subtle flex items-center justify-between gap-2">
+          <div className="mt-4 pt-3.5 border-t border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <span className="text-xs font-semibold text-text-muted">
               تتضمن كل محاضرة ملزمة PDF وكويز تقييمي
             </span>
@@ -523,7 +523,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
         ? 'bg-white/10 text-white border border-white/25 hover:bg-white/20 font-semibold backdrop-blur-sm'
         : '';
 
-    const btnClass = `group inline-flex items-center justify-center gap-2.5 px-7 py-3.5 text-base cursor-pointer active:scale-[0.98] transition-transform ${
+    const btnClass = `group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 sm:px-7 py-3 sm:py-3.5 text-sm sm:text-base cursor-pointer active:scale-[0.98] transition-transform ${
       darkSecondary || (isPrimary ? primaryBtnClass : secondaryBtnClass)
     } ${radiusClass}`;
 
@@ -552,7 +552,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
   /* ── 1. Full Background Variant ─────────────────────────────────── */
   if (variant === 'fullBackground') {
     return (
-      <section className="relative min-h-[600px] sm:min-h-[660px] flex items-center justify-center text-center overflow-hidden py-24 px-4 sm:px-6 lg:px-8 bg-slate-950 text-white">
+      <section className="relative min-h-[460px] sm:min-h-[620px] flex items-center justify-center text-center overflow-hidden py-14 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-950 text-white">
         {content.imageUrl ? (
           <div className="absolute inset-0 z-0">
             <motion.img
@@ -585,21 +585,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="relative z-10 max-w-3xl mx-auto space-y-7"
+          className="relative z-10 max-w-3xl mx-auto space-y-5 sm:space-y-7"
         >
           <motion.h1
             variants={blurUp}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading leading-[1.48] text-balance"
+            className="text-2xl sm:text-4xl lg:text-5xl font-bold font-heading leading-[1.45] sm:leading-[1.48] text-balance"
           >
             {content.title}
           </motion.h1>
           <motion.p
             variants={fadeUpItem}
-            className="text-lg sm:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed font-normal"
+            className="text-sm sm:text-lg lg:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed font-normal"
           >
             {content.subtitle}
           </motion.p>
-          <motion.div variants={fadeUpItem} className="flex flex-wrap items-center justify-center gap-4 pt-3">
+          <motion.div variants={fadeUpItem} className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-3">
             {content.primaryButtonText &&
               renderButton(content.primaryButtonText, content.primaryButtonLink || '/register', true, true)}
             {content.secondaryButtonText &&
@@ -614,7 +614,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
   if (variant === 'centered') {
     return (
       <section
-        className="relative py-20 sm:py-28 text-center overflow-hidden"
+        className="relative py-12 sm:py-24 text-center overflow-hidden"
         style={{
           background:
             'radial-gradient(ellipse 85% 55% at 50% 0%, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 72%)',
@@ -624,25 +624,25 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10"
+          className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-8 relative z-10"
         >
           <motion.h1
             variants={blurUp}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-text-main leading-[1.48] text-balance"
+            className="text-2xl sm:text-4xl lg:text-5xl font-bold font-heading text-text-main leading-[1.45] sm:leading-[1.48] text-balance"
           >
             {content.title}
           </motion.h1>
-          <motion.p variants={fadeUpItem} className="text-lg sm:text-xl text-text-muted max-w-2xl mx-auto leading-relaxed">
+          <motion.p variants={fadeUpItem} className="text-sm sm:text-lg lg:text-xl text-text-muted max-w-2xl mx-auto leading-relaxed">
             {content.subtitle}
           </motion.p>
-          <motion.div variants={fadeUpItem} className="flex flex-wrap items-center justify-center gap-4 pt-1">
+          <motion.div variants={fadeUpItem} className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-1">
             {content.primaryButtonText &&
               renderButton(content.primaryButtonText, content.primaryButtonLink || '/register', true)}
             {content.secondaryButtonText &&
               renderButton(content.secondaryButtonText, content.secondaryButtonLink || '/subjects', false)}
           </motion.div>
 
-          <motion.div variants={scaleReveal} className="pt-8 text-start">
+          <motion.div variants={scaleReveal} className="pt-4 sm:pt-8 text-start">
             <AcademicMagazineCoverShowcase
               radiusClass={radiusClass}
               imageUrl={content.imageUrl}
@@ -658,31 +658,31 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ content, variant, them
   /* ── 3. Split Variant (Default) — Academic Magazine Cover & Chapters ── */
   return (
     <section
-      className="relative py-14 sm:py-22 overflow-hidden border-b border-border-subtle"
+      className="relative py-10 sm:py-20 overflow-hidden border-b border-border-subtle"
       style={{
         background:
           'radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--color-primary) 11%, transparent), transparent 52%), radial-gradient(circle at 86% 82%, color-mix(in srgb, var(--color-secondary) 10%, transparent), transparent 50%), linear-gradient(180deg, #FFFDF9 0%, var(--color-bg) 100%)',
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 sm:gap-10 lg:gap-12 items-center">
           {/* Right Column (5 cols): Editorial Teacher Heading, CTAs & Group Code Input */}
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-5 space-y-6 text-start"
+            className="lg:col-span-5 space-y-4 sm:space-y-6 text-start"
           >
             <motion.h1
               variants={blurUp}
-              className="text-3xl sm:text-4xl lg:text-[2.6rem] font-bold font-heading text-text-main leading-[1.48] text-balance"
+              className="text-2xl sm:text-4xl lg:text-[2.6rem] font-bold font-heading text-text-main leading-[1.45] sm:leading-[1.48] text-balance"
             >
               {content.title}
             </motion.h1>
-            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.9]">
+            <motion.p variants={fadeUpItem} className="text-sm sm:text-base lg:text-lg text-text-muted leading-[1.8] sm:leading-[1.9]">
               {content.subtitle}
             </motion.p>
-            <motion.div variants={fadeUpItem} className="flex flex-wrap items-center gap-3.5 pt-1">
+            <motion.div variants={fadeUpItem} className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pt-1">
               {content.primaryButtonText &&
                 renderButton(content.primaryButtonText, content.primaryButtonLink || '/register', true)}
               {content.secondaryButtonText &&

@@ -57,20 +57,20 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
   );
 
   return (
-    <section className="py-20 sm:py-28 bg-surface border-y border-border-subtle">
+    <section className="py-12 sm:py-24 bg-surface border-y border-border-subtle">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
-          className="text-center max-w-3xl mx-auto mb-14 space-y-3.5"
+          className="text-center max-w-3xl mx-auto mb-8 sm:mb-14 space-y-2.5 sm:space-y-3.5"
         >
-          <motion.h2 variants={blurUp} className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
+          <motion.h2 variants={blurUp} className="text-2xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
             {content.title || 'آراء وتجارب طلابنا'}
           </motion.h2>
           {content.subtitle && (
-            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.85]">
+            <motion.p variants={fadeUpItem} className="text-sm sm:text-lg text-text-muted leading-[1.8] sm:leading-[1.85]">
               {content.subtitle}
             </motion.p>
           )}
@@ -91,7 +91,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
                 variants={fadeUpItem}
                 whileHover={{ y: -5 }}
                 transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-                className={`p-7 sm:p-8 bg-bg border border-border hover:border-primary/35 transition-colors flex flex-col justify-between text-start space-y-5 ${radiusClass}`}
+                className={`p-5 sm:p-8 bg-bg border border-border hover:border-primary/35 transition-colors flex flex-col justify-between text-start space-y-4 sm:space-y-5 ${radiusClass}`}
               >
                 <div className="space-y-4">
                   <Quote className="w-8 h-8 text-primary/30" />
@@ -110,7 +110,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
             {items.map((t) => (
               <div
                 key={t.id}
-                className={`h-full p-7 bg-bg border border-border hover:border-primary/35 transition-colors flex flex-col justify-between space-y-5 text-start ${radiusClass}`}
+                className={`h-full p-5 sm:p-7 bg-bg border border-border hover:border-primary/35 transition-colors flex flex-col justify-between space-y-4 sm:space-y-5 text-start ${radiusClass}`}
               >
                 <div className="space-y-3.5">
                   {renderStars(t.rating)}
@@ -135,7 +135,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
                 variants={fadeUpItem}
                 whileHover={{ y: -5 }}
                 transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-                className={`relative p-7 bg-bg border border-border hover:border-primary/35 transition-colors flex flex-col justify-between space-y-6 text-start ${radiusClass}`}
+                className={`relative p-5 sm:p-7 bg-bg border border-border hover:border-primary/35 transition-colors flex flex-col justify-between space-y-5 sm:space-y-6 text-start ${radiusClass}`}
               >
                 <Quote
                   className="absolute top-6 end-6 w-8 h-8 text-primary/10 pointer-events-none"

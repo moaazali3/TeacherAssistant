@@ -20,6 +20,7 @@ interface LandingRendererProps {
     thumbnailUrl?: string;
     lessonsCount?: number;
   }>;
+  isPreview?: boolean;
   className?: string;
 }
 
@@ -27,6 +28,7 @@ export const LandingRenderer: React.FC<LandingRendererProps> = ({
   config,
   tenantName,
   previewSubjects,
+  isPreview = false,
   className = '',
 }) => {
   const { theme, sections } = config;
@@ -78,15 +80,17 @@ export const LandingRenderer: React.FC<LandingRendererProps> = ({
     <MotionConfig reducedMotion="user">
       <div
         style={themeStyles}
-        className={`relative w-full min-h-screen transition-colors duration-200 ${className}`}
+        className={`relative w-full min-h-screen overflow-x-hidden transition-colors duration-200 ${className}`}
         dir="rtl"
       >
         {/* Top Spring Scroll Progress Indicator */}
-        <motion.div
-          style={{ scaleX, transformOrigin: '100% 50%' }}
-          className="fixed top-0 inset-x-0 h-1 bg-primary z-50 pointer-events-none"
-          aria-hidden="true"
-        />
+        {!isPreview && (
+          <motion.div
+            style={{ scaleX, transformOrigin: '100% 50%' }}
+            className="fixed top-0 inset-x-0 h-1 bg-primary z-50 pointer-events-none"
+            aria-hidden="true"
+          />
+        )}
 
         {enabledSections.map((section) => {
           const key = section.id || section.type;

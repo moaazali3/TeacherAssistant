@@ -26,21 +26,21 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
   /* ── 1. Compact Variant ─────────────────────────────────────────── */
   if (variant === 'compact') {
     return (
-      <section className="py-16 sm:py-20 bg-surface border-y border-border-subtle">
+      <section className="py-12 sm:py-20 bg-surface border-y border-border-subtle">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
-          className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6"
+          className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-5 sm:space-y-6"
         >
           <motion.h2
             variants={blurUp}
-            className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
+            className="text-2xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
           >
             {content.title}
           </motion.h2>
-          <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.85] max-w-2xl mx-auto">
+          <motion.p variants={fadeUpItem} className="text-sm sm:text-lg text-text-muted leading-[1.85] max-w-2xl mx-auto">
             {content.bio}
           </motion.p>
           {features.length > 0 && (
@@ -70,14 +70,14 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
   /* ── 2. Card Variant ────────────────────────────────────────────── */
   if (variant === 'card') {
     return (
-      <section className="py-16 sm:py-24">
+      <section className="py-12 sm:py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             variants={scaleReveal}
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
-            className={`relative overflow-hidden p-8 sm:p-14 bg-surface border border-border shadow-[0_20px_55px_-15px_rgba(15,23,42,0.1)] ${radiusClass} space-y-8`}
+            className={`relative overflow-hidden p-5 sm:p-12 bg-surface border border-border shadow-[0_20px_55px_-15px_rgba(15,23,42,0.1)] ${radiusClass} space-y-6 sm:space-y-8`}
           >
             {/* Decorative corner blob */}
             <div
@@ -85,11 +85,11 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
               className="pointer-events-none absolute -top-16 -end-16 w-56 h-56 rounded-full blur-3xl opacity-20"
               style={{ background: 'var(--color-primary)' }}
             />
-            <div className="text-center space-y-4 relative">
-              <h2 className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
+            <div className="text-center space-y-3 sm:space-y-4 relative">
+              <h2 className="text-2xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
                 {content.title}
               </h2>
-              <p className="text-base sm:text-lg text-text-muted leading-[1.9] max-w-3xl mx-auto">
+              <p className="text-sm sm:text-lg text-text-muted leading-[1.85] sm:leading-[1.9] max-w-3xl mx-auto">
                 {content.bio}
               </p>
             </div>
@@ -127,9 +127,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
 
   /* ── 3. Split Variant (Default) ─────────────────────────────────── */
   return (
-    <section className="py-20 sm:py-28 bg-surface border-y border-border-subtle">
+    <section className="py-12 sm:py-24 bg-surface border-y border-border-subtle">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
           {/* Image */}
           <motion.div
             variants={slideInFromStart}
@@ -154,10 +154,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
                   <img
                     src={content.imageUrl}
                     alt={content.title}
-                    className="w-full h-[440px] sm:h-[520px] object-cover object-[50%_20%]"
+                    className="w-full h-[260px] sm:h-[460px] object-cover object-[50%_20%]"
                   />
                 ) : (
-                  <div className="w-full h-[400px] sm:h-[460px] bg-gradient-to-br from-primary-subtle to-bg flex items-center justify-center">
+                  <div className="w-full h-[260px] sm:h-[460px] bg-gradient-to-br from-primary-subtle to-bg flex items-center justify-center">
                     <GraduationCap className="w-20 h-20 text-primary/30" />
                   </div>
                 )}
@@ -171,15 +171,15 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ content, variant, th
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
-            className="lg:col-span-7 order-1 lg:order-2 space-y-6 text-start"
+            className="lg:col-span-7 order-1 lg:order-2 space-y-5 sm:space-y-6 text-start"
           >
             <motion.h2
               variants={blurUp}
-              className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
+              className="text-2xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]"
             >
               {content.title}
             </motion.h2>
-            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.9] max-w-2xl">
+            <motion.p variants={fadeUpItem} className="text-sm sm:text-lg text-text-muted leading-[1.85] sm:leading-[1.9] max-w-2xl">
               {content.bio}
             </motion.p>
             {features.length > 0 && (

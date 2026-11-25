@@ -21,7 +21,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ content, variant, theme 
   if (items.length === 0) return null;
 
   return (
-    <section className="py-20 sm:py-28">
+    <section className="py-12 sm:py-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -29,13 +29,13 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ content, variant, theme 
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
-          className="text-center max-w-2xl mx-auto mb-14 space-y-3.5"
+          className="text-center max-w-2xl mx-auto mb-8 sm:mb-14 space-y-2.5 sm:space-y-3.5"
         >
-          <motion.h2 variants={blurUp} className="text-3xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
+          <motion.h2 variants={blurUp} className="text-2xl sm:text-4xl font-bold font-heading text-text-main leading-[1.45]">
             {content.title || 'الأسئلة الأكثر شيوعاً'}
           </motion.h2>
           {content.subtitle && (
-            <motion.p variants={fadeUpItem} className="text-base sm:text-lg text-text-muted leading-[1.85]">
+            <motion.p variants={fadeUpItem} className="text-sm sm:text-lg text-text-muted leading-[1.8] sm:leading-[1.85]">
               {content.subtitle}
             </motion.p>
           )}
@@ -43,11 +43,11 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ content, variant, theme 
 
         {/* 1. Cards Variant */}
         {variant === 'cards' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-start">
             {items.map((item, idx) => (
               <div
                 key={item.id || idx}
-                className={`p-7 bg-surface border border-border hover:border-primary/35 transition-colors space-y-3 ${radiusClass}`}
+                className={`p-5 sm:p-7 bg-surface border border-border hover:border-primary/35 transition-colors space-y-2.5 sm:space-y-3 ${radiusClass}`}
               >
                 <h3 className="text-base sm:text-lg font-bold text-text-main leading-snug">
                   {item.question}
@@ -58,9 +58,9 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ content, variant, theme 
           </div>
         ) : variant === 'twoColumns' ? (
           /* 2. Two Columns Variant */
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-start">
             {items.map((item, idx) => (
-              <div key={item.id || idx} className="space-y-2.5 pb-6 border-b border-border-subtle">
+              <div key={item.id || idx} className="space-y-2 pb-5 sm:pb-6 border-b border-border-subtle">
                 <h3 className="text-base sm:text-lg font-bold text-text-main leading-snug">
                   {item.question}
                 </h3>
@@ -75,7 +75,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ content, variant, theme 
             collapsible
             value={openValue}
             onValueChange={setOpenValue}
-            className="space-y-3.5 text-start"
+            className="space-y-3 sm:space-y-3.5 text-start"
           >
             {items.map((item, idx) => {
               const itemValue = item.id || `item-${idx}`;
@@ -91,10 +91,10 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ content, variant, theme 
                   } ${radiusClass}`}
                 >
                   <Accordion.Header className="m-0">
-                    <Accordion.Trigger className="w-full p-5 sm:p-6 text-start font-bold text-text-main flex items-center justify-between gap-4 cursor-pointer transition-colors">
-                      <span className="text-base sm:text-lg leading-snug">{item.question}</span>
+                    <Accordion.Trigger className="w-full p-4 sm:p-6 text-start font-bold text-text-main flex items-center justify-between gap-3 sm:gap-4 cursor-pointer transition-colors">
+                      <span className="text-sm sm:text-lg leading-snug">{item.question}</span>
                       <span
-                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
                           isOpen ? 'bg-primary text-primary-foreground' : 'bg-bg text-text-muted'
                         }`}
                       >
@@ -116,7 +116,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ content, variant, theme 
                           transition={{ duration: 0.26, ease: EASE_OUT_EXPO }}
                           className="overflow-hidden"
                         >
-                          <div className="px-5 sm:px-6 pb-6 text-sm sm:text-base text-text-muted leading-[1.85] border-t border-border-subtle pt-4">
+                          <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-sm sm:text-base text-text-muted leading-[1.8] sm:leading-[1.85] border-t border-border-subtle pt-3 sm:pt-4">
                             {item.answer}
                           </div>
                         </motion.div>
