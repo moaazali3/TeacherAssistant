@@ -49,6 +49,7 @@ import {
   Eye,
   EyeOff,
   GripVertical,
+  ClipboardList,
 } from 'lucide-react';
 
 export const SubjectManagerPage: React.FC = () => {
@@ -164,26 +165,26 @@ export const SubjectManagerPage: React.FC = () => {
     if (!subjectId) return;
 
     try {
+      const sharedPayload = {
+        title: data.title,
+        description: data.description,
+        contentType: data.contentType,
+        contentUrl: data.contentUrl,
+        isPublished: data.isPublished,
+        moduleTitle: data.moduleTitle?.trim() || null,
+        availableAt: data.availableAt ? new Date(data.availableAt).toISOString() : null,
+        requiresPreviousCompletion: data.requiresPreviousCompletion,
+        attachmentUrl: data.attachmentUrl?.trim() || null,
+      };
+
       if (editingLesson) {
         await updateLessonMutation.mutateAsync({
           lessonId: editingLesson.id,
-          dto: {
-            title: data.title,
-            description: data.description,
-            contentType: data.contentType,
-            contentUrl: data.contentUrl,
-            isPublished: data.isPublished,
-          },
+          dto: sharedPayload,
         });
         success('تم تعديل الدرس بنجاح!');
       } else {
-        await addLessonMutation.mutateAsync({
-          title: data.title,
-          description: data.description,
-          contentType: data.contentType,
-          contentUrl: data.contentUrl,
-          isPublished: data.isPublished,
-        });
+        await addLessonMutation.mutateAsync(sharedPayload);
         success('تمت إضافة الدرس الجديد بنجاح!');
       }
 
@@ -257,6 +258,16 @@ export const SubjectManagerPage: React.FC = () => {
               startIcon={<Users className="w-4 h-4" />}
             >
               المجموعات والطلاب
+            </Button>
+          </Link>
+
+          <Link to={platformPath(`/dashboard/teacher/subjects/${subjectId}/quizzes`)}>
+            <Button
+              variant="outline"
+              size="sm"
+              startIcon={<ClipboardList className="w-4 h-4" />}
+            >
+              الواجبات والامتحانات
             </Button>
           </Link>
 

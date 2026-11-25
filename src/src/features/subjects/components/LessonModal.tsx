@@ -7,7 +7,15 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { applyServerValidationErrors } from '@/lib/api';
-import { BookOpen, Video, FileText, Link as LinkIcon, File } from 'lucide-react';
+import { BookOpen, Video, FileText, Link as LinkIcon, File, FolderOpen, Paperclip, CalendarClock, Lock } from 'lucide-react';
+
+function toLocalDateTimeInput(iso?: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 interface LessonModalProps {
   isOpen: boolean;
@@ -41,6 +49,10 @@ export const LessonModal: React.FC<LessonModalProps> = ({
       contentType: 'Video',
       contentUrl: '',
       isPublished: true,
+      moduleTitle: '',
+      availableAt: '',
+      requiresPreviousCompletion: false,
+      attachmentUrl: '',
     },
     mode: 'onTouched',
   });
@@ -56,6 +68,10 @@ export const LessonModal: React.FC<LessonModalProps> = ({
           contentType: normalizeContentType(initialData.contentType),
           contentUrl: 'contentUrl' in initialData ? (initialData as LessonDetail).contentUrl : '',
           isPublished: initialData.isPublished ?? true,
+          moduleTitle: initialData.moduleTitle || '',
+          availableAt: toLocalDateTimeInput(initialData.availableAt),
+          requiresPreviousCompletion: initialData.requiresPreviousCompletion ?? false,
+          attachmentUrl: initialData.attachmentUrl || '',
         });
       } else {
         reset({
@@ -64,6 +80,10 @@ export const LessonModal: React.FC<LessonModalProps> = ({
           contentType: 'Video',
           contentUrl: '',
           isPublished: true,
+          moduleTitle: '',
+          availableAt: '',
+          requiresPreviousCompletion: false,
+          attachmentUrl: '',
         });
       }
     }
@@ -192,8 +212,39 @@ export const LessonModal: React.FC<LessonModalProps> = ({
           {...register('contentUrl')}
         />
 
-        {/* Published Toggle */}
-        <div className="pt-1">
+        {/* Module / Chapter + Handout Attachment */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input
+            label="الباب / الشهر (اختياري)"
+            placeholder="مثال: الشهر الأول - العناصر الانتقالية"
+            startAdornment={<FolderOpen className="w-4 h-4 text-text-subtle" />}
+            error={errors.moduleTitle?.message}
+            {...register('moduleTitle')}
+          />
+
+          <Input
+            label="موعد الفتح المجدول (اختياري)"
+            type="datetime-local"
+            dir="ltr"
+            startAdornment={<CalendarClock className="w-4 h-4 text-text-subtle" />}
+            error={errors.availableAt?.message}
+            {...register('availableAt')}
+          />
+        </div>
+
+        <Input
+          label="رابط ملزمة PDF مرفقة (اختياري)"
+          type="url"
+          dir="ltr"
+          className="text-start font-mono text-xs"
+          placeholder="https://drive.google.com/..."
+          startAdornment={<Paperclip className="w-4 h-4 text-text-subtle" />}
+          error={errors.attachmentUrl?.message}
+          {...register('attachmentUrl')}
+        />
+
+        {/* Published & Sequential Lock Toggles */}
+        <div className="pt-1 space-y-2.5">
           <label className="flex items-center gap-2.5 cursor-pointer select-none">
             <input
               type="checkbox"
@@ -202,6 +253,18 @@ export const LessonModal: React.FC<LessonModalProps> = ({
             />
             <span className="text-sm font-medium text-text-main">
               نشر الدرس للطلاب مباشرة
+            </span>
+          </label>
+
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              className="w-4 h-4 text-primary rounded border-border focus:ring-primary cursor-pointer"
+              {...register('requiresPreviousCompletion')}
+            />
+            <span className="text-sm font-medium text-text-main flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-text-muted" />
+              <span>قفل المحاضرة لحين إتمام الطالب للمحاضرة السابقة</span>
             </span>
           </label>
         </div>

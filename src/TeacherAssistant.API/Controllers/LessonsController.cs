@@ -42,6 +42,13 @@ public class LessonsController : BaseApiController
         CancellationToken cancellationToken)
         => Map(await _subjectService.DeleteLessonAsync(id, cancellationToken));
 
+    [HttpPost("{id:guid}/complete")]
+    [Authorize(Policy = AuthorizationPolicies.StudentOnly)]
+    public async Task<ActionResult<ApiResponse<LessonDto>>> MarkCompleted(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+        => Map(await _subjectService.MarkLessonCompletedAsync(id, cancellationToken));
+
     private ActionResult<ApiResponse<T>> Map<T>(ServiceResult<T> result)
         => StatusCode(result.StatusCode, result.Response);
 }

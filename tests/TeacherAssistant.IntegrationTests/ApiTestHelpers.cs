@@ -92,7 +92,9 @@ public static class ApiTestHelpers
         string joinCode,
         string password = DefaultPassword,
         string phoneNumber = "01012345678",
-        string parentPhoneNumber = "01112345678")
+        string parentPhoneNumber = "01112345678",
+        DateOnly? dateOfBirth = null,
+        Gender? gender = Gender.Male)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/auth/register-student")
         {
@@ -103,6 +105,8 @@ public static class ApiTestHelpers
                 Password = password,
                 PhoneNumber = phoneNumber,
                 ParentPhoneNumber = parentPhoneNumber,
+                DateOfBirth = dateOfBirth ?? new DateOnly(2008, 5, 15),
+                Gender = gender,
                 JoinCode = joinCode
             })
         };

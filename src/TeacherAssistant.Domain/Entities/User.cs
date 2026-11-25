@@ -10,7 +10,10 @@ public class User : BaseEntity, ITenantEntity
     public string PasswordHash { get; set; } = string.Empty;
     public string? PhoneNumber { get; set; }
     public string? ParentPhoneNumber { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
+    public Gender? Gender { get; set; }
     public UserRole Role { get; set; } = UserRole.Student;
+    public AssistantPermissions Permissions { get; set; } = AssistantPermissions.None;
 
     // Null for platform-level Admin users; set for every tenant user.
     public Guid? TenantId { get; set; }

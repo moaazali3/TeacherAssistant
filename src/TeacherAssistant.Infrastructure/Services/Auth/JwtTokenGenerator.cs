@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using TeacherAssistant.Application.Common.Interfaces;
 using TeacherAssistant.Application.Common.Models;
 using TeacherAssistant.Domain.Entities;
+using TeacherAssistant.Domain.Enums;
 using TeacherAssistant.Infrastructure.Settings;
 
 namespace TeacherAssistant.Infrastructure.Services.Auth;
@@ -25,6 +26,10 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         var key = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
         var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes);
 
+        var effectivePermissions = user.Role == UserRole.Instructor
+            ? AssistantPermissions.All
+            : user.Permissions;
+
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -33,7 +38,8 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new(ClaimTypes.Role, user.Role.ToString()),
 
             // Custom claim used to reject a token on another tenant's subdomain.
-            new("tenantId", user.TenantId?.ToString() ?? string.Empty)
+            new("tenantId", user.TenantId?.ToString() ?? string.Empty),
+            new("permissions", ((int)effectivePermissions).ToString())
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor

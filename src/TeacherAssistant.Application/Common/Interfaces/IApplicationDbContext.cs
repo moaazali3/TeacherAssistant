@@ -9,6 +9,7 @@ public interface IApplicationDbContext
     DbSet<User> Users { get; }
     DbSet<Subject> Subjects { get; }
     DbSet<Lesson> Lessons { get; }
+    DbSet<LessonProgress> LessonProgresses { get; }
     DbSet<Group> Groups { get; }
     DbSet<GroupMembership> GroupMemberships { get; }
     DbSet<Enrollment> Enrollments { get; }

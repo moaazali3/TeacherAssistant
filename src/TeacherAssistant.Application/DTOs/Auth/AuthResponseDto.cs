@@ -8,6 +8,7 @@ public class AuthResponseDto
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public UserRole Role { get; set; }
+    public AssistantPermissions Permissions { get; set; }
     public Guid? TenantId { get; set; }
     public string? TenantSubdomain { get; set; }
     public string Token { get; set; } = string.Empty;

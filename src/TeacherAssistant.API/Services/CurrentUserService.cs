@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using TeacherAssistant.Application.Common.Interfaces;
+using TeacherAssistant.Domain.Enums;
 
 namespace TeacherAssistant.API.Services;
 
@@ -38,4 +39,24 @@ public class CurrentUserService : ICurrentUserService
 
     public bool IsAuthenticated =>
         _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+
+    public AssistantPermissions Permissions
+    {
+        get
+        {
+            var permissionsStr = _httpContextAccessor.HttpContext?.User?.FindFirstValue("permissions");
+            return int.TryParse(permissionsStr, out var raw)
+                ? (AssistantPermissions)raw
+                : AssistantPermissions.None;
+        }
+    }
+
+    public bool HasPermission(AssistantPermissions permission)
+    {
+        if (string.Equals(Role, nameof(UserRole.Instructor), StringComparison.Ordinal))
+            return true;
+
+        return string.Equals(Role, nameof(UserRole.Assistant), StringComparison.Ordinal)
+            && Permissions.HasFlag(permission);
+    }
 }

@@ -42,6 +42,22 @@ export const lessonSchema = z.object({
       'الرابط يجب أن يبدأ بـ http:// أو https://'
     ),
   isPublished: z.boolean().default(true),
+  moduleTitle: z
+    .string()
+    .max(150, 'اسم الباب أو الشهر يجب ألا يتجاوز 150 حرفاً')
+    .optional()
+    .or(z.literal('')),
+  availableAt: z.string().optional().or(z.literal('')),
+  requiresPreviousCompletion: z.boolean().default(false),
+  attachmentUrl: z
+    .string()
+    .url('رابط الملزمة يجب أن يكون رابطاً صالحاً يبدأ بـ http:// أو https://')
+    .refine(
+      (val) => !val || val.startsWith('http://') || val.startsWith('https://'),
+      'رابط الملزمة يجب أن يبدأ بـ http:// أو https://'
+    )
+    .optional()
+    .or(z.literal('')),
 });
 
 export type LessonFormData = z.infer<typeof lessonSchema>;

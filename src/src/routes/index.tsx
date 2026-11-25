@@ -9,6 +9,7 @@ import { PageFallback } from '@/components/ui/PageFallback';
 
 // Protected Route Guard
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
+import { ASSISTANT_PERMISSIONS } from '@/features/auth/types';
 
 // Lazy-loaded Pages — Platform & Public
 const PlatformLandingPage = lazy(() =>
@@ -42,6 +43,18 @@ const SubjectEditorPage = lazy(() =>
 );
 const SubjectManagerPage = lazy(() =>
   import('@/features/subjects/pages/SubjectManagerPage').then((m) => ({ default: m.SubjectManagerPage }))
+);
+const AssistantsPage = lazy(() =>
+  import('@/features/assistants/pages/AssistantsPage').then((m) => ({ default: m.AssistantsPage }))
+);
+const StudentsTrackingPage = lazy(() =>
+  import('@/features/students/pages/StudentsTrackingPage').then((m) => ({ default: m.StudentsTrackingPage }))
+);
+const SubjectQuizzesPage = lazy(() =>
+  import('@/features/quizzes/pages/SubjectQuizzesPage').then((m) => ({ default: m.SubjectQuizzesPage }))
+);
+const QuizTakePage = lazy(() =>
+  import('@/features/quizzes/pages/QuizTakePage').then((m) => ({ default: m.QuizTakePage }))
 );
 const SubjectGroupsPage = lazy(() =>
   import('@/features/groups/pages/SubjectGroupsPage').then((m) => ({ default: m.SubjectGroupsPage }))
@@ -101,6 +114,14 @@ export const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <LessonViewerPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="subjects/:subjectId/quizzes/:quizId"
+        element={
+          <ProtectedRoute>
+            <QuizTakePage />
           </ProtectedRoute>
         }
       />
@@ -191,6 +212,36 @@ export const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute requiredRole="Instructor">
             <SubjectGroupsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="dashboard/teacher/subjects/:subjectId/quizzes"
+        element={
+          <ProtectedRoute
+            allowedRoles={['Instructor', 'Assistant']}
+            requiredPermission={ASSISTANT_PERMISSIONS.MANAGE_ASSESSMENTS}
+          >
+            <SubjectQuizzesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="dashboard/teacher/students"
+        element={
+          <ProtectedRoute
+            allowedRoles={['Instructor', 'Assistant']}
+            requiredPermission={ASSISTANT_PERMISSIONS.VIEW_STUDENT_PROGRESS}
+          >
+            <StudentsTrackingPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="dashboard/teacher/assistants"
+        element={
+          <ProtectedRoute requiredRole="Instructor">
+            <AssistantsPage />
           </ProtectedRoute>
         }
       />

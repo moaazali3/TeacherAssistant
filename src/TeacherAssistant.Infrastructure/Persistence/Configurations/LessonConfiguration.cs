@@ -28,6 +28,12 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
             .IsRequired()
             .HasDefaultValue(false);
 
+        builder.Property(l => l.ModuleTitle)
+            .HasMaxLength(150);
+
+        builder.Property(l => l.AttachmentUrl)
+            .HasMaxLength(500);
+
         builder.HasIndex(l => new { l.SubjectId, l.SortOrder });
 
         builder.HasMany(l => l.Quizzes)

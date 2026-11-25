@@ -116,6 +116,33 @@ public class GroupsTests : IAsyncLifetime
         var member = Assert.Single(members, m => m.Email == "member@example.com");
         Assert.Equal("01012345678", member.PhoneNumber);
         Assert.Equal("01112345678", member.ParentPhoneNumber);
+        Assert.Equal(new DateOnly(2008, 5, 15), member.DateOfBirth);
+        Assert.Equal(Gender.Male, member.Gender);
+    }
+
+    [Fact]
+    public async Task Registration_requires_valid_date_of_birth_and_gender()
+    {
+        var missingProfile = await _client.SendAsync(ApiTestHelpers.CreateRequest(
+            HttpMethod.Post,
+            "/api/v1/auth/register-student",
+            Tenant,
+            body: new
+            {
+                Name = "Missing Profile",
+                Email = "missingprofile@example.com",
+                Password = ApiTestHelpers.DefaultPassword,
+                PhoneNumber = "01012345678",
+                ParentPhoneNumber = "01112345678",
+                JoinCode = _joinCode
+            }));
+        Assert.Equal(HttpStatusCode.BadRequest, missingProfile.StatusCode);
+
+        var futureBirth = await ApiTestHelpers.RegisterStudentAsync(
+            _client, Tenant, "futurebirth@example.com", _joinCode,
+            dateOfBirth: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(10)),
+            gender: Gender.Female);
+        Assert.Equal(HttpStatusCode.BadRequest, futureBirth.StatusCode);
     }
 
     [Fact]

@@ -143,4 +143,15 @@ export const subjectsApi = {
     }
     return res.data.data;
   },
+
+  /**
+   * POST /lessons/{id}/complete (Student only)
+   */
+  async completeLesson(lessonId: string): Promise<LessonDetail> {
+    const res = await apiClient.post<ApiResponse<LessonDetail>>(`/lessons/${lessonId}/complete`);
+    if (!res.data.success || !res.data.data) {
+      throw new Error(res.data.message || 'فشل تسجيل إتمام المحاضرة');
+    }
+    return res.data.data;
+  },
 };

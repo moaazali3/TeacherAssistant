@@ -19,6 +19,8 @@ export interface GroupMemberDto {
   email: string;
   phoneNumber?: string | null;
   parentPhoneNumber?: string | null;
+  dateOfBirth?: string | null;
+  gender?: 'Male' | 'Female' | null;
   joinedAt: string;
 }
 

@@ -20,6 +20,12 @@ public class Lesson : BaseEntity, ITenantEntity
     public int SortOrder { get; set; }
     public bool IsPublished { get; set; }
 
+    public string? ModuleTitle { get; set; }
+    public DateTime? AvailableAt { get; set; }
+    public bool RequiresPreviousCompletion { get; set; }
+    public string? AttachmentUrl { get; set; }
+
     // Navigation properties
     public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+    public ICollection<LessonProgress> ProgressRecords { get; set; } = new List<LessonProgress>();
 }

@@ -111,6 +111,13 @@ public class AuthService : IAuthService
                 "رقم هاتف ولي الأمر يجب أن يكون مختلفاً عن رقم الطالب.");
         }
 
+        var minBirthDate = new DateOnly(1950, 1, 1);
+        var maxBirthDate = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-6));
+        if (request.DateOfBirth is null || request.DateOfBirth < minBirthDate || request.DateOfBirth > maxBirthDate)
+        {
+            return ApiResponse<AuthResponseDto>.FailureResponse("تاريخ الميلاد غير صالح.");
+        }
+
         // The global tenant filter keeps this check inside the current platform.
         if (await _context.Users.AnyAsync(u => u.Email == email, cancellationToken))
         {
@@ -148,6 +155,8 @@ public class AuthService : IAuthService
             Email = email,
             PhoneNumber = phoneNumber,
             ParentPhoneNumber = parentPhoneNumber,
+            DateOfBirth = request.DateOfBirth,
+            Gender = request.Gender,
             Role = UserRole.Student,
             TenantId = _tenantService.TenantId
         };
@@ -178,12 +187,13 @@ public class AuthService : IAuthService
         var email = NormalizeEmail(request.Email);
         var currentTenantId = _tenantService.TenantId;
 
-        // Platform login (currentTenantId is null) permits platform Admins (TenantId == null)
-        // and Instructors (who own their own tenant and manage it from the platform control panel).
+        // Platform login (currentTenantId is null) permits platform Admins (TenantId == null),
+        // Instructors, and Assistants (who manage their teacher's platform from the control panel).
         // Tenant login (currentTenantId is not null) restricts login to users of that tenant.
         var user = currentTenantId is null
             ? await _context.Users.FirstOrDefaultAsync(
-                u => (u.TenantId == null || u.Role == UserRole.Instructor) && u.Email == email, cancellationToken)
+                u => (u.TenantId == null || u.Role == UserRole.Instructor || u.Role == UserRole.Assistant)
+                    && u.Email == email, cancellationToken)
             : await _context.Users.FirstOrDefaultAsync(
                 u => u.TenantId == currentTenantId && u.Email == email, cancellationToken);
 
@@ -216,6 +226,7 @@ public class AuthService : IAuthService
             Name = user.Name,
             Email = user.Email,
             Role = user.Role,
+            Permissions = user.Role == UserRole.Instructor ? AssistantPermissions.All : user.Permissions,
             TenantId = user.TenantId,
             TenantSubdomain = tenantSubdomain,
             Token = token.Token,

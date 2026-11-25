@@ -171,6 +171,9 @@ public class SubjectService : ISubjectService
         if (!UrlRules.IsHttpUrl(request.ContentUrl))
             return ServiceResult<LessonDto>.BadRequest("ContentUrl must be a valid http or https URL.");
 
+        if (!string.IsNullOrWhiteSpace(request.AttachmentUrl) && !UrlRules.IsHttpUrl(request.AttachmentUrl))
+            return ServiceResult<LessonDto>.BadRequest("AttachmentUrl must be a valid http or https URL.");
+
         var lastSortOrder = await _context.Lessons
             .Where(l => l.SubjectId == subjectId)
             .MaxAsync(l => (int?)l.SortOrder, cancellationToken) ?? 0;
@@ -183,7 +186,11 @@ public class SubjectService : ISubjectService
             ContentType = request.ContentType,
             ContentUrl = request.ContentUrl.Trim(),
             SortOrder = lastSortOrder + 1,
-            IsPublished = request.IsPublished
+            IsPublished = request.IsPublished,
+            ModuleTitle = NormalizeOptional(request.ModuleTitle),
+            AvailableAt = NormalizeUtc(request.AvailableAt),
+            RequiresPreviousCompletion = request.RequiresPreviousCompletion,
+            AttachmentUrl = NormalizeOptional(request.AttachmentUrl)
         };
 
         _context.Lessons.Add(lesson);
@@ -217,11 +224,18 @@ public class SubjectService : ISubjectService
         if (!UrlRules.IsHttpUrl(request.ContentUrl))
             return ServiceResult<LessonDto>.BadRequest("ContentUrl must be a valid http or https URL.");
 
+        if (!string.IsNullOrWhiteSpace(request.AttachmentUrl) && !UrlRules.IsHttpUrl(request.AttachmentUrl))
+            return ServiceResult<LessonDto>.BadRequest("AttachmentUrl must be a valid http or https URL.");
+
         lesson.Title = request.Title.Trim();
         lesson.Description = request.Description?.Trim() ?? string.Empty;
         lesson.ContentType = request.ContentType;
         lesson.ContentUrl = request.ContentUrl.Trim();
         lesson.IsPublished = request.IsPublished;
+        lesson.ModuleTitle = NormalizeOptional(request.ModuleTitle);
+        lesson.AvailableAt = NormalizeUtc(request.AvailableAt);
+        lesson.RequiresPreviousCompletion = request.RequiresPreviousCompletion;
+        lesson.AttachmentUrl = NormalizeOptional(request.AttachmentUrl);
         lesson.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -377,8 +391,18 @@ public class SubjectService : ISubjectService
             return ServiceResult<SubjectDetailDto>.NotFound("Subject not found.");
         }
 
+        Dictionary<Guid, LessonProgress>? progressByLesson = null;
+        if (!isOwner && IsStudent && userId is { } progressStudentId)
+        {
+            var lessonIds = subject.Lessons.Select(l => l.Id).ToList();
+            progressByLesson = await _context.LessonProgresses
+                .AsNoTracking()
+                .Where(lp => lp.StudentId == progressStudentId && lessonIds.Contains(lp.LessonId))
+                .ToDictionaryAsync(lp => lp.LessonId, cancellationToken);
+        }
+
         return ServiceResult<SubjectDetailDto>.Ok(
-            MapDetail(subject, includeDrafts: isOwner), "Subject fetched successfully.");
+            MapDetail(subject, includeDrafts: isOwner, progressByLesson), "Subject fetched successfully.");
     }
 
     public async Task<ServiceResult<LessonDto>> GetLessonAsync(
@@ -419,10 +443,98 @@ public class SubjectService : ISubjectService
             {
                 return ServiceResult<LessonDto>.NotFound("Lesson not found.");
             }
+
+            var lockError = await CheckStudentLessonLockAsync(lesson, userId, cancellationToken);
+            if (lockError is not null)
+                return ServiceResult<LessonDto>.Forbidden(lockError);
+
+            var progress = await _context.LessonProgresses
+                .FirstOrDefaultAsync(lp => lp.StudentId == userId && lp.LessonId == lesson.Id, cancellationToken);
+
+            if (progress is null)
+            {
+                progress = new LessonProgress
+                {
+                    StudentId = userId,
+                    LessonId = lesson.Id,
+                    ViewCount = 1,
+                    LastViewedAt = DateTime.UtcNow
+                };
+                _context.LessonProgresses.Add(progress);
+            }
+            else
+            {
+                progress.ViewCount++;
+                progress.LastViewedAt = DateTime.UtcNow;
+                progress.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return ServiceResult<LessonDto>.Ok(
+                MapFull(lesson, lesson.Subject.Title, progress.IsCompleted, progress.ViewCount),
+                "Lesson fetched successfully.");
         }
 
         return ServiceResult<LessonDto>.Ok(
             MapFull(lesson, lesson.Subject?.Title ?? string.Empty), "Lesson fetched successfully.");
+    }
+
+    public async Task<ServiceResult<LessonDto>> MarkLessonCompletedAsync(
+        Guid lessonId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!HasTenant)
+            return NoTenant<LessonDto>();
+
+        if (_currentUserService.UserId is not { } userId || !IsStudent)
+            return ServiceResult<LessonDto>.Forbidden("Only students can complete lessons.");
+
+        var lesson = await _context.Lessons
+            .AsNoTracking()
+            .Include(l => l.Subject)
+            .FirstOrDefaultAsync(l => l.Id == lessonId, cancellationToken);
+
+        if (lesson is null || lesson.Subject is null || !lesson.Subject.IsPublished || !lesson.IsPublished ||
+            !await IsMemberAsync(lesson.SubjectId, userId, cancellationToken))
+        {
+            return ServiceResult<LessonDto>.NotFound("Lesson not found.");
+        }
+
+        var lockError = await CheckStudentLessonLockAsync(lesson, userId, cancellationToken);
+        if (lockError is not null)
+            return ServiceResult<LessonDto>.Forbidden(lockError);
+
+        var progress = await _context.LessonProgresses
+            .FirstOrDefaultAsync(lp => lp.StudentId == userId && lp.LessonId == lesson.Id, cancellationToken);
+
+        if (progress is null)
+        {
+            progress = new LessonProgress
+            {
+                StudentId = userId,
+                LessonId = lesson.Id,
+                IsCompleted = true,
+                CompletedAt = DateTime.UtcNow,
+                ViewCount = 1,
+                LastViewedAt = DateTime.UtcNow
+            };
+            _context.LessonProgresses.Add(progress);
+        }
+        else
+        {
+            progress.IsCompleted = true;
+            progress.CompletedAt ??= DateTime.UtcNow;
+            if (progress.ViewCount == 0) progress.ViewCount = 1;
+            progress.LastViewedAt = DateTime.UtcNow;
+            progress.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return ServiceResult<LessonDto>.Ok(
+            MapFull(lesson, lesson.Subject.Title, progress.IsCompleted, progress.ViewCount),
+            "Lesson marked as completed.");
     }
 
     // ---------------------------------------------------------------------
@@ -459,6 +571,41 @@ public class SubjectService : ISubjectService
         CreatedAt = subject.CreatedAt
     };
 
+    private async Task<string?> CheckStudentLessonLockAsync(
+        Lesson lesson,
+        Guid studentId,
+        CancellationToken cancellationToken)
+    {
+        if (lesson.AvailableAt.HasValue && lesson.AvailableAt.Value > DateTime.UtcNow)
+            return "هذه المحاضرة مجدولة ولم يحن موعد فتحها بعد.";
+
+        if (!lesson.RequiresPreviousCompletion)
+            return null;
+
+        var orderedLessons = await _context.Lessons
+            .AsNoTracking()
+            .Where(l => l.SubjectId == lesson.SubjectId && l.IsPublished)
+            .OrderBy(l => l.SortOrder)
+            .ThenBy(l => l.CreatedAt)
+            .Select(l => new { l.Id, l.Title })
+            .ToListAsync(cancellationToken);
+
+        var idx = orderedLessons.FindIndex(l => l.Id == lesson.Id);
+        if (idx <= 0)
+            return null;
+
+        var prevLesson = orderedLessons[idx - 1];
+        var prevCompleted = await _context.LessonProgresses
+            .AsNoTracking()
+            .AnyAsync(
+                lp => lp.StudentId == studentId && lp.LessonId == prevLesson.Id && lp.IsCompleted,
+                cancellationToken);
+
+        return prevCompleted
+            ? null
+            : $"يجب إتمام المحاضرة السابقة ({prevLesson.Title}) أولاً لفتح هذه المحاضرة.";
+    }
+
     private static LessonSummaryDto MapSummary(Lesson lesson) => new()
     {
         Id = lesson.Id,
@@ -466,29 +613,74 @@ public class SubjectService : ISubjectService
         Description = lesson.Description,
         ContentType = lesson.ContentType,
         SortOrder = lesson.SortOrder,
-        IsPublished = lesson.IsPublished
+        IsPublished = lesson.IsPublished,
+        ModuleTitle = lesson.ModuleTitle,
+        AvailableAt = lesson.AvailableAt,
+        RequiresPreviousCompletion = lesson.RequiresPreviousCompletion,
+        AttachmentUrl = lesson.AttachmentUrl
     };
 
-    private static SubjectDetailDto MapDetail(Subject subject, bool includeDrafts) => new()
+    private static SubjectDetailDto MapDetail(
+        Subject subject,
+        bool includeDrafts,
+        Dictionary<Guid, LessonProgress>? progressByLesson = null)
     {
-        Id = subject.Id,
-        InstructorId = subject.InstructorId,
-        InstructorName = subject.Instructor?.Name ?? string.Empty,
-        Title = subject.Title,
-        Description = subject.Description,
-        ThumbnailUrl = subject.ThumbnailUrl,
-        IsPublished = subject.IsPublished,
-        CreatedAt = subject.CreatedAt,
-        UpdatedAt = subject.UpdatedAt,
-        Lessons = subject.Lessons
+        var ordered = subject.Lessons
             .Where(l => includeDrafts || l.IsPublished)
             .OrderBy(l => l.SortOrder)
             .ThenBy(l => l.CreatedAt)
-            .Select(MapSummary)
-            .ToList()
-    };
+            .ToList();
 
-    private static LessonDto MapFull(Lesson lesson, string subjectTitle) => new()
+        var summaries = new List<LessonSummaryDto>(ordered.Count);
+        var now = DateTime.UtcNow;
+
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            var lesson = ordered[i];
+            LessonProgress? progress = null;
+            progressByLesson?.TryGetValue(lesson.Id, out progress);
+
+            var dto = MapSummary(lesson);
+            dto.IsCompleted = progress?.IsCompleted ?? false;
+            dto.ViewCount = progress?.ViewCount ?? 0;
+
+            if (progressByLesson is not null)
+            {
+                if (lesson.AvailableAt.HasValue && lesson.AvailableAt.Value > now)
+                {
+                    dto.IsLocked = true;
+                    dto.LockReason = "scheduled";
+                }
+                else if (lesson.RequiresPreviousCompletion && i > 0 && !summaries[i - 1].IsCompleted)
+                {
+                    dto.IsLocked = true;
+                    dto.LockReason = $"يجب إتمام الدرس السابق ({summaries[i - 1].Title}) أولاً.";
+                }
+            }
+
+            summaries.Add(dto);
+        }
+
+        return new SubjectDetailDto
+        {
+            Id = subject.Id,
+            InstructorId = subject.InstructorId,
+            InstructorName = subject.Instructor?.Name ?? string.Empty,
+            Title = subject.Title,
+            Description = subject.Description,
+            ThumbnailUrl = subject.ThumbnailUrl,
+            IsPublished = subject.IsPublished,
+            CreatedAt = subject.CreatedAt,
+            UpdatedAt = subject.UpdatedAt,
+            Lessons = summaries
+        };
+    }
+
+    private static LessonDto MapFull(
+        Lesson lesson,
+        string subjectTitle,
+        bool isCompleted = false,
+        int viewCount = 0) => new()
     {
         Id = lesson.Id,
         SubjectId = lesson.SubjectId,
@@ -498,8 +690,17 @@ public class SubjectService : ISubjectService
         ContentType = lesson.ContentType,
         ContentUrl = lesson.ContentUrl,
         SortOrder = lesson.SortOrder,
-        IsPublished = lesson.IsPublished
+        IsPublished = lesson.IsPublished,
+        ModuleTitle = lesson.ModuleTitle,
+        AvailableAt = lesson.AvailableAt,
+        RequiresPreviousCompletion = lesson.RequiresPreviousCompletion,
+        AttachmentUrl = lesson.AttachmentUrl,
+        IsCompleted = isCompleted,
+        ViewCount = viewCount
     };
+
+    private static DateTime? NormalizeUtc(DateTime? dt)
+        => dt is null ? null : (dt.Value.Kind == DateTimeKind.Utc ? dt.Value : dt.Value.ToUniversalTime());
 
     private static string? NormalizeOptional(string? value)
         => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

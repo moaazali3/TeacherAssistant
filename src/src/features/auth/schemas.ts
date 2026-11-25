@@ -86,6 +86,25 @@ export const registerStudentSchema = z
       .email('صيغة البريد الإلكتروني غير صحيحة')
       .max(256, 'البريد الإلكتروني طويل جداً'),
     password: passwordRuleSchema,
+    confirmPassword: z
+      .string()
+      .min(1, 'تأكيد كلمة المرور مطلوب'),
+    dateOfBirth: z
+      .string()
+      .min(1, 'تاريخ الميلاد مطلوب')
+      .refine(
+        (val) => {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return false;
+          const parsed = new Date(`${val}T00:00:00Z`);
+          if (Number.isNaN(parsed.getTime())) return false;
+          const minDate = new Date('1950-01-01T00:00:00Z');
+          const maxDate = new Date();
+          maxDate.setFullYear(maxDate.getFullYear() - 6);
+          return parsed >= minDate && parsed <= maxDate;
+        },
+        { message: 'أدخل تاريخ ميلاد صحيح (العمر 6 سنوات على الأقل)' }
+      ),
+    gender: z.enum(['Male', 'Female'], { message: 'يرجى اختيار النوع' }),
     phoneNumber: phoneRuleSchema('رقم هاتف الطالب مطلوب'),
     parentPhoneNumber: phoneRuleSchema('رقم هاتف ولي الأمر مطلوب'),
     joinCode: z
@@ -95,6 +114,10 @@ export const registerStudentSchema = z
       .length(8, 'كود الجروب يجب أن يتكون من 8 أحرف وأرقام بالضبط')
       .regex(/^[A-Za-z0-9]{8}$/, 'كود الجروب يجب أن يتكون من 8 أحرف وأرقام إنجليزية فقط')
       .transform((val) => val.toUpperCase()),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'كلمتا المرور غير متطابقتين',
+    path: ['confirmPassword'],
   })
   .refine((data) => data.phoneNumber !== data.parentPhoneNumber, {
     message: 'رقم هاتف ولي الأمر يجب أن يكون مختلفاً عن رقم الطالب',

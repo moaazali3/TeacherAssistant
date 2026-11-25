@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/Dropdown';
 import { buildTenantFullUrl, platformPath } from '@/lib/tenant';
 import { useAuth } from '@/features/auth/useAuth';
+import { ASSISTANT_PERMISSIONS, hasStaffPermission } from '@/features/auth/types';
 import {
   GraduationCap,
   Search,
@@ -27,6 +28,8 @@ import {
   X,
   ArrowLeft,
   Sparkles,
+  Users,
+  UserCog,
 } from 'lucide-react';
 
 export const PlatformLayout: React.FC = () => {
@@ -35,7 +38,10 @@ export const PlatformLayout: React.FC = () => {
   const [platformSlug, setPlatformSlug] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isTeacher = isAuthenticated && (user?.role === 'Instructor' || user?.role === 'Admin');
+  const isInstructor = isAuthenticated && (user?.role === 'Instructor' || user?.role === 'Admin');
+  const isAssistant = isAuthenticated && user?.role === 'Assistant';
+  const isTeacher = isInstructor || isAssistant;
+  const canViewStudents = hasStaffPermission(user, ASSISTANT_PERMISSIONS.VIEW_STUDENT_PROGRESS);
 
   const handleNavigateToTenant = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +85,7 @@ export const PlatformLayout: React.FC = () => {
                 </span>
               </div>
               <span className="text-xs text-text-muted font-medium block">
-                {isTeacher ? 'لوحة تحكم المعلم' : 'شوبيفاي المنصات التعليمية'}
+                {isTeacher ? (isAssistant ? 'لوحة متابعة المساعد' : 'لوحة تحكم المعلم') : 'شوبيفاي المنصات التعليمية'}
               </span>
             </div>
           </Link>
@@ -88,30 +94,52 @@ export const PlatformLayout: React.FC = () => {
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-text-muted">
             {isTeacher ? (
               <>
-                <Link
-                  to={platformPath('/dashboard/teacher')}
-                  className="hover:text-primary transition-colors font-bold text-text-main"
-                >
-                  لوحة التحكم
-                </Link>
-                <Link
-                  to={platformPath('/dashboard/teacher/subjects')}
-                  className="hover:text-primary transition-colors"
-                >
-                  المواد الدراسية
-                </Link>
-                <Link
-                  to={platformPath('/dashboard/teacher/branding')}
-                  className="hover:text-primary transition-colors"
-                >
-                  المظهر والهوية
-                </Link>
-                <Link
-                  to={platformPath('/dashboard/teacher/landing')}
-                  className="hover:text-primary transition-colors"
-                >
-                  تخصيص الصفحة الرئيسية
-                </Link>
+                {isInstructor && (
+                  <>
+                    <Link
+                      to={platformPath('/dashboard/teacher')}
+                      className="hover:text-primary transition-colors font-bold text-text-main"
+                    >
+                      لوحة التحكم
+                    </Link>
+                    <Link
+                      to={platformPath('/dashboard/teacher/subjects')}
+                      className="hover:text-primary transition-colors"
+                    >
+                      المواد الدراسية
+                    </Link>
+                  </>
+                )}
+                {canViewStudents && (
+                  <Link
+                    to={platformPath('/dashboard/teacher/students')}
+                    className="hover:text-primary transition-colors font-semibold text-text-main"
+                  >
+                    الطلاب والمتابعة
+                  </Link>
+                )}
+                {isInstructor && (
+                  <>
+                    <Link
+                      to={platformPath('/dashboard/teacher/assistants')}
+                      className="hover:text-primary transition-colors"
+                    >
+                      المساعدين
+                    </Link>
+                    <Link
+                      to={platformPath('/dashboard/teacher/branding')}
+                      className="hover:text-primary transition-colors"
+                    >
+                      المظهر والهوية
+                    </Link>
+                    <Link
+                      to={platformPath('/dashboard/teacher/landing')}
+                      className="hover:text-primary transition-colors"
+                    >
+                      تخصيص الصفحة الرئيسية
+                    </Link>
+                  </>
+                )}
               </>
             ) : (
               <>
@@ -161,7 +189,7 @@ export const PlatformLayout: React.FC = () => {
                         </span>
                       </div>
                       <Badge variant="primary" size="sm">
-                        معلم
+                        {isAssistant ? 'مساعد' : 'معلم'}
                       </Badge>
                       <ChevronDown className="w-4 h-4 text-text-muted" />
                     </button>
@@ -175,33 +203,57 @@ export const PlatformLayout: React.FC = () => {
 
                     <DropdownSeparator />
 
-                    <DropdownItem asChild>
-                      <Link to={platformPath('/dashboard/teacher')} className="w-full">
-                        <LayoutDashboard className="w-4 h-4 text-primary" />
-                        <span>لوحة التحكم</span>
-                      </Link>
-                    </DropdownItem>
+                    {isInstructor && (
+                      <>
+                        <DropdownItem asChild>
+                          <Link to={platformPath('/dashboard/teacher')} className="w-full">
+                            <LayoutDashboard className="w-4 h-4 text-primary" />
+                            <span>لوحة التحكم</span>
+                          </Link>
+                        </DropdownItem>
 
-                    <DropdownItem asChild>
-                      <Link to={platformPath('/dashboard/teacher/subjects')} className="w-full">
-                        <BookOpen className="w-4 h-4 text-primary" />
-                        <span>المواد الدراسية</span>
-                      </Link>
-                    </DropdownItem>
+                        <DropdownItem asChild>
+                          <Link to={platformPath('/dashboard/teacher/subjects')} className="w-full">
+                            <BookOpen className="w-4 h-4 text-primary" />
+                            <span>المواد الدراسية</span>
+                          </Link>
+                        </DropdownItem>
+                      </>
+                    )}
 
-                    <DropdownItem asChild>
-                      <Link to={platformPath('/dashboard/teacher/branding')} className="w-full">
-                        <Palette className="w-4 h-4 text-primary" />
-                        <span>المظهر والهوية</span>
-                      </Link>
-                    </DropdownItem>
+                    {canViewStudents && (
+                      <DropdownItem asChild>
+                        <Link to={platformPath('/dashboard/teacher/students')} className="w-full">
+                          <Users className="w-4 h-4 text-primary" />
+                          <span>الطلاب والمتابعة</span>
+                        </Link>
+                      </DropdownItem>
+                    )}
 
-                    <DropdownItem asChild>
-                      <Link to={platformPath('/dashboard/teacher/landing')} className="w-full">
-                        <Sparkles className="w-4 h-4 text-primary" />
-                        <span>تخصيص الصفحة الرئيسية</span>
-                      </Link>
-                    </DropdownItem>
+                    {isInstructor && (
+                      <>
+                        <DropdownItem asChild>
+                          <Link to={platformPath('/dashboard/teacher/assistants')} className="w-full">
+                            <UserCog className="w-4 h-4 text-primary" />
+                            <span>المساعدين</span>
+                          </Link>
+                        </DropdownItem>
+
+                        <DropdownItem asChild>
+                          <Link to={platformPath('/dashboard/teacher/branding')} className="w-full">
+                            <Palette className="w-4 h-4 text-primary" />
+                            <span>المظهر والهوية</span>
+                          </Link>
+                        </DropdownItem>
+
+                        <DropdownItem asChild>
+                          <Link to={platformPath('/dashboard/teacher/landing')} className="w-full">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            <span>تخصيص الصفحة الرئيسية</span>
+                          </Link>
+                        </DropdownItem>
+                      </>
+                    )}
 
                     {studentPlatformUrl && (
                       <DropdownItem asChild>
@@ -279,42 +331,68 @@ export const PlatformLayout: React.FC = () => {
                     <p className="text-sm font-bold text-text-main">{user?.name}</p>
                     <p className="text-xs text-text-muted">{user?.email}</p>
                   </div>
-                  <Badge variant="primary" size="sm">معلم</Badge>
+                  <Badge variant="primary" size="sm">{isAssistant ? 'مساعد' : 'معلم'}</Badge>
                 </div>
 
                 <div className="flex flex-col space-y-1">
-                  <Link
-                    to={platformPath('/dashboard/teacher')}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-lg font-bold text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-primary" />
-                    <span>لوحة التحكم</span>
-                  </Link>
-                  <Link
-                    to={platformPath('/dashboard/teacher/subjects')}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
-                  >
-                    <BookOpen className="w-4 h-4 text-primary" />
-                    <span>المواد الدراسية</span>
-                  </Link>
-                  <Link
-                    to={platformPath('/dashboard/teacher/branding')}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
-                  >
-                    <Palette className="w-4 h-4 text-primary" />
-                    <span>المظهر والهوية</span>
-                  </Link>
-                  <Link
-                    to={platformPath('/dashboard/teacher/landing')}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <span>تخصيص الصفحة الرئيسية</span>
-                  </Link>
+                  {isInstructor && (
+                    <>
+                      <Link
+                        to={platformPath('/dashboard/teacher')}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="px-3 py-2 rounded-lg font-bold text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-primary" />
+                        <span>لوحة التحكم</span>
+                      </Link>
+                      <Link
+                        to={platformPath('/dashboard/teacher/subjects')}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
+                      >
+                        <BookOpen className="w-4 h-4 text-primary" />
+                        <span>المواد الدراسية</span>
+                      </Link>
+                    </>
+                  )}
+                  {canViewStudents && (
+                    <Link
+                      to={platformPath('/dashboard/teacher/students')}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
+                    >
+                      <Users className="w-4 h-4 text-primary" />
+                      <span>الطلاب والمتابعة</span>
+                    </Link>
+                  )}
+                  {isInstructor && (
+                    <>
+                      <Link
+                        to={platformPath('/dashboard/teacher/assistants')}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
+                      >
+                        <UserCog className="w-4 h-4 text-primary" />
+                        <span>المساعدين</span>
+                      </Link>
+                      <Link
+                        to={platformPath('/dashboard/teacher/branding')}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
+                      >
+                        <Palette className="w-4 h-4 text-primary" />
+                        <span>المظهر والهوية</span>
+                      </Link>
+                      <Link
+                        to={platformPath('/dashboard/teacher/landing')}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary flex items-center gap-2"
+                      >
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <span>تخصيص الصفحة الرئيسية</span>
+                      </Link>
+                    </>
+                  )}
                   {studentPlatformUrl && (
                     <a
                       href={studentPlatformUrl}

@@ -6,11 +6,13 @@ using TeacherAssistant.Application.Interfaces;
 using TeacherAssistant.Infrastructure.Persistence;
 using TeacherAssistant.Infrastructure.Persistence.Repositories;
 using TeacherAssistant.Infrastructure.Services.AI;
+using TeacherAssistant.Infrastructure.Services.Assistants;
 using TeacherAssistant.Infrastructure.Services.Auth;
 using TeacherAssistant.Infrastructure.Services.Subjects;
 using TeacherAssistant.Infrastructure.Services.Groups;
 using TeacherAssistant.Infrastructure.Services.Students;
 using TeacherAssistant.Infrastructure.Services.Payments;
+using TeacherAssistant.Infrastructure.Services.Quizzes;
 using TeacherAssistant.Infrastructure.Services.Tenancy;
 using TeacherAssistant.Infrastructure.Settings;
 
@@ -55,7 +57,9 @@ public static class DependencyInjection
         services.AddScoped<RichDemoDataSeeder>();
         services.AddScoped<ISubjectService, SubjectService>();
         services.AddScoped<IGroupService, GroupService>();
+        services.AddScoped<IAssistantService, AssistantService>();
         services.AddScoped<IStudentService, StudentService>();
+        services.AddScoped<IQuizService, QuizService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IAIAssessmentService, OpenAiAssessmentService>();
 

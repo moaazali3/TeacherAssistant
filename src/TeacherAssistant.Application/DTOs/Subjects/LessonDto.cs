@@ -14,4 +14,10 @@ public class LessonDto
     public string ContentUrl { get; set; } = string.Empty;
     public int SortOrder { get; set; }
     public bool IsPublished { get; set; }
+    public string? ModuleTitle { get; set; }
+    public DateTime? AvailableAt { get; set; }
+    public bool RequiresPreviousCompletion { get; set; }
+    public string? AttachmentUrl { get; set; }
+    public bool IsCompleted { get; set; }
+    public int ViewCount { get; set; }
 }

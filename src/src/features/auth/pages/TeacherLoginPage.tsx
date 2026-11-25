@@ -46,16 +46,21 @@ export const TeacherLoginPage: React.FC = () => {
       setIsSubmitting(true);
       const auth = await login(data);
 
-      const isTeacher = auth.role === 'Instructor' || auth.role === 2 || auth.role === 'Admin' || auth.role === 1;
-      if (!isTeacher) {
-        toastError('هذا الحساب ليس حساب معلم مصرح له بإدارة المنصة.');
+      const isAssistant = auth.role === 'Assistant' || auth.role === 4;
+      const isInstructorOrAdmin =
+        auth.role === 'Instructor' || auth.role === 1 || auth.role === 'Admin' || auth.role === 3;
+      if (!isInstructorOrAdmin && !isAssistant) {
+        toastError('هذا الحساب ليس حساب معلم أو مساعد مصرح له بإدارة المنصة.');
         return;
       }
 
-      success(`أهلاً بك يا أستاذ ${auth.name}!`);
+      success(isAssistant ? `أهلاً بك يا ${auth.name}!` : `أهلاً بك يا أستاذ ${auth.name}!`);
 
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-      const target = from || platformPath('/dashboard/teacher');
+      const defaultTarget = isAssistant
+        ? platformPath('/dashboard/teacher/students')
+        : platformPath('/dashboard/teacher');
+      const target = from || defaultTarget;
       navigate(target, { replace: true });
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 429) {

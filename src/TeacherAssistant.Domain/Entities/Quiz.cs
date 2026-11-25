@@ -1,4 +1,5 @@
 using TeacherAssistant.Domain.Common;
+using TeacherAssistant.Domain.Enums;
 
 namespace TeacherAssistant.Domain.Entities;
 
@@ -13,6 +14,10 @@ public class Quiz : BaseEntity, ITenantEntity
     public Lesson? Lesson { get; set; }
 
     public string Title { get; set; } = string.Empty;
+    public AssessmentType Type { get; set; } = AssessmentType.Homework;
+    public int? DurationMinutes { get; set; }
+    public int PassingScorePercent { get; set; } = 50;
+    public bool IsPublished { get; set; } = true;
     public string QuestionsData { get; set; } = string.Empty; // JSON structure for questions & choices
     public decimal TotalScore { get; set; }
 

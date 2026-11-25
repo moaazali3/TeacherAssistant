@@ -19,4 +19,14 @@ public class UpdateLessonDto
     public string ContentUrl { get; set; } = string.Empty;
 
     public bool IsPublished { get; set; }
+
+    [StringLength(150)]
+    public string? ModuleTitle { get; set; }
+
+    public DateTime? AvailableAt { get; set; }
+
+    public bool RequiresPreviousCompletion { get; set; }
+
+    [HttpUrl, StringLength(500)]
+    public string? AttachmentUrl { get; set; }
 }

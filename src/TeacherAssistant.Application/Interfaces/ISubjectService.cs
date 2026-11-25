@@ -39,4 +39,7 @@ public interface ISubjectService
 
     Task<ServiceResult<LessonDto>> GetLessonAsync(
         Guid lessonId, CancellationToken cancellationToken = default);
+
+    Task<ServiceResult<LessonDto>> MarkLessonCompletedAsync(
+        Guid lessonId, CancellationToken cancellationToken = default);
 }

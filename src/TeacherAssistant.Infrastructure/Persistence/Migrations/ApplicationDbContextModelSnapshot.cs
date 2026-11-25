@@ -163,6 +163,13 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AttachmentUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("AvailableAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("ContentType")
                         .HasColumnType("int");
 
@@ -183,6 +190,13 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<string>("ModuleTitle")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("RequiresPreviousCompletion")
+                        .HasColumnType("bit");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
@@ -208,6 +222,54 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                     b.HasIndex("SubjectId", "SortOrder");
 
                     b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("TeacherAssistant.Domain.Entities.LessonProgress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastViewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "StudentId", "LessonId")
+                        .IsUnique()
+                        .HasFilter("[TenantId] IS NOT NULL");
+
+                    b.ToTable("LessonProgresses");
                 });
 
             modelBuilder.Entity("TeacherAssistant.Domain.Entities.PaymentTransaction", b =>
@@ -266,8 +328,17 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
                     b.Property<Guid?>("LessonId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PassingScorePercent")
+                        .HasColumnType("int");
 
                     b.Property<string>("QuestionsData")
                         .IsRequired()
@@ -287,6 +358,9 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("TotalScore")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -456,10 +530,16 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<int?>("Gender")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -473,6 +553,9 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Permissions")
+                        .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
@@ -558,6 +641,25 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                     b.Navigation("Subject");
                 });
 
+            modelBuilder.Entity("TeacherAssistant.Domain.Entities.LessonProgress", b =>
+                {
+                    b.HasOne("TeacherAssistant.Domain.Entities.Lesson", "Lesson")
+                        .WithMany("ProgressRecords")
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TeacherAssistant.Domain.Entities.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("TeacherAssistant.Domain.Entities.PaymentTransaction", b =>
                 {
                     b.HasOne("TeacherAssistant.Domain.Entities.Enrollment", "Enrollment")
@@ -639,6 +741,8 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TeacherAssistant.Domain.Entities.Lesson", b =>
                 {
+                    b.Navigation("ProgressRecords");
+
                     b.Navigation("Quizzes");
                 });
 

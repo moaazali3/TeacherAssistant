@@ -17,6 +17,14 @@ export interface LessonSummary {
   contentType: ContentType | number;
   sortOrder: number;
   isPublished: boolean;
+  moduleTitle?: string | null;
+  availableAt?: string | null;
+  requiresPreviousCompletion?: boolean;
+  attachmentUrl?: string | null;
+  isLocked?: boolean;
+  lockReason?: string | null;
+  isCompleted?: boolean;
+  viewCount?: number;
 }
 
 export interface SubjectDetail {
@@ -42,6 +50,12 @@ export interface LessonDetail {
   contentUrl: string;
   sortOrder: number;
   isPublished: boolean;
+  moduleTitle?: string | null;
+  availableAt?: string | null;
+  requiresPreviousCompletion?: boolean;
+  attachmentUrl?: string | null;
+  isCompleted?: boolean;
+  viewCount?: number;
 }
 
 export interface CreateSubjectDto {
@@ -64,6 +78,10 @@ export interface CreateLessonDto {
   contentType: ContentType | number;
   contentUrl: string;
   isPublished: boolean;
+  moduleTitle?: string | null;
+  availableAt?: string | null;
+  requiresPreviousCompletion?: boolean;
+  attachmentUrl?: string | null;
 }
 
 export interface UpdateLessonDto {
@@ -72,6 +90,10 @@ export interface UpdateLessonDto {
   contentType: ContentType | number;
   contentUrl: string;
   isPublished: boolean;
+  moduleTitle?: string | null;
+  availableAt?: string | null;
+  requiresPreviousCompletion?: boolean;
+  attachmentUrl?: string | null;
 }
 
 export interface ReorderLessonsDto {

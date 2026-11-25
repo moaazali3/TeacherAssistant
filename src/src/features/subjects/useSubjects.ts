@@ -147,3 +147,18 @@ export function useReorderLessonsMutation(subjectId: string) {
     },
   });
 }
+
+export function useCompleteLessonMutation(subjectId?: string) {
+  const queryClient = useQueryClient();
+  const slug = useTenantSlug();
+
+  return useMutation({
+    mutationFn: (lessonId: string) => subjectsApi.completeLesson(lessonId),
+    onSuccess: (updatedLesson, lessonId) => {
+      queryClient.setQueryData(['lessons', 'detail', lessonId, slug], updatedLesson);
+      if (subjectId) {
+        queryClient.invalidateQueries({ queryKey: ['subjects', 'detail', subjectId, slug] });
+      }
+    },
+  });
+}

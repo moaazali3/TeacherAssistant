@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using TeacherAssistant.Application.Common.Validation;
+using TeacherAssistant.Domain.Enums;
 
 namespace TeacherAssistant.Application.DTOs.Auth;
 
@@ -23,6 +24,13 @@ public class RegisterStudentRequestDto
     [StringLength(20)]
     [RegularExpression(@"^\+?[0-9]{10,15}$", ErrorMessage = "رقم هاتف ولي الأمر غير صحيح.")]
     public string ParentPhoneNumber { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "تاريخ الميلاد مطلوب.")]
+    public DateOnly? DateOfBirth { get; set; }
+
+    [Required(ErrorMessage = "النوع مطلوب.")]
+    [EnumDataType(typeof(Gender), ErrorMessage = "قيمة النوع غير صحيحة.")]
+    public Gender? Gender { get; set; }
 
     /// <summary>The teacher-provided group code. Required: students cannot self-register freely.</summary>
     [Required(ErrorMessage = "A group join code is required.")]

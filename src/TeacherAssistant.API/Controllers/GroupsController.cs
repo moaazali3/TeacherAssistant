@@ -24,7 +24,7 @@ public class GroupsController : BaseApiController
 
     /// <summary>Groups of one subject.</summary>
     [HttpGet("/api/v1/subjects/{subjectId:guid}/groups")]
-    [Authorize(Policy = AuthorizationPolicies.InstructorOnly)]
+    [Authorize(Policy = AuthorizationPolicies.InstructorOrAssistant)]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<GroupDto>>>> GetGroups(
         [FromRoute] Guid subjectId,
         CancellationToken cancellationToken)
@@ -72,14 +72,14 @@ public class GroupsController : BaseApiController
         => Map(await _groupService.ToggleCodeAsync(id, cancellationToken));
 
     [HttpGet("{id:guid}/students")]
-    [Authorize(Policy = AuthorizationPolicies.InstructorOnly)]
+    [Authorize(Policy = AuthorizationPolicies.InstructorOrAssistant)]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<GroupMemberDto>>>> GetStudents(
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
         => Map(await _groupService.GetStudentsAsync(id, cancellationToken));
 
     [HttpPut("{id:guid}/students/{studentId:guid}/move")]
-    [Authorize(Policy = AuthorizationPolicies.InstructorOnly)]
+    [Authorize(Policy = AuthorizationPolicies.InstructorOrAssistant)]
     public async Task<ActionResult<ApiResponse<GroupMemberDto>>> MoveStudent(
         [FromRoute] Guid id,
         [FromRoute] Guid studentId,
@@ -88,7 +88,7 @@ public class GroupsController : BaseApiController
         => Map(await _groupService.MoveStudentAsync(id, studentId, request, cancellationToken));
 
     [HttpDelete("{id:guid}/students/{studentId:guid}")]
-    [Authorize(Policy = AuthorizationPolicies.InstructorOnly)]
+    [Authorize(Policy = AuthorizationPolicies.InstructorOrAssistant)]
     public async Task<ActionResult<ApiResponse<string>>> RemoveStudent(
         [FromRoute] Guid id,
         [FromRoute] Guid studentId,

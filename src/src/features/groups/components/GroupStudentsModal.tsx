@@ -3,6 +3,7 @@ import { GroupDto, GroupMemberDto } from '../types';
 import { groupsApi } from '../api';
 import { MoveStudentModal } from './MoveStudentModal';
 import { ResetPasswordModal } from './ResetPasswordModal';
+import { StudentProgressModal } from '@/features/students/components/StudentProgressModal';
 import { Modal } from '@/components/ui/Modal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Button } from '@/components/ui/Button';
@@ -11,7 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 import { getApiErrorMessage } from '@/lib/api';
 import { formatDateArabic } from '@/lib/date';
-import { Users, Search, UserMinus, KeyRound, ArrowRightLeft, Calendar, Phone, PhoneCall } from 'lucide-react';
+import { Users, Search, UserMinus, KeyRound, ArrowRightLeft, Calendar, Phone, PhoneCall, Eye } from 'lucide-react';
 
 interface GroupStudentsModalProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
   // Sub-modals state
   const [selectedStudentForMove, setSelectedStudentForMove] = useState<GroupMemberDto | null>(null);
   const [selectedStudentForReset, setSelectedStudentForReset] = useState<GroupMemberDto | null>(null);
+  const [selectedStudentIdForProgress, setSelectedStudentIdForProgress] = useState<string | null>(null);
   const [studentToRemove, setStudentToRemove] = useState<GroupMemberDto | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
 
@@ -213,6 +215,18 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
                                 type="button"
                                 variant="outline"
                                 size="sm"
+                                className="text-xs px-2.5 py-1 text-primary"
+                                onClick={() => setSelectedStudentIdForProgress(student.studentId)}
+                                startIcon={<Eye className="w-3.5 h-3.5" />}
+                                title="عرض ملف الطالب ودرجاته"
+                              >
+                                ملف الطالب
+                              </Button>
+
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
                                 className="text-xs px-2.5 py-1"
                                 onClick={() => setSelectedStudentForMove(student)}
                                 startIcon={<ArrowRightLeft className="w-3.5 h-3.5" />}
@@ -288,7 +302,16 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
                         <span>انضم {formatDateArabic(student.joinedAt)}</span>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-1.5 pt-1">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="text-xs px-1.5 text-primary"
+                          onClick={() => setSelectedStudentIdForProgress(student.studentId)}
+                        >
+                          ملف الطالب
+                        </Button>
                         <Button
                           type="button"
                           variant="outline"
@@ -352,6 +375,12 @@ export const GroupStudentsModal: React.FC<GroupStudentsModalProps> = ({
         onClose={() => setSelectedStudentForReset(null)}
         student={selectedStudentForReset}
         onConfirmReset={handleResetPasswordConfirm}
+      />
+
+      <StudentProgressModal
+        isOpen={!!selectedStudentIdForProgress}
+        onClose={() => setSelectedStudentIdForProgress(null)}
+        studentId={selectedStudentIdForProgress}
       />
 
       {/* Confirm Remove Student Dialog */}

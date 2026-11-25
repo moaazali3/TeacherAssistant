@@ -29,6 +29,7 @@ function normalizeRole(role: UserRole | number | string): UserRole {
   if (role === 1 || role === '1' || role === 'Instructor') return 'Instructor';
   if (role === 2 || role === '2' || role === 'Student') return 'Student';
   if (role === 3 || role === '3' || role === 'Admin') return 'Admin';
+  if (role === 4 || role === '4' || role === 'Assistant') return 'Assistant';
   return 'Student';
 }
 
@@ -105,6 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: authData.name,
       email: authData.email,
       role,
+      permissions: authData.permissions ?? (role === 'Instructor' || role === 'Admin' ? 15 : 0),
       tenantId: authData.tenantId,
       tenantSubdomain: authData.tenantSubdomain,
     };

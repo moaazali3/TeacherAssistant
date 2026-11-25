@@ -26,6 +26,8 @@ import {
   ArrowLeft,
   Globe,
   Sparkles,
+  Users,
+  UserCog,
 } from 'lucide-react';
 
 export const TeacherDashboardPage: React.FC = () => {
@@ -92,6 +94,16 @@ export const TeacherDashboardPage: React.FC = () => {
           <Link to={platformPath('/dashboard/teacher/subjects')}>
             <Button variant="outline" size="sm" startIcon={<BookOpen className="w-4 h-4" />}>
               المواد الدراسية ({subjects.length})
+            </Button>
+          </Link>
+          <Link to={platformPath('/dashboard/teacher/students')}>
+            <Button variant="outline" size="sm" startIcon={<Users className="w-4 h-4" />}>
+              متابعة الطلاب
+            </Button>
+          </Link>
+          <Link to={platformPath('/dashboard/teacher/assistants')}>
+            <Button variant="outline" size="sm" startIcon={<UserCog className="w-4 h-4" />}>
+              فريق المساعدين
             </Button>
           </Link>
           <Link to={platformPath('/dashboard/teacher/landing')}>

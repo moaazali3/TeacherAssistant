@@ -33,7 +33,7 @@ public class GroupService : IGroupService
         Guid subjectId,
         CancellationToken cancellationToken = default)
     {
-        if (!TryGetInstructorId(out var instructorId))
+        if (!CanReadGroups(out var instructorId))
             return ServiceResult<IReadOnlyList<GroupDto>>.Forbidden();
 
         if (!HasTenant)
@@ -46,7 +46,7 @@ public class GroupService : IGroupService
         if (subject is null)
             return ServiceResult<IReadOnlyList<GroupDto>>.NotFound("Subject not found.");
 
-        if (subject.InstructorId != instructorId)
+        if (instructorId is not null && subject.InstructorId != instructorId.Value)
             return ServiceResult<IReadOnlyList<GroupDto>>.Forbidden(
                 "You can only manage groups of your own subjects.");
 
@@ -246,7 +246,7 @@ public class GroupService : IGroupService
         Guid groupId,
         CancellationToken cancellationToken = default)
     {
-        if (!TryGetInstructorId(out var instructorId))
+        if (!CanReadGroups(out var instructorId))
             return ServiceResult<IReadOnlyList<GroupMemberDto>>.Forbidden();
 
         if (!HasTenant)
@@ -259,7 +259,7 @@ public class GroupService : IGroupService
         if (group is null)
             return ServiceResult<IReadOnlyList<GroupMemberDto>>.NotFound("Group not found.");
 
-        if (group.Subject is null || group.Subject.InstructorId != instructorId)
+        if (group.Subject is null || (instructorId is not null && group.Subject.InstructorId != instructorId.Value))
             return ServiceResult<IReadOnlyList<GroupMemberDto>>.Forbidden(
                 "You can only view students of your own groups.");
 
@@ -276,6 +276,8 @@ public class GroupService : IGroupService
                 Email = m.Student != null ? m.Student.Email : string.Empty,
                 PhoneNumber = m.Student != null ? m.Student.PhoneNumber : null,
                 ParentPhoneNumber = m.Student != null ? m.Student.ParentPhoneNumber : null,
+                DateOfBirth = m.Student != null ? m.Student.DateOfBirth : null,
+                Gender = m.Student != null ? m.Student.Gender : null,
                 JoinedAt = m.JoinedAt
             })
             .ToListAsync(cancellationToken);
@@ -289,7 +291,7 @@ public class GroupService : IGroupService
         MoveStudentDto request,
         CancellationToken cancellationToken = default)
     {
-        if (!TryGetInstructorId(out var instructorId))
+        if (!CanManageGroups(out var instructorId))
             return ServiceResult<GroupMemberDto>.Forbidden();
 
         if (!HasTenant)
@@ -302,7 +304,7 @@ public class GroupService : IGroupService
         if (group is null)
             return ServiceResult<GroupMemberDto>.NotFound("Group not found.");
 
-        if (group.Subject is null || group.Subject.InstructorId != instructorId)
+        if (group.Subject is null || (instructorId is not null && group.Subject.InstructorId != instructorId.Value))
             return ServiceResult<GroupMemberDto>.Forbidden("You can only manage students of your own groups.");
 
         if (request.TargetGroupId == Guid.Empty)
@@ -342,6 +344,8 @@ public class GroupService : IGroupService
             Email = membership.Student?.Email ?? string.Empty,
             PhoneNumber = membership.Student?.PhoneNumber,
             ParentPhoneNumber = membership.Student?.ParentPhoneNumber,
+            DateOfBirth = membership.Student?.DateOfBirth,
+            Gender = membership.Student?.Gender,
             JoinedAt = membership.JoinedAt
         }, "Student moved successfully.");
     }
@@ -351,7 +355,7 @@ public class GroupService : IGroupService
         Guid studentId,
         CancellationToken cancellationToken = default)
     {
-        if (!TryGetInstructorId(out var instructorId))
+        if (!CanManageGroups(out var instructorId))
             return ServiceResult<string>.Forbidden();
 
         if (!HasTenant)
@@ -364,7 +368,7 @@ public class GroupService : IGroupService
         if (group is null)
             return ServiceResult<string>.NotFound("Group not found.");
 
-        if (group.Subject is null || group.Subject.InstructorId != instructorId)
+        if (group.Subject is null || (instructorId is not null && group.Subject.InstructorId != instructorId.Value))
             return ServiceResult<string>.Forbidden("You can only manage students of your own groups.");
 
         var membership = await _context.GroupMemberships
@@ -472,6 +476,37 @@ public class GroupService : IGroupService
         instructorId = _currentUserService.UserId ?? Guid.Empty;
         return instructorId != Guid.Empty
             && string.Equals(_currentUserService.Role, nameof(UserRole.Instructor), StringComparison.Ordinal);
+    }
+
+    private bool CanReadGroups(out Guid? instructorId)
+    {
+        if (TryGetInstructorId(out var id))
+        {
+            instructorId = id;
+            return true;
+        }
+
+        instructorId = null;
+        return _currentUserService.UserId is not null
+            && _currentUserService.UserId != Guid.Empty
+            && string.Equals(_currentUserService.Role, nameof(UserRole.Assistant), StringComparison.Ordinal)
+            && (_currentUserService.HasPermission(AssistantPermissions.ViewStudentProgress)
+                || _currentUserService.HasPermission(AssistantPermissions.ManageGroups));
+    }
+
+    private bool CanManageGroups(out Guid? instructorId)
+    {
+        if (TryGetInstructorId(out var id))
+        {
+            instructorId = id;
+            return true;
+        }
+
+        instructorId = null;
+        return _currentUserService.UserId is not null
+            && _currentUserService.UserId != Guid.Empty
+            && string.Equals(_currentUserService.Role, nameof(UserRole.Assistant), StringComparison.Ordinal)
+            && _currentUserService.HasPermission(AssistantPermissions.ManageGroups);
     }
 
     private bool TryGetStudentId(out Guid studentId)

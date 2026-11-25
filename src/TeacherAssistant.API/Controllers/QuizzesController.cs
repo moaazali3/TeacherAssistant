@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TeacherAssistant.API.Authorization;
 using TeacherAssistant.Application.Common.Models;
 using TeacherAssistant.Application.DTOs.Quizzes;
 using TeacherAssistant.Application.Interfaces;
@@ -9,11 +10,57 @@ namespace TeacherAssistant.API.Controllers;
 public class QuizzesController : BaseApiController
 {
     private readonly IAIAssessmentService _aiAssessmentService;
+    private readonly IQuizService _quizService;
 
-    public QuizzesController(IAIAssessmentService aiAssessmentService)
+    public QuizzesController(
+        IAIAssessmentService aiAssessmentService,
+        IQuizService quizService)
     {
         _aiAssessmentService = aiAssessmentService;
+        _quizService = quizService;
     }
+
+    /// <summary>List Homeworks & Exams for a subject (staff sees all; student sees published + own submission).</summary>
+    [HttpGet("/api/v1/subjects/{subjectId:guid}/quizzes")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<QuizSummaryItemDto>>>> GetSubjectQuizzes(
+        [FromRoute] Guid subjectId,
+        CancellationToken cancellationToken)
+        => Map(await _quizService.GetSubjectQuizzesAsync(subjectId, cancellationToken));
+
+    /// <summary>Create a Homework or timed MCQ Exam for a subject.</summary>
+    [HttpPost("/api/v1/subjects/{subjectId:guid}/quizzes")]
+    [Authorize(Policy = AuthorizationPolicies.InstructorOrAssistant)]
+    public async Task<ActionResult<ApiResponse<QuizDetailDto>>> CreateQuiz(
+        [FromRoute] Guid subjectId,
+        [FromBody] CreateQuizDto request,
+        CancellationToken cancellationToken)
+        => Map(await _quizService.CreateQuizAsync(subjectId, request, cancellationToken));
+
+    /// <summary>Get quiz questions (answer keys hidden for students prior to submission).</summary>
+    [HttpGet("{id:guid}")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<QuizDetailDto>>> GetById(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+        => Map(await _quizService.GetQuizDetailAsync(id, cancellationToken));
+
+    /// <summary>Delete a quiz or homework.</summary>
+    [HttpDelete("{id:guid}")]
+    [Authorize(Policy = AuthorizationPolicies.InstructorOrAssistant)]
+    public async Task<ActionResult<ApiResponse<string>>> Delete(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+        => Map(await _quizService.DeleteQuizAsync(id, cancellationToken));
+
+    /// <summary>Submit MCQ answers as a student and receive instant auto-grading.</summary>
+    [HttpPost("{id:guid}/submit-answers")]
+    [Authorize(Policy = AuthorizationPolicies.StudentOnly)]
+    public async Task<ActionResult<ApiResponse<StudentQuizSubmissionSummaryDto>>> SubmitAnswers(
+        [FromRoute] Guid id,
+        [FromBody] SubmitQuizAnswersDto request,
+        CancellationToken cancellationToken)
+        => Map(await _quizService.SubmitQuizAnswersAsync(id, request, cancellationToken));
 
     /// <summary>
     /// POST /api/v1/quizzes/generate-from-pdf - معالجة ملف PDF وتوليد أسئلة ذكاء اصطناعي
@@ -67,4 +114,7 @@ public class QuizzesController : BaseApiController
         var response = await _aiAssessmentService.SubmitQuizAsync(id, request, cancellationToken);
         return Ok(response);
     }
+
+    private ActionResult<ApiResponse<T>> Map<T>(ServiceResult<T> result)
+        => StatusCode(result.StatusCode, result.Response);
 }

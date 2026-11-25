@@ -13,6 +13,10 @@ import {
   File,
   Edit2,
   Trash2,
+  FolderOpen,
+  CalendarClock,
+  Lock,
+  Paperclip,
 } from 'lucide-react';
 
 interface LessonItemProps {
@@ -135,6 +139,30 @@ export const LessonItem: React.FC<LessonItemProps> = ({
             <Badge variant={lesson.isPublished ? 'success' : 'warning'} size="sm">
               {lesson.isPublished ? 'منشور' : 'مسودة'}
             </Badge>
+            {lesson.moduleTitle && (
+              <Badge variant="primary" size="sm" className="gap-1">
+                <FolderOpen className="w-3 h-3" />
+                <span>{lesson.moduleTitle}</span>
+              </Badge>
+            )}
+            {lesson.requiresPreviousCompletion && (
+              <Badge variant="neutral" size="sm" className="gap-1">
+                <Lock className="w-3 h-3" />
+                <span>مشروط بالسابقة</span>
+              </Badge>
+            )}
+            {lesson.availableAt && new Date(lesson.availableAt).getTime() > Date.now() && (
+              <Badge variant="warning" size="sm" className="gap-1">
+                <CalendarClock className="w-3 h-3" />
+                <span>مجدول</span>
+              </Badge>
+            )}
+            {lesson.attachmentUrl && (
+              <Badge variant="neutral" size="sm" className="gap-1">
+                <Paperclip className="w-3 h-3" />
+                <span>ملزمة PDF</span>
+              </Badge>
+            )}
           </div>
           {lesson.description && (
             <p className="text-xs text-text-muted line-clamp-1">

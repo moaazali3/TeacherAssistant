@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Subject> Subjects => Set<Subject>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
+    public DbSet<LessonProgress> LessonProgresses => Set<LessonProgress>();
     public DbSet<Group> Groups => Set<Group>();
     public DbSet<GroupMembership> GroupMemberships => Set<GroupMembership>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
