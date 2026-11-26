@@ -401,6 +401,9 @@ export const SubjectManagerPage: React.FC = () => {
                       lesson={lesson}
                       index={idx}
                       totalLessons={subject.lessons.length}
+                      addQuizHref={platformPath(
+                        `/dashboard/teacher/subjects/${subject.id}/quizzes?lessonId=${lesson.id}&new=1`
+                      )}
                       onMoveUp={(i) => handleMoveLesson(i, 'up')}
                       onMoveDown={(i) => handleMoveLesson(i, 'down')}
                       onEdit={handleOpenEditModal}

@@ -112,6 +112,11 @@ public class QuizService : IQuizService
         var hideAnswerKey = !isStaff && summary.MySubmission is null;
         if (hideAnswerKey)
         {
+            if (quiz.AvailableFrom.HasValue && quiz.AvailableFrom.Value > DateTime.UtcNow)
+            {
+                return ServiceResult<QuizDetailDto>.Forbidden("لم يحن موعد فتح هذا التقييم بعد.");
+            }
+
             questions = questions.Select(q => new QuizQuestionDto
             {
                 Id = q.Id,
@@ -130,6 +135,9 @@ public class QuizService : IQuizService
             LessonTitle = summary.LessonTitle,
             Title = summary.Title,
             Type = summary.Type,
+            Placement = summary.Placement,
+            AvailableFrom = summary.AvailableFrom,
+            DueAt = summary.DueAt,
             DurationMinutes = summary.DurationMinutes,
             PassingScorePercent = summary.PassingScorePercent,
             IsPublished = summary.IsPublished,
@@ -212,6 +220,15 @@ public class QuizService : IQuizService
             });
         }
 
+        var availableFrom = NormalizeUtc(request.AvailableFrom);
+        var dueAt = NormalizeUtc(request.DueAt);
+        if (availableFrom.HasValue && dueAt.HasValue && dueAt.Value <= availableFrom.Value)
+            return ServiceResult<QuizDetailDto>.BadRequest("الموعد النهائي (الديدلاين) يجب أن يكون بعد موعد الفتح.");
+
+        var placement = request.LessonId is null
+            ? AssessmentPlacement.General
+            : (request.Placement == AssessmentPlacement.General ? AssessmentPlacement.AfterLesson : request.Placement);
+
         var totalScore = normalizedQuestions.Sum(q => q.Points);
 
         var quiz = new Quiz
@@ -220,6 +237,9 @@ public class QuizService : IQuizService
             LessonId = request.LessonId,
             Title = request.Title.Trim(),
             Type = request.Type,
+            Placement = placement,
+            AvailableFrom = availableFrom,
+            DueAt = dueAt,
             DurationMinutes = request.DurationMinutes,
             PassingScorePercent = request.PassingScorePercent,
             IsPublished = request.IsPublished,
@@ -238,6 +258,9 @@ public class QuizService : IQuizService
             LessonTitle = lessonTitle,
             Title = quiz.Title,
             Type = quiz.Type,
+            Placement = quiz.Placement,
+            AvailableFrom = quiz.AvailableFrom,
+            DueAt = quiz.DueAt,
             DurationMinutes = quiz.DurationMinutes,
             PassingScorePercent = quiz.PassingScorePercent,
             IsPublished = quiz.IsPublished,
@@ -295,6 +318,19 @@ public class QuizService : IQuizService
             !await IsMemberAsync(quiz.SubjectId, studentId, cancellationToken))
         {
             return ServiceResult<StudentQuizSubmissionSummaryDto>.NotFound("Quiz not found.");
+        }
+
+        var now = DateTime.UtcNow;
+        if (quiz.AvailableFrom.HasValue && quiz.AvailableFrom.Value > now)
+        {
+            return ServiceResult<StudentQuizSubmissionSummaryDto>.Forbidden(
+                "لم يحن موعد فتح هذا التقييم بعد.");
+        }
+
+        if (quiz.DueAt.HasValue && quiz.DueAt.Value < now)
+        {
+            return ServiceResult<StudentQuizSubmissionSummaryDto>.Forbidden(
+                "انتهى الموعد النهائي (الديدلاين) لتسليم هذا التقييم.");
         }
 
         var existing = await _context.Submissions
@@ -391,6 +427,9 @@ public class QuizService : IQuizService
             LessonTitle = quiz.Lesson?.Title,
             Title = quiz.Title,
             Type = quiz.Type,
+            Placement = quiz.Placement,
+            AvailableFrom = quiz.AvailableFrom,
+            DueAt = quiz.DueAt,
             DurationMinutes = quiz.DurationMinutes,
             PassingScorePercent = quiz.PassingScorePercent,
             IsPublished = quiz.IsPublished,
@@ -467,6 +506,9 @@ public class QuizService : IQuizService
             && string.Equals(_currentUserService.Role, nameof(UserRole.Assistant), StringComparison.Ordinal)
             && _currentUserService.HasPermission(AssistantPermissions.ManageAssessments);
     }
+
+    private static DateTime? NormalizeUtc(DateTime? dt)
+        => dt is null ? null : (dt.Value.Kind == DateTimeKind.Utc ? dt.Value : dt.Value.ToUniversalTime());
 
     private static ServiceResult<T> NoTenant<T>()
         => ServiceResult<T>.NotFound("No tenant was resolved for this request.");

@@ -446,6 +446,7 @@ public class SubjectService : ISubjectService
 
         Dictionary<Guid, LessonProgress>? progressByLesson = null;
         HashSet<Guid>? purchasedLessonIds = null;
+        HashSet<Guid>? unmetPreQuizLessonIds = null;
         if (!isOwner && IsStudent && userId is { } progressStudentId)
         {
             var lessonIds = subject.Lessons.Select(l => l.Id).ToList();
@@ -463,10 +464,36 @@ public class SubjectService : ISubjectService
                 .ToListAsync(cancellationToken);
 
             purchasedLessonIds = purchasedIdsList.ToHashSet();
+
+            var preQuizzes = await _context.Quizzes
+                .AsNoTracking()
+                .Where(q => q.LessonId.HasValue
+                            && lessonIds.Contains(q.LessonId.Value)
+                            && q.IsPublished
+                            && q.Placement == AssessmentPlacement.BeforeLesson)
+                .Select(q => new { q.Id, LessonId = q.LessonId!.Value })
+                .ToListAsync(cancellationToken);
+
+            if (preQuizzes.Count > 0)
+            {
+                var preQuizIds = preQuizzes.Select(q => q.Id).ToList();
+                var solvedQuizIds = (await _context.Submissions
+                        .AsNoTracking()
+                        .Where(s => s.StudentId == progressStudentId && preQuizIds.Contains(s.QuizId))
+                        .Select(s => s.QuizId)
+                        .Distinct()
+                        .ToListAsync(cancellationToken))
+                    .ToHashSet();
+
+                unmetPreQuizLessonIds = preQuizzes
+                    .Where(q => !solvedQuizIds.Contains(q.Id))
+                    .Select(q => q.LessonId)
+                    .ToHashSet();
+            }
         }
 
         return ServiceResult<SubjectDetailDto>.Ok(
-            MapDetail(subject, includeDrafts: isOwner, progressByLesson, purchasedLessonIds),
+            MapDetail(subject, includeDrafts: isOwner, progressByLesson, purchasedLessonIds, unmetPreQuizLessonIds),
             "Subject fetched successfully.");
     }
 
@@ -657,6 +684,27 @@ public class SubjectService : ISubjectService
                 return "هذه المحاضرة مدفوعة. يرجى إتمام الشراء أولاً لفتحها.";
         }
 
+        var preQuizIds = await _context.Quizzes
+            .AsNoTracking()
+            .Where(q => q.LessonId == lesson.Id
+                        && q.IsPublished
+                        && q.Placement == AssessmentPlacement.BeforeLesson)
+            .Select(q => q.Id)
+            .ToListAsync(cancellationToken);
+
+        if (preQuizIds.Count > 0)
+        {
+            var solvedCount = await _context.Submissions
+                .AsNoTracking()
+                .Where(s => s.StudentId == studentId && preQuizIds.Contains(s.QuizId))
+                .Select(s => s.QuizId)
+                .Distinct()
+                .CountAsync(cancellationToken);
+
+            if (solvedCount < preQuizIds.Count)
+                return "يجب حل كويز ما قبل المحاضرة أولاً لفتح هذه المحاضرة.";
+        }
+
         if (!lesson.RequiresPreviousCompletion)
             return null;
 
@@ -704,7 +752,8 @@ public class SubjectService : ISubjectService
         Subject subject,
         bool includeDrafts,
         Dictionary<Guid, LessonProgress>? progressByLesson = null,
-        HashSet<Guid>? purchasedLessonIds = null)
+        HashSet<Guid>? purchasedLessonIds = null,
+        HashSet<Guid>? unmetPreQuizLessonIds = null)
     {
         var ordered = subject.Lessons
             .Where(l => includeDrafts || l.IsPublished)
@@ -739,6 +788,11 @@ public class SubjectService : ISubjectService
                 {
                     dto.IsLocked = true;
                     dto.LockReason = "payment_required";
+                }
+                else if (unmetPreQuizLessonIds?.Contains(lesson.Id) == true)
+                {
+                    dto.IsLocked = true;
+                    dto.LockReason = "pre_quiz_required";
                 }
                 else if (lesson.RequiresPreviousCompletion && i > 0 && !summaries[i - 1].IsCompleted)
                 {

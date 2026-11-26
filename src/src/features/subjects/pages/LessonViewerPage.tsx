@@ -8,7 +8,11 @@ import {
 import { LessonEmbedPlayer } from '../components/LessonEmbedPlayer';
 import { LessonSummary, normalizeContentType, CONTENT_TYPE_LABELS } from '../types';
 import { quizzesApi } from '@/features/quizzes/api';
-import { QuizSummaryItemDto, normalizeAssessmentType } from '@/features/quizzes/types';
+import {
+  QuizSummaryItemDto,
+  normalizeAssessmentType,
+  normalizeAssessmentPlacement,
+} from '@/features/quizzes/types';
 import { useAuth } from '@/features/auth/useAuth';
 import { tenantPath } from '@/lib/tenant';
 import { PageLayout } from '@/components/ui/PageLayout';
@@ -18,6 +22,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { useToast } from '@/components/ui/Toast';
 import { getApiErrorMessage } from '@/lib/api';
+import { formatDateArabic } from '@/lib/date';
 import {
   ArrowRight,
   ArrowLeft,
@@ -408,6 +413,10 @@ export const LessonViewerPage: React.FC = () => {
                     <div className="space-y-3">
                       {lessonHomeworks.map((hw) => {
                         const sub = hw.mySubmission;
+                        const placementVal = normalizeAssessmentPlacement(hw.placement);
+                        const nowMs = Date.now();
+                        const notOpenYet = !sub && !!hw.availableFrom && new Date(hw.availableFrom).getTime() > nowMs;
+                        const deadlinePassed = !sub && !!hw.dueAt && new Date(hw.dueAt).getTime() < nowMs;
                         return (
                           <div
                             key={hw.id}
@@ -416,6 +425,9 @@ export const LessonViewerPage: React.FC = () => {
                             <div className="space-y-1">
                               <div className="flex flex-wrap items-center gap-2">
                                 <Badge variant="info" size="sm">واجب المحاضرة</Badge>
+                                <Badge variant={placementVal === 'BeforeLesson' ? 'warning' : 'neutral'} size="sm">
+                                  {placementVal === 'BeforeLesson' ? 'قبل المحاضرة' : 'بعد المحاضرة'}
+                                </Badge>
                                 {sub && (
                                   <Badge variant={sub.passed ? 'success' : 'warning'} size="sm" className="gap-1">
                                     <Award className="w-3 h-3" />
@@ -427,16 +439,34 @@ export const LessonViewerPage: React.FC = () => {
                               <p className="text-xs text-text-muted">
                                 {hw.questionsCount} سؤال • الدرجة النهائية: {hw.totalScore} • نسبة النجاح: {hw.passingScorePercent}%
                               </p>
+                              {(hw.availableFrom || hw.dueAt) && (
+                                <p className="text-[11px] text-text-muted flex flex-wrap items-center gap-2">
+                                  {hw.availableFrom && notOpenYet && (
+                                    <span className="text-primary font-semibold">يفتح في: {formatDateArabic(hw.availableFrom)}</span>
+                                  )}
+                                  {hw.dueAt && (
+                                    <span className={deadlinePassed ? 'text-danger font-bold' : 'text-warning font-semibold'}>
+                                      {deadlinePassed ? 'انتهى الموعد النهائي' : `الديدلاين: ${formatDateArabic(hw.dueAt)}`}
+                                    </span>
+                                  )}
+                                </p>
+                              )}
                             </div>
-                            <Link to={tenantPath(`/subjects/${subjectId}/quizzes/${hw.id}`)} className="shrink-0">
-                              <Button
-                                variant={sub ? 'outline' : 'primary'}
-                                size="sm"
-                                className="font-bold w-full sm:w-auto"
-                              >
-                                {sub ? 'مراجعة الإجابات' : 'ابدأ حل الواجب'}
+                            {notOpenYet || deadlinePassed ? (
+                              <Button variant="outline" size="sm" disabled className="font-bold w-full sm:w-auto shrink-0">
+                                {notOpenYet ? 'مجدول لاحقاً' : 'انتهى الموعد'}
                               </Button>
-                            </Link>
+                            ) : (
+                              <Link to={tenantPath(`/subjects/${subjectId}/quizzes/${hw.id}`)} className="shrink-0">
+                                <Button
+                                  variant={sub ? 'outline' : 'primary'}
+                                  size="sm"
+                                  className="font-bold w-full sm:w-auto"
+                                >
+                                  {sub ? 'مراجعة الإجابات' : 'ابدأ حل الواجب'}
+                                </Button>
+                              </Link>
+                            )}
                           </div>
                         );
                       })}
@@ -454,6 +484,10 @@ export const LessonViewerPage: React.FC = () => {
                     <div className="space-y-3">
                       {lessonExams.map((ex) => {
                         const sub = ex.mySubmission;
+                        const placementVal = normalizeAssessmentPlacement(ex.placement);
+                        const nowMs = Date.now();
+                        const notOpenYet = !sub && !!ex.availableFrom && new Date(ex.availableFrom).getTime() > nowMs;
+                        const deadlinePassed = !sub && !!ex.dueAt && new Date(ex.dueAt).getTime() < nowMs;
                         return (
                           <div
                             key={ex.id}
@@ -462,6 +496,9 @@ export const LessonViewerPage: React.FC = () => {
                             <div className="space-y-1">
                               <div className="flex flex-wrap items-center gap-2">
                                 <Badge variant="primary" size="sm">امتحان إلكتروني</Badge>
+                                <Badge variant={placementVal === 'BeforeLesson' ? 'warning' : 'neutral'} size="sm">
+                                  {placementVal === 'BeforeLesson' ? 'قبل المحاضرة' : 'بعد المحاضرة'}
+                                </Badge>
                                 {ex.durationMinutes && (
                                   <Badge variant="neutral" size="sm" className="gap-1">
                                     <Clock className="w-3 h-3" />
@@ -479,16 +516,34 @@ export const LessonViewerPage: React.FC = () => {
                               <p className="text-xs text-text-muted">
                                 {ex.questionsCount} سؤال • {ex.totalScore} درجة • شرط النجاح: {ex.passingScorePercent}%
                               </p>
+                              {(ex.availableFrom || ex.dueAt) && (
+                                <p className="text-[11px] text-text-muted flex flex-wrap items-center gap-2">
+                                  {ex.availableFrom && notOpenYet && (
+                                    <span className="text-primary font-semibold">يفتح في: {formatDateArabic(ex.availableFrom)}</span>
+                                  )}
+                                  {ex.dueAt && (
+                                    <span className={deadlinePassed ? 'text-danger font-bold' : 'text-warning font-semibold'}>
+                                      {deadlinePassed ? 'انتهى الموعد النهائي' : `الديدلاين: ${formatDateArabic(ex.dueAt)}`}
+                                    </span>
+                                  )}
+                                </p>
+                              )}
                             </div>
-                            <Link to={tenantPath(`/subjects/${subjectId}/quizzes/${ex.id}`)} className="shrink-0">
-                              <Button
-                                variant={sub ? 'outline' : 'primary'}
-                                size="sm"
-                                className="font-bold w-full sm:w-auto"
-                              >
-                                {sub ? 'مراجعة النتيجة' : 'ابدأ الامتحان الآن'}
+                            {notOpenYet || deadlinePassed ? (
+                              <Button variant="outline" size="sm" disabled className="font-bold w-full sm:w-auto shrink-0">
+                                {notOpenYet ? 'مجدول لاحقاً' : 'انتهى الموعد'}
                               </Button>
-                            </Link>
+                            ) : (
+                              <Link to={tenantPath(`/subjects/${subjectId}/quizzes/${ex.id}`)} className="shrink-0">
+                                <Button
+                                  variant={sub ? 'outline' : 'primary'}
+                                  size="sm"
+                                  className="font-bold w-full sm:w-auto"
+                                >
+                                  {sub ? 'مراجعة النتيجة' : 'ابدأ الامتحان الآن'}
+                                </Button>
+                              </Link>
+                            )}
                           </div>
                         );
                       })}

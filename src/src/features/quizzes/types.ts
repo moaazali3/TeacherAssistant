@@ -1,4 +1,5 @@
 export type AssessmentType = 'Homework' | 'Exam';
+export type AssessmentPlacement = 'AfterLesson' | 'BeforeLesson' | 'General';
 
 export interface QuizQuestionDto {
   id: string;
@@ -26,6 +27,9 @@ export interface QuizSummaryItemDto {
   lessonTitle?: string | null;
   title: string;
   type: AssessmentType | number;
+  placement?: AssessmentPlacement | number;
+  availableFrom?: string | null;
+  dueAt?: string | null;
   durationMinutes?: number | null;
   passingScorePercent: number;
   isPublished: boolean;
@@ -44,6 +48,9 @@ export interface CreateQuizDto {
   title: string;
   lessonId?: string | null;
   type: AssessmentType;
+  placement: AssessmentPlacement;
+  availableFrom?: string | null;
+  dueAt?: string | null;
   durationMinutes?: number | null;
   passingScorePercent: number;
   isPublished: boolean;
@@ -57,4 +64,12 @@ export interface SubmitQuizAnswersDto {
 export function normalizeAssessmentType(t: AssessmentType | number | string): AssessmentType {
   if (t === 2 || t === '2' || t === 'Exam') return 'Exam';
   return 'Homework';
+}
+
+export function normalizeAssessmentPlacement(
+  p?: AssessmentPlacement | number | string | null
+): AssessmentPlacement {
+  if (p === 1 || p === '1' || p === 'BeforeLesson') return 'BeforeLesson';
+  if (p === 2 || p === '2' || p === 'General') return 'General';
+  return 'AfterLesson';
 }

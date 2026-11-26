@@ -388,7 +388,13 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("AvailableFrom")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DueAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("DurationMinutes")
@@ -401,6 +407,9 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("PassingScorePercent")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Placement")
                         .HasColumnType("int");
 
                     b.Property<string>("QuestionsData")

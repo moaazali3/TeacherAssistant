@@ -15,6 +15,9 @@ public class Quiz : BaseEntity, ITenantEntity
 
     public string Title { get; set; } = string.Empty;
     public AssessmentType Type { get; set; } = AssessmentType.Homework;
+    public AssessmentPlacement Placement { get; set; } = AssessmentPlacement.AfterLesson;
+    public DateTime? AvailableFrom { get; set; }
+    public DateTime? DueAt { get; set; }
     public int? DurationMinutes { get; set; }
     public int PassingScorePercent { get; set; } = 50;
     public bool IsPublished { get; set; } = true;

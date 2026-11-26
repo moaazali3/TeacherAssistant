@@ -4,7 +4,11 @@ import { useSubjectDetailQuery } from '../useSubjects';
 import { useAuth } from '@/features/auth/useAuth';
 import { LessonSummary, normalizeContentType, CONTENT_TYPE_LABELS } from '../types';
 import { quizzesApi } from '@/features/quizzes/api';
-import { QuizSummaryItemDto, normalizeAssessmentType } from '@/features/quizzes/types';
+import {
+  QuizSummaryItemDto,
+  normalizeAssessmentType,
+  normalizeAssessmentPlacement,
+} from '@/features/quizzes/types';
 import { LessonCheckoutModal } from '@/features/payments/components/LessonCheckoutModal';
 import { tenantPath } from '@/lib/tenant';
 import { PageLayout } from '@/components/ui/PageLayout';
@@ -314,7 +318,11 @@ export const SubjectDetailPage: React.FC = () => {
                             const normType = normalizeContentType(lesson.contentType);
                             const isLocked = !!lesson.isLocked;
                             const isPaymentLocked = isLocked && lesson.lockReason === 'payment_required';
+                            const isPreQuizLocked = isLocked && lesson.lockReason === 'pre_quiz_required';
                             const linkedQuizzes = quizzesByLessonId.get(lesson.id) || [];
+                            const preQuiz = linkedQuizzes.find(
+                              (q) => normalizeAssessmentPlacement(q.placement) === 'BeforeLesson'
+                            );
                             const linkedHomeworks = linkedQuizzes.filter((q) => normalizeAssessmentType(q.type) === 'Homework');
                             const linkedExams = linkedQuizzes.filter((q) => normalizeAssessmentType(q.type) === 'Exam');
 
@@ -323,7 +331,9 @@ export const SubjectDetailPage: React.FC = () => {
                                 ? `يُفتح في ${formatDateArabic(lesson.availableAt)}`
                                 : isPaymentLocked
                                   ? `محاضرة مدفوعة — افتحها الآن عبر فوري أو المحافظ أو البطاقة (${lesson.price} ج.م)`
-                                  : lesson.lockReason;
+                                  : isPreQuizLocked
+                                    ? 'مقفلة حتى حل كويز ما قبل المحاضرة'
+                                    : lesson.lockReason;
 
                             return (
                               <Card
@@ -401,7 +411,7 @@ export const SubjectDetailPage: React.FC = () => {
                                         {linkedHomeworks.map((hw) => (
                                           <Badge
                                             key={hw.id}
-                                            variant={hw.mySubmission ? 'success' : 'info'}
+                                            variant={hw.mySubmission ? 'success' : normalizeAssessmentPlacement(hw.placement) === 'BeforeLesson' ? 'warning' : 'info'}
                                             size="sm"
                                             className="gap-1"
                                           >
@@ -409,7 +419,9 @@ export const SubjectDetailPage: React.FC = () => {
                                             <span>
                                               {hw.mySubmission
                                                 ? `واجب ✓ ${hw.mySubmission.percentage}%`
-                                                : 'واجب متاح'}
+                                                : normalizeAssessmentPlacement(hw.placement) === 'BeforeLesson'
+                                                  ? 'كويز قبل المحاضرة'
+                                                  : 'واجب متاح'}
                                             </span>
                                           </Badge>
                                         ))}
@@ -425,7 +437,9 @@ export const SubjectDetailPage: React.FC = () => {
                                             <span>
                                               {ex.mySubmission
                                                 ? `امتحان ✓ ${ex.mySubmission.percentage}%`
-                                                : `امتحان${ex.durationMinutes ? ` (${ex.durationMinutes} د)` : ''}`}
+                                                : normalizeAssessmentPlacement(ex.placement) === 'BeforeLesson'
+                                                  ? 'امتحان قبل المحاضرة'
+                                                  : `امتحان${ex.durationMinutes ? ` (${ex.durationMinutes} د)` : ''}`}
                                             </span>
                                           </Badge>
                                         ))}
@@ -464,6 +478,18 @@ export const SubjectDetailPage: React.FC = () => {
                                         >
                                           شراء المحاضرة ({lesson.price} ج.م)
                                         </Button>
+                                      ) : isPreQuizLocked && preQuiz ? (
+                                        <Link to={tenantPath(`/subjects/${subject.id}/quizzes/${preQuiz.id}`)} className="block">
+                                          <Button
+                                            type="button"
+                                            variant="primary"
+                                            size="sm"
+                                            className="w-full sm:w-auto font-bold"
+                                            startIcon={<ClipboardList className="w-3.5 h-3.5" />}
+                                          >
+                                            حل كويز ما قبل المحاضرة لفتحها
+                                          </Button>
+                                        </Link>
                                       ) : isLocked ? (
                                         <Button
                                           variant="outline"
@@ -528,7 +554,11 @@ export const SubjectDetailPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {quizzes.map((quiz) => {
                   const kind = normalizeAssessmentType(quiz.type);
+                  const placementVal = normalizeAssessmentPlacement(quiz.placement);
                   const sub = quiz.mySubmission;
+                  const nowMs = Date.now();
+                  const notOpenYet = !sub && !!quiz.availableFrom && new Date(quiz.availableFrom).getTime() > nowMs;
+                  const deadlinePassed = !sub && !!quiz.dueAt && new Date(quiz.dueAt).getTime() < nowMs;
                   return (
                     <Card key={quiz.id} className="border-border">
                       <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -537,6 +567,11 @@ export const SubjectDetailPage: React.FC = () => {
                             <Badge variant={kind === 'Exam' ? 'primary' : 'info'} size="sm">
                               {kind === 'Exam' ? 'امتحان' : 'واجب'}
                             </Badge>
+                            {quiz.lessonId && (
+                              <Badge variant={placementVal === 'BeforeLesson' ? 'warning' : 'neutral'} size="sm">
+                                {placementVal === 'BeforeLesson' ? 'قبل المحاضرة' : 'بعد المحاضرة'}
+                              </Badge>
+                            )}
                             {quiz.durationMinutes && (
                               <Badge variant="neutral" size="sm" className="gap-1">
                                 <Clock className="w-3 h-3" />
@@ -555,17 +590,37 @@ export const SubjectDetailPage: React.FC = () => {
                             {quiz.questionsCount} سؤال • {quiz.totalScore} درجة
                             {quiz.lessonTitle ? ` • تابع لـ: ${quiz.lessonTitle}` : ''}
                           </p>
+                          {(quiz.availableFrom || quiz.dueAt) && (
+                            <p className="text-[11px] text-text-muted flex flex-wrap items-center gap-2">
+                              {quiz.availableFrom && notOpenYet && (
+                                <span className="text-primary font-semibold">
+                                  يفتح في: {formatDateArabic(quiz.availableFrom)}
+                                </span>
+                              )}
+                              {quiz.dueAt && (
+                                <span className={deadlinePassed ? 'text-danger font-bold' : 'text-warning font-semibold'}>
+                                  {deadlinePassed ? 'انتهى الموعد النهائي' : `الديدلاين: ${formatDateArabic(quiz.dueAt)}`}
+                                </span>
+                              )}
+                            </p>
+                          )}
                         </div>
 
-                        <Link to={tenantPath(`/subjects/${subject.id}/quizzes/${quiz.id}`)} className="shrink-0">
-                          <Button
-                            variant={sub ? 'outline' : 'primary'}
-                            size="sm"
-                            className="font-bold w-full sm:w-auto"
-                          >
-                            {sub ? 'مراجعة الإجابات' : 'ابدأ الحل'}
+                        {notOpenYet || deadlinePassed ? (
+                          <Button variant="outline" size="sm" disabled className="font-bold w-full sm:w-auto shrink-0">
+                            {notOpenYet ? 'مجدول لاحقاً' : 'انتهى الموعد'}
                           </Button>
-                        </Link>
+                        ) : (
+                          <Link to={tenantPath(`/subjects/${subject.id}/quizzes/${quiz.id}`)} className="shrink-0">
+                            <Button
+                              variant={sub ? 'outline' : 'primary'}
+                              size="sm"
+                              className="font-bold w-full sm:w-auto"
+                            >
+                              {sub ? 'مراجعة الإجابات' : 'ابدأ الحل'}
+                            </Button>
+                          </Link>
+                        )}
                       </CardContent>
                     </Card>
                   );

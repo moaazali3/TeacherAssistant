@@ -9,13 +9,30 @@ import { SkeletonRow } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { tenantPath } from '@/lib/tenant';
 import { getApiErrorMessage } from '@/lib/api';
+import { formatDateArabic } from '@/lib/date';
+import { useAuth } from '@/features/auth/useAuth';
 import { quizzesApi } from '../api';
-import { QuizDetailDto, normalizeAssessmentType } from '../types';
-import { Clock, CheckCircle2, XCircle, Award, Send, ArrowRight } from 'lucide-react';
+import {
+  QuizDetailDto,
+  normalizeAssessmentType,
+  normalizeAssessmentPlacement,
+} from '../types';
+import {
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Award,
+  Send,
+  ArrowRight,
+  CalendarClock,
+  AlertTriangle,
+} from 'lucide-react';
 
 export const QuizTakePage: React.FC = () => {
   const { subjectId, quizId } = useParams<{ subjectId: string; quizId: string }>();
+  const { user } = useAuth();
   const { success, error: toastError } = useToast();
+  const isStudent = user?.role === 'Student';
 
   const [quiz, setQuiz] = useState<QuizDetailDto | null>(null);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -99,7 +116,12 @@ export const QuizTakePage: React.FC = () => {
   };
 
   const kind = quiz ? normalizeAssessmentType(quiz.type) : 'Homework';
+  const placementVal = quiz ? normalizeAssessmentPlacement(quiz.placement) : 'AfterLesson';
   const mySubmission = quiz?.mySubmission;
+  const nowMs = Date.now();
+  const deadlinePassed = !mySubmission && !!quiz?.dueAt && new Date(quiz.dueAt).getTime() < nowMs;
+  const notOpenYet = !mySubmission && !!quiz?.availableFrom && new Date(quiz.availableFrom).getTime() > nowMs;
+  const isLockedOut = deadlinePassed || notOpenYet;
 
   return (
     <PageLayout
@@ -116,7 +138,7 @@ export const QuizTakePage: React.FC = () => {
       breadcrumbs={
         <Breadcrumbs
           items={[
-            { label: 'المواد', href: tenantPath('/subjects') },
+            { label: isStudent ? 'موادي' : 'المواد', href: tenantPath(isStudent ? '/my-subjects' : '/subjects') },
             ...(subjectId
               ? [{ label: 'المادة', href: tenantPath(`/subjects/${subjectId}`) }]
               : []),
@@ -144,16 +166,29 @@ export const QuizTakePage: React.FC = () => {
                   <Badge variant={kind === 'Exam' ? 'primary' : 'info'} size="sm">
                     {kind === 'Exam' ? 'امتحان' : 'واجب'}
                   </Badge>
+                  {quiz.lessonId && (
+                    <Badge variant={placementVal === 'BeforeLesson' ? 'warning' : 'neutral'} size="sm">
+                      {placementVal === 'BeforeLesson' ? 'كويز قبل المحاضرة' : 'تقييم بعد المحاضرة'}
+                    </Badge>
+                  )}
                   <Badge variant="neutral" size="sm">
                     {quiz.questionsCount} سؤال • {quiz.totalScore} درجة
                   </Badge>
+                  {quiz.dueAt && (
+                    <Badge variant={deadlinePassed ? 'danger' : 'warning'} size="sm" className="gap-1">
+                      <CalendarClock className="w-3 h-3" />
+                      <span>
+                        {deadlinePassed ? 'انتهى الديدلاين' : `الديدلاين: ${formatDateArabic(quiz.dueAt)}`}
+                      </span>
+                    </Badge>
+                  )}
                 </div>
                 <h1 className="text-xl sm:text-2xl font-extrabold font-heading text-text-main">
                   {quiz.title}
                 </h1>
               </div>
 
-              {secondsLeft !== null && !mySubmission && (
+              {secondsLeft !== null && !mySubmission && !isLockedOut && (
                 <div
                   className={`px-4 py-2 rounded-xl border font-mono font-bold text-sm flex items-center gap-2 shrink-0 ${
                     secondsLeft <= 60
@@ -167,6 +202,19 @@ export const QuizTakePage: React.FC = () => {
               )}
             </CardContent>
           </Card>
+
+          {isLockedOut && (
+            <Card className="border-danger/40 bg-danger-bg/50">
+              <CardContent className="pt-5 flex items-center gap-3 text-danger">
+                <AlertTriangle className="w-5 h-5 shrink-0" />
+                <p className="text-sm font-bold">
+                  {notOpenYet
+                    ? `لم يحن موعد فتح هذا التقييم بعد (يفتح في ${formatDateArabic(quiz.availableFrom!)}).`
+                    : 'انتهى الموعد النهائي (الديدلاين) لتسليم هذا التقييم ولم يعد متاحاً للإرسال.'}
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Auto-graded Result Banner */}
           {mySubmission && (
@@ -245,7 +293,7 @@ export const QuizTakePage: React.FC = () => {
                           <button
                             key={optIdx}
                             type="button"
-                            disabled={isSubmitted}
+                            disabled={isSubmitted || isLockedOut}
                             onClick={() =>
                               setAnswers((prev) => ({ ...prev, [q.id]: optIdx }))
                             }
@@ -268,7 +316,7 @@ export const QuizTakePage: React.FC = () => {
             })}
           </div>
 
-          {!mySubmission && (
+          {!mySubmission && !isLockedOut && (
             <div className="flex items-center justify-between p-4 rounded-2xl border border-border bg-surface sticky bottom-4 shadow-md">
               <span className="text-xs text-text-muted">
                 تمت الإجابة على {Object.keys(answers).length} من {quiz.questions.length} سؤال

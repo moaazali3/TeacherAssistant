@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useSubjectDetailQuery } from '@/features/subjects/useSubjects';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
@@ -14,11 +14,14 @@ import { SkeletonRow } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { platformPath } from '@/lib/tenant';
 import { getApiErrorMessage } from '@/lib/api';
+import { formatDateArabic } from '@/lib/date';
 import { quizzesApi } from '../api';
 import {
+  AssessmentPlacement,
   AssessmentType,
   QuizQuestionDto,
   QuizSummaryItemDto,
+  normalizeAssessmentPlacement,
   normalizeAssessmentType,
 } from '../types';
 import {
@@ -30,6 +33,8 @@ import {
   Award,
   BookOpen,
   Users,
+  CalendarClock,
+  Lock,
 } from 'lucide-react';
 
 interface DraftQuestion {
@@ -50,6 +55,7 @@ const createEmptyQuestion = (index: number): DraftQuestion => ({
 
 export const SubjectQuizzesPage: React.FC = () => {
   const { subjectId } = useParams<{ subjectId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: subject } = useSubjectDetailQuery(subjectId);
   const { success, error: toastError } = useToast();
 
@@ -62,11 +68,30 @@ export const SubjectQuizzesPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [type, setType] = useState<AssessmentType>('Homework');
   const [lessonId, setLessonId] = useState<string>('');
+  const [placement, setPlacement] = useState<AssessmentPlacement>('AfterLesson');
+  const [availableFrom, setAvailableFrom] = useState<string>('');
+  const [dueAt, setDueAt] = useState<string>('');
   const [durationMinutes, setDurationMinutes] = useState<string>('30');
   const [passingScorePercent, setPassingScorePercent] = useState<string>('50');
   const [isPublished, setIsPublished] = useState(true);
   const [questions, setQuestions] = useState<DraftQuestion[]>([createEmptyQuestion(1)]);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Pre-fill lessonId / open modal when launched from a lesson row (?lessonId=...&new=1)
+  useEffect(() => {
+    const paramLessonId = searchParams.get('lessonId');
+    const shouldOpenNew = searchParams.get('new') === '1';
+    if (paramLessonId) {
+      setLessonId(paramLessonId);
+      setPlacement('AfterLesson');
+    }
+    if (shouldOpenNew) {
+      setIsCreateOpen(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete('new');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Delete state
   const [quizToDelete, setQuizToDelete] = useState<QuizSummaryItemDto | null>(null);
@@ -94,6 +119,9 @@ export const SubjectQuizzesPage: React.FC = () => {
     setTitle('');
     setType('Homework');
     setLessonId('');
+    setPlacement('AfterLesson');
+    setAvailableFrom('');
+    setDueAt('');
     setDurationMinutes('30');
     setPassingScorePercent('50');
     setIsPublished(true);
@@ -146,12 +174,21 @@ export const SubjectQuizzesPage: React.FC = () => {
       }
     }
 
+    if (availableFrom && dueAt && new Date(dueAt).getTime() <= new Date(availableFrom).getTime()) {
+      toastError('الموعد النهائي (الديدلاين) يجب أن يكون بعد موعد الفتح.');
+      return;
+    }
+
     try {
       setIsSaving(true);
+      const resolvedPlacement: AssessmentPlacement = lessonId ? placement : 'General';
       const created = await quizzesApi.createQuiz(subjectId, {
         title: title.trim(),
         type,
         lessonId: lessonId || null,
+        placement: resolvedPlacement,
+        availableFrom: availableFrom ? new Date(availableFrom).toISOString() : null,
+        dueAt: dueAt ? new Date(dueAt).toISOString() : null,
         durationMinutes: type === 'Exam' && Number(durationMinutes) > 0 ? Number(durationMinutes) : null,
         passingScorePercent: Math.min(100, Math.max(0, Number(passingScorePercent) || 50)),
         isPublished,
@@ -240,6 +277,8 @@ export const SubjectQuizzesPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {quizzes.map((quiz) => {
               const kind = normalizeAssessmentType(quiz.type);
+              const placementVal = normalizeAssessmentPlacement(quiz.placement);
+              const isBeforeLesson = placementVal === 'BeforeLesson';
               return (
                 <Card key={quiz.id} className="border-border">
                   <CardContent className="pt-5 space-y-3">
@@ -252,6 +291,12 @@ export const SubjectQuizzesPage: React.FC = () => {
                           <Badge variant={quiz.isPublished ? 'success' : 'warning'} size="sm">
                             {quiz.isPublished ? 'منشور' : 'مسودة'}
                           </Badge>
+                          {quiz.lessonId && (
+                            <Badge variant={isBeforeLesson ? 'warning' : 'neutral'} size="sm" className="gap-1">
+                              {isBeforeLesson && <Lock className="w-3 h-3" />}
+                              <span>{isBeforeLesson ? 'قبل المحاضرة (شرط فتح)' : 'بعد المحاضرة'}</span>
+                            </Badge>
+                          )}
                           {quiz.durationMinutes && (
                             <Badge variant="neutral" size="sm" className="gap-1">
                               <Clock className="w-3 h-3" />
@@ -263,8 +308,24 @@ export const SubjectQuizzesPage: React.FC = () => {
                         {quiz.lessonTitle && (
                           <p className="text-xs text-text-muted mt-0.5 flex items-center gap-1">
                             <BookOpen className="w-3 h-3" />
-                            <span>مرتبط بدرس: {quiz.lessonTitle}</span>
+                            <span>مرتبط بـ: {quiz.lessonTitle}</span>
                           </p>
+                        )}
+                        {(quiz.availableFrom || quiz.dueAt) && (
+                          <div className="flex flex-wrap items-center gap-3 mt-1.5 text-[11px] text-text-muted">
+                            {quiz.availableFrom && (
+                              <span className="flex items-center gap-1">
+                                <CalendarClock className="w-3 h-3 text-primary" />
+                                <span>يفتح: {formatDateArabic(quiz.availableFrom)}</span>
+                              </span>
+                            )}
+                            {quiz.dueAt && (
+                              <span className="flex items-center gap-1 text-warning font-semibold">
+                                <CalendarClock className="w-3 h-3" />
+                                <span>الديدلاين: {formatDateArabic(quiz.dueAt)}</span>
+                              </span>
+                            )}
+                          </div>
                         )}
                       </div>
 
@@ -347,14 +408,19 @@ export const SubjectQuizzesPage: React.FC = () => {
             {subject && (
               <div>
                 <label className="block text-sm font-medium text-text-main mb-1.5">
-                  ربط بدرس (اختياري)
+                  ربط بمحاضرة (اختياري)
                 </label>
                 <select
                   value={lessonId}
-                  onChange={(e) => setLessonId(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setLessonId(val);
+                    if (!val) setPlacement('General');
+                    else if (placement === 'General') setPlacement('AfterLesson');
+                  }}
                   className="w-full h-10 rounded-md border border-border bg-surface px-3 text-xs text-text-main focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="">عام على المادة</option>
+                  <option value="">تقييم عام على المادة</option>
                   {subject.lessons.map((l) => (
                     <option key={l.id} value={l.id}>
                       {l.title}
@@ -383,6 +449,69 @@ export const SubjectQuizzesPage: React.FC = () => {
               value={passingScorePercent}
               onChange={(e) => setPassingScorePercent(e.target.value)}
             />
+          </div>
+
+          {lessonId && (
+            <div className="p-3 rounded-xl border border-border bg-surface-subtle space-y-2">
+              <label className="block text-xs font-bold text-text-main">
+                توقيت التقييم بالنسبة للمحاضرة:
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(
+                  [
+                    {
+                      value: 'AfterLesson',
+                      label: 'بعد المحاضرة',
+                      hint: 'واجب أو تقييم يظهر داخل غرفة المحاضرة',
+                    },
+                    {
+                      value: 'BeforeLesson',
+                      label: 'قبل المحاضرة (شرط لفتحها)',
+                      hint: 'لا تفتح المحاضرة للطالب إلا بعد حل هذا الكويز',
+                    },
+                  ] as const
+                ).map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setPlacement(opt.value)}
+                    className={`p-2.5 rounded-lg border text-start transition-colors cursor-pointer ${
+                      placement === opt.value
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border bg-surface text-text-muted hover:text-text-main'
+                    }`}
+                  >
+                    <span className="block text-xs font-bold">{opt.label}</span>
+                    <span className="block text-[11px] opacity-80 mt-0.5">{opt.hint}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-text-main mb-1.5">
+                موعد الفتح (اختياري)
+              </label>
+              <input
+                type="datetime-local"
+                value={availableFrom}
+                onChange={(e) => setAvailableFrom(e.target.value)}
+                className="w-full h-10 rounded-md border border-border bg-surface px-3 text-xs text-text-main focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-text-main mb-1.5">
+                الموعد النهائي / الديدلاين (اختياري)
+              </label>
+              <input
+                type="datetime-local"
+                value={dueAt}
+                onChange={(e) => setDueAt(e.target.value)}
+                className="w-full h-10 rounded-md border border-border bg-surface px-3 text-xs text-text-main focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
           </div>
 
           <label className="flex items-center gap-2 text-sm cursor-pointer">

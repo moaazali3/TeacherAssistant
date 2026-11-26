@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useSortable } from '@dnd-kit/sortable';
 import { LessonSummary, CONTENT_TYPE_LABELS, normalizeContentType } from '../types';
 import { Badge } from '@/components/ui/Badge';
@@ -17,12 +18,14 @@ import {
   CalendarClock,
   Lock,
   Paperclip,
+  ClipboardList,
 } from 'lucide-react';
 
 interface LessonItemProps {
   lesson: LessonSummary;
   index: number;
   totalLessons: number;
+  addQuizHref?: string;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
   onEdit: (lesson: LessonSummary) => void;
@@ -34,6 +37,7 @@ export const LessonItem: React.FC<LessonItemProps> = ({
   lesson,
   index,
   totalLessons,
+  addQuizHref,
   onMoveUp,
   onMoveDown,
   onEdit,
@@ -178,7 +182,19 @@ export const LessonItem: React.FC<LessonItemProps> = ({
       </div>
 
       {/* Right: Action Buttons */}
-      <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+      <div className="flex flex-wrap items-center gap-2 shrink-0 self-end sm:self-center">
+        {addQuizHref && (
+          <Link to={addQuizHref}>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="text-xs font-bold"
+              startIcon={<ClipboardList className="w-3.5 h-3.5" />}
+            >
+              + كويز / واجب
+            </Button>
+          </Link>
+        )}
         <Button
           variant="outline"
           size="sm"

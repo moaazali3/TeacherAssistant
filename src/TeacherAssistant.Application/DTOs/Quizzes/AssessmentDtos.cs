@@ -30,6 +30,12 @@ public class CreateQuizDto
 
     public AssessmentType Type { get; set; } = AssessmentType.Homework;
 
+    public AssessmentPlacement Placement { get; set; } = AssessmentPlacement.AfterLesson;
+
+    public DateTime? AvailableFrom { get; set; }
+
+    public DateTime? DueAt { get; set; }
+
     public int? DurationMinutes { get; set; }
 
     [Range(0, 100)]
@@ -61,6 +67,9 @@ public class QuizSummaryItemDto
     public string? LessonTitle { get; set; }
     public string Title { get; set; } = string.Empty;
     public AssessmentType Type { get; set; }
+    public AssessmentPlacement Placement { get; set; }
+    public DateTime? AvailableFrom { get; set; }
+    public DateTime? DueAt { get; set; }
     public int? DurationMinutes { get; set; }
     public int PassingScorePercent { get; set; }
     public bool IsPublished { get; set; }
