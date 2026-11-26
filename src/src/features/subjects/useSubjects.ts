@@ -7,9 +7,16 @@ import {
   UpdateLessonDto,
 } from './types';
 import { useTenantSlug } from '@/lib/tenant';
+import { useAuth } from '@/features/auth/useAuth';
+
+function useActiveTenantSlug(): string | null {
+  const urlSlug = useTenantSlug();
+  const { user } = useAuth();
+  return urlSlug || user?.tenantSubdomain || null;
+}
 
 export function useMySubjectsQuery() {
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
   return useQuery({
     queryKey: ['subjects', 'mine', slug],
     queryFn: () => subjectsApi.getMySubjects(),
@@ -18,7 +25,7 @@ export function useMySubjectsQuery() {
 }
 
 export function usePublishedSubjectsQuery() {
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
   return useQuery({
     queryKey: ['subjects', 'published', slug],
     queryFn: () => subjectsApi.getPublishedSubjects(),
@@ -27,7 +34,7 @@ export function usePublishedSubjectsQuery() {
 }
 
 export function useSubjectDetailQuery(subjectId: string | undefined) {
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
   return useQuery({
     queryKey: ['subjects', 'detail', subjectId, slug],
     queryFn: () => {
@@ -39,7 +46,7 @@ export function useSubjectDetailQuery(subjectId: string | undefined) {
 }
 
 export function useLessonDetailQuery(lessonId: string | undefined) {
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
   return useQuery({
     queryKey: ['lessons', 'detail', lessonId, slug],
     queryFn: () => {
@@ -52,7 +59,7 @@ export function useLessonDetailQuery(lessonId: string | undefined) {
 
 export function useCreateSubjectMutation() {
   const queryClient = useQueryClient();
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
 
   return useMutation({
     mutationFn: (dto: CreateSubjectDto) => subjectsApi.createSubject(dto),
@@ -65,7 +72,7 @@ export function useCreateSubjectMutation() {
 
 export function useUpdateSubjectMutation(subjectId?: string) {
   const queryClient = useQueryClient();
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
 
   return useMutation({
     mutationFn: ({ id, dto }: { id: string; dto: UpdateSubjectDto }) =>
@@ -83,7 +90,7 @@ export function useUpdateSubjectMutation(subjectId?: string) {
 
 export function useDeleteSubjectMutation() {
   const queryClient = useQueryClient();
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
 
   return useMutation({
     mutationFn: (id: string) => subjectsApi.deleteSubject(id),
@@ -96,7 +103,7 @@ export function useDeleteSubjectMutation() {
 
 export function useAddLessonMutation(subjectId: string) {
   const queryClient = useQueryClient();
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
 
   return useMutation({
     mutationFn: (dto: CreateLessonDto) => subjectsApi.addLesson(subjectId, dto),
@@ -110,7 +117,7 @@ export function useAddLessonMutation(subjectId: string) {
 
 export function useUpdateLessonMutation(subjectId: string) {
   const queryClient = useQueryClient();
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
 
   return useMutation({
     mutationFn: ({ lessonId, dto }: { lessonId: string; dto: UpdateLessonDto }) =>
@@ -124,7 +131,7 @@ export function useUpdateLessonMutation(subjectId: string) {
 
 export function useDeleteLessonMutation(subjectId: string) {
   const queryClient = useQueryClient();
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
 
   return useMutation({
     mutationFn: (lessonId: string) => subjectsApi.deleteLesson(lessonId),
@@ -138,7 +145,7 @@ export function useDeleteLessonMutation(subjectId: string) {
 
 export function useReorderLessonsMutation(subjectId: string) {
   const queryClient = useQueryClient();
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
 
   return useMutation({
     mutationFn: (lessonIds: string[]) => subjectsApi.reorderLessons(subjectId, lessonIds),
@@ -150,7 +157,7 @@ export function useReorderLessonsMutation(subjectId: string) {
 
 export function useCompleteLessonMutation(subjectId?: string) {
   const queryClient = useQueryClient();
-  const slug = useTenantSlug();
+  const slug = useActiveTenantSlug();
 
   return useMutation({
     mutationFn: (lessonId: string) => subjectsApi.completeLesson(lessonId),

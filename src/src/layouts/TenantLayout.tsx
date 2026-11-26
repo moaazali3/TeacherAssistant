@@ -58,6 +58,8 @@ export const TenantLayout: React.FC = () => {
 
   const isStudent = isAuthenticated && user?.role === 'Student';
   const isTeacher = isAuthenticated && (user?.role === 'Instructor' || user?.role === 'Admin');
+  const normalizePath = (p: string) => (p.length > 1 ? p.replace(/\/+$/, '') : p);
+  const isTenantHome = normalizePath(location.pathname) === normalizePath(tenantPath('/'));
 
   return (
     <div className="min-h-screen flex flex-col bg-bg text-text-main">
@@ -111,7 +113,7 @@ export const TenantLayout: React.FC = () => {
             <Link
               to={tenantPath('/')}
               className={`font-medium transition-colors ${
-                location.pathname === tenantPath('/')
+                isTenantHome
                   ? 'text-primary font-bold'
                   : 'text-text-muted hover:text-primary'
               }`}
@@ -374,31 +376,33 @@ export const TenantLayout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* Themed Tenant Footer */}
-      <footer className="bg-surface border-t border-border mt-auto py-8 text-center text-xs text-text-muted">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>
-            منصة {tenant?.name} © {new Date().getFullYear()} — جميع الحقوق محفوظة
-          </p>
-
-          <div className="flex items-center gap-4">
-            <Link
-              to={tenantPath('/subjects')}
-              className="hover:text-primary transition-colors"
-            >
-              جميع المواد
-            </Link>
-            <span>•</span>
-            <p className="flex items-center gap-1.5">
-              <span>مشغل بواسطة</span>
-              <a href={platformPath('/')} className="font-bold text-primary hover:underline inline-flex items-center gap-1">
-                <img src="/logo.svg" alt="طرابيزة" className="w-4 h-4 rounded-xs" />
-                <span>طرابيزة Tarabeza</span>
-              </a>
+      {/* Themed Tenant Footer (hidden on tenant home page, which renders LandingRenderer's FooterSection) */}
+      {!isTenantHome && (
+        <footer className="bg-surface border-t border-border mt-auto py-8 text-center text-xs text-text-muted">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>
+              منصة {tenant?.name} © {new Date().getFullYear()} — جميع الحقوق محفوظة
             </p>
+
+            <div className="flex items-center gap-4">
+              <Link
+                to={isStudent ? tenantPath('/my-subjects') : tenantPath('/subjects')}
+                className="hover:text-primary transition-colors"
+              >
+                {isStudent ? 'موادي الدراسية' : 'جميع المواد'}
+              </Link>
+              <span>•</span>
+              <p className="flex items-center gap-1.5">
+                <span>مشغل بواسطة</span>
+                <a href={platformPath('/')} className="font-bold text-primary hover:underline inline-flex items-center gap-1">
+                  <img src="/logo.svg" alt="طرابيزة" className="w-4 h-4 rounded-xs" />
+                  <span>طرابيزة Tarabeza</span>
+                </a>
+              </p>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* Join Group Modal for Students */}
       <JoinGroupModal
