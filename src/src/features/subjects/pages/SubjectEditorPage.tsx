@@ -28,6 +28,7 @@ export const SubjectEditorPage: React.FC = () => {
           dto: {
             title: data.title,
             description: data.description || '',
+            gradeLevel: data.gradeLevel || null,
             thumbnailUrl: data.thumbnailUrl || null,
             isPublished: data.isPublished,
           },
@@ -38,6 +39,7 @@ export const SubjectEditorPage: React.FC = () => {
         const created = await createMutation.mutateAsync({
           title: data.title,
           description: data.description || '',
+          gradeLevel: data.gradeLevel || null,
           thumbnailUrl: data.thumbnailUrl || null,
           isPublished: data.isPublished,
         });

@@ -14,6 +14,7 @@ public class Subject : BaseEntity, ITenantEntity
 
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string? GradeLevel { get; set; }
     public decimal Price { get; set; }
     public string? ThumbnailUrl { get; set; }
     public bool IsPublished { get; set; }

@@ -101,7 +101,7 @@ export const TenantLayout: React.FC = () => {
                 {tenant?.name || 'المنصة التعليمية'}
               </span>
               <span className="text-xs text-text-muted font-medium block">
-                {tenant?.subdomain}.localhost
+                المنصة التعليمية
               </span>
             </div>
           </Link>
@@ -119,22 +119,25 @@ export const TenantLayout: React.FC = () => {
               الرئيسية
             </Link>
 
-            <Link
-              to={tenantPath('/subjects')}
-              className={`font-medium transition-colors ${
-                location.pathname.startsWith(tenantPath('/subjects'))
-                  ? 'text-primary font-bold'
-                  : 'text-text-muted hover:text-primary'
-              }`}
-            >
-              المواد
-            </Link>
+            {!isStudent && (
+              <Link
+                to={tenantPath('/subjects')}
+                className={`font-medium transition-colors ${
+                  location.pathname.startsWith(tenantPath('/subjects'))
+                    ? 'text-primary font-bold'
+                    : 'text-text-muted hover:text-primary'
+                }`}
+              >
+                المواد
+              </Link>
+            )}
 
             {isStudent && (
               <Link
                 to={tenantPath('/my-subjects')}
                 className={`font-medium transition-colors ${
-                  location.pathname === tenantPath('/my-subjects')
+                  location.pathname === tenantPath('/my-subjects') ||
+                  location.pathname.startsWith(tenantPath('/subjects'))
                     ? 'text-primary font-bold'
                     : 'text-text-muted hover:text-primary'
                 }`}
@@ -263,12 +266,14 @@ export const TenantLayout: React.FC = () => {
               >
                 الرئيسية
               </Link>
-              <Link
-                to={tenantPath('/subjects')}
-                className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary transition-colors"
-              >
-                المواد
-              </Link>
+              {!isStudent && (
+                <Link
+                  to={tenantPath('/subjects')}
+                  className="px-3 py-2 rounded-lg font-medium text-text-main hover:bg-surface-hover hover:text-primary transition-colors"
+                >
+                  المواد
+                </Link>
+              )}
               {isStudent && (
                 <Link
                   to={tenantPath('/my-subjects')}

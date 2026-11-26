@@ -47,6 +47,7 @@ public class SubjectService : ISubjectService
                 Id = s.Id,
                 Title = s.Title,
                 Description = s.Description,
+                GradeLevel = s.GradeLevel,
                 ThumbnailUrl = s.ThumbnailUrl,
                 IsPublished = s.IsPublished,
                 LessonsCount = s.Lessons.Count,
@@ -73,6 +74,7 @@ public class SubjectService : ISubjectService
             InstructorId = instructorId,
             Title = request.Title.Trim(),
             Description = request.Description?.Trim() ?? string.Empty,
+            GradeLevel = NormalizeOptional(request.GradeLevel),
             ThumbnailUrl = NormalizeOptional(request.ThumbnailUrl),
             IsPublished = request.IsPublished
         };
@@ -108,6 +110,7 @@ public class SubjectService : ISubjectService
 
         subject.Title = request.Title.Trim();
         subject.Description = request.Description?.Trim() ?? string.Empty;
+        subject.GradeLevel = NormalizeOptional(request.GradeLevel);
         subject.ThumbnailUrl = NormalizeOptional(request.ThumbnailUrl);
         subject.IsPublished = request.IsPublished;
         subject.UpdatedAt = DateTime.UtcNow;
@@ -353,6 +356,7 @@ public class SubjectService : ISubjectService
                 Id = s.Id,
                 Title = s.Title,
                 Description = s.Description,
+                GradeLevel = s.GradeLevel,
                 ThumbnailUrl = s.ThumbnailUrl,
                 IsPublished = s.IsPublished,
                 LessonsCount = s.Lessons.Count(l => l.IsPublished),
@@ -362,6 +366,53 @@ public class SubjectService : ISubjectService
 
         return ServiceResult<IReadOnlyList<SubjectSummaryDto>>.Ok(
             subjects, "Subjects fetched successfully.");
+    }
+
+    public async Task<ServiceResult<IReadOnlyList<SubjectSummaryDto>>> GetSameGradeAvailableSubjectsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        if (!HasTenant)
+            return NoTenant<IReadOnlyList<SubjectSummaryDto>>();
+
+        if (!IsStudent || _currentUserService.UserId is not { } studentId)
+            return ServiceResult<IReadOnlyList<SubjectSummaryDto>>.Forbidden();
+
+        var studentGradeLevels = await _context.GroupMemberships
+            .AsNoTracking()
+            .Where(m => m.StudentId == studentId && m.Group != null && m.Group.Subject != null &&
+                        m.Group.Subject.GradeLevel != null && m.Group.Subject.GradeLevel != "")
+            .Select(m => m.Group!.Subject!.GradeLevel!)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        if (studentGradeLevels.Count == 0)
+        {
+            return ServiceResult<IReadOnlyList<SubjectSummaryDto>>.Ok(
+                Array.Empty<SubjectSummaryDto>(), "No matching grade-level subjects found.");
+        }
+
+        var availableSubjects = await _context.Subjects
+            .AsNoTracking()
+            .Where(s => s.IsPublished
+                        && s.GradeLevel != null
+                        && studentGradeLevels.Contains(s.GradeLevel)
+                        && !_context.GroupMemberships.Any(m => m.SubjectId == s.Id && m.StudentId == studentId))
+            .OrderByDescending(s => s.CreatedAt)
+            .Select(s => new SubjectSummaryDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Description = s.Description,
+                GradeLevel = s.GradeLevel,
+                ThumbnailUrl = s.ThumbnailUrl,
+                IsPublished = s.IsPublished,
+                LessonsCount = s.Lessons.Count(l => l.IsPublished),
+                CreatedAt = s.CreatedAt
+            })
+            .ToListAsync(cancellationToken);
+
+        return ServiceResult<IReadOnlyList<SubjectSummaryDto>>.Ok(
+            availableSubjects, "Same-grade available subjects fetched successfully.");
     }
 
     public async Task<ServiceResult<SubjectDetailDto>> GetSubjectDetailAsync(
@@ -579,6 +630,7 @@ public class SubjectService : ISubjectService
         Id = subject.Id,
         Title = subject.Title,
         Description = subject.Description,
+        GradeLevel = subject.GradeLevel,
         ThumbnailUrl = subject.ThumbnailUrl,
         IsPublished = subject.IsPublished,
         LessonsCount = lessonsCount,
@@ -705,6 +757,7 @@ public class SubjectService : ISubjectService
             InstructorName = subject.Instructor?.Name ?? string.Empty,
             Title = subject.Title,
             Description = subject.Description,
+            GradeLevel = subject.GradeLevel,
             ThumbnailUrl = subject.ThumbnailUrl,
             IsPublished = subject.IsPublished,
             CreatedAt = subject.CreatedAt,

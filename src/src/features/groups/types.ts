@@ -30,6 +30,7 @@ export interface MyGroupDto {
   scheduleText?: string | null;
   subjectId: string;
   subjectTitle: string;
+  subjectGradeLevel?: string | null;
   instructorName: string;
   joinedAt: string;
 }

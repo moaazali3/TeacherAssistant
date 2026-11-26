@@ -1,9 +1,20 @@
 export type ContentType = 'Video' | 'Pdf' | 'Word' | 'Article' | 'Link';
 
+export const GRADE_LEVEL_OPTIONS = [
+  'الصف الأول الإعدادي',
+  'الصف الثاني الإعدادي',
+  'الصف الثالث الإعدادي',
+  'الصف الأول الثانوي',
+  'الصف الثاني الثانوي',
+  'الصف الثالث الثانوي',
+  'عام / جميع الصفوف',
+] as const;
+
 export interface SubjectSummary {
   id: string;
   title: string;
   description: string;
+  gradeLevel?: string | null;
   thumbnailUrl?: string | null;
   isPublished: boolean;
   lessonsCount: number;
@@ -35,6 +46,7 @@ export interface SubjectDetail {
   instructorName: string;
   title: string;
   description: string;
+  gradeLevel?: string | null;
   thumbnailUrl?: string | null;
   isPublished: boolean;
   createdAt: string;
@@ -65,6 +77,7 @@ export interface LessonDetail {
 export interface CreateSubjectDto {
   title: string;
   description?: string;
+  gradeLevel?: string | null;
   thumbnailUrl?: string | null;
   isPublished: boolean;
 }
@@ -72,6 +85,7 @@ export interface CreateSubjectDto {
 export interface UpdateSubjectDto {
   title: string;
   description?: string;
+  gradeLevel?: string | null;
   thumbnailUrl?: string | null;
   isPublished: boolean;
 }

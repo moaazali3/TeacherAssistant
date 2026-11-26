@@ -7,6 +7,7 @@ public class MyGroupDto
     public string? ScheduleText { get; set; }
     public Guid SubjectId { get; set; }
     public string SubjectTitle { get; set; } = string.Empty;
+    public string? SubjectGradeLevel { get; set; }
     public string InstructorName { get; set; } = string.Empty;
     public DateTime JoinedAt { get; set; }
 }

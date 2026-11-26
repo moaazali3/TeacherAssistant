@@ -35,6 +35,15 @@ public class SubjectsController : BaseApiController
         => Map(await _subjectService.GetSubjectsAsync(cancellationToken));
 
     /// <summary>
+    /// Published subjects in the same grade level as the student's enrolled subjects that they have not joined yet.
+    /// </summary>
+    [HttpGet("same-grade-available")]
+    [Authorize(Policy = AuthorizationPolicies.StudentOnly)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<SubjectSummaryDto>>>> GetSameGradeAvailable(
+        CancellationToken cancellationToken)
+        => Map(await _subjectService.GetSameGradeAvailableSubjectsAsync(cancellationToken));
+
+    /// <summary>
     /// Published subject with its published lessons (no ContentUrl).
     /// The owning instructor also sees drafts; students must be group members.
     /// </summary>

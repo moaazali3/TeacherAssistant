@@ -30,6 +30,14 @@ export const subjectsApi = {
   },
 
   /**
+   * GET /subjects/same-grade-available (Student only: unenrolled courses matching student's grade)
+   */
+  async getSameGradeAvailableSubjects(): Promise<SubjectSummary[]> {
+    const res = await apiClient.get<ApiResponse<SubjectSummary[]>>('/subjects/same-grade-available');
+    return res.data.data || [];
+  },
+
+  /**
    * GET /subjects/{id} (Public/Teacher: subject info + lesson summaries without ContentUrl)
    */
   async getSubjectDetail(id: string): Promise<SubjectDetail> {

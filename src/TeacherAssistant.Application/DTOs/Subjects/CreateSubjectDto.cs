@@ -11,6 +11,9 @@ public class CreateSubjectDto
     [StringLength(2000)]
     public string Description { get; set; } = string.Empty;
 
+    [StringLength(60)]
+    public string? GradeLevel { get; set; }
+
     [HttpUrl, StringLength(500)]
     public string? ThumbnailUrl { get; set; }
 

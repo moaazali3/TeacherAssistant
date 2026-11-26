@@ -207,6 +207,7 @@ public class DatabaseSeeder
                 InstructorId = teacherId,
                 Title = primarySubjectTitle,
                 Description = "شرح منهج الكيمياء للثانوية العامة، يشمل الكيمياء العضوية والتحليلية والاتزان الكيميائي والكهربية.",
+                GradeLevel = "الصف الثالث الثانوي",
                 ThumbnailUrl = "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?auto=format&fit=crop&w=800&q=80",
                 IsPublished = true
             };
@@ -218,6 +219,7 @@ public class DatabaseSeeder
             // Upgrade existing subject to realistic Arabic title and description
             subject.Title = primarySubjectTitle;
             subject.Description = "شرح منهج الكيمياء للثانوية العامة، يشمل الكيمياء العضوية والتحليلية والاتزان الكيميائي والكهربية.";
+            subject.GradeLevel ??= "الصف الثالث الثانوي";
             subject.IsPublished = true;
             if (string.IsNullOrWhiteSpace(subject.ThumbnailUrl))
             {
@@ -244,6 +246,7 @@ public class DatabaseSeeder
                 InstructorId = teacherId,
                 Title = draftSubjectTitle,
                 Description = "بنك الأسئلة الشامل ونماذج الامتحانات التجريبية للفيزياء - قيد التجهيز والمراجعة.",
+                GradeLevel = "الصف الثالث الثانوي",
                 ThumbnailUrl = "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?auto=format&fit=crop&w=800&q=80",
                 IsPublished = false
             });
@@ -313,6 +316,8 @@ public class DatabaseSeeder
 
     private async Task SeedLessonsAsync(Guid tenantId, Guid subjectId, CancellationToken cancellationToken)
     {
+        const string samplePdfUrl = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
         var lessonSeeds = new[]
         {
             (
@@ -320,40 +325,63 @@ public class DatabaseSeeder
                 Description: "شرح تفصيلي للمفاهيم التأسيسية للكيمياء العضوية، الصيغ الجزيئية والبنائية وتصنيف المركبات الهيدروكربونية.",
                 Type: ContentType.Video,
                 Url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                Order: 1
+                Order: 1,
+                ModuleTitle: "الباب الأول: الكيمياء العضوية والكهربية",
+                AttachmentUrl: (string?)samplePdfUrl,
+                Price: 0m
             ),
             (
                 Title: "ملخص قوانين الكيمياء الكهربية وخلايا فاراداي",
                 Description: "ملف تجميعي ومراجعة مركزة لقوانين التحليل الكهربي وتطبيقات الخلايا الجلفانية والإلكتروليتية.",
                 Type: ContentType.Link,
                 Url: "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs/view",
-                Order: 2
+                Order: 2,
+                ModuleTitle: "الباب الأول: الكيمياء العضوية والكهربية",
+                AttachmentUrl: (string?)samplePdfUrl,
+                Price: 0m
             ),
             (
                 Title: "بنك أسئلة وتدريبات الاتزان الكيميائي (PDF)",
                 Description: "مذكرة تدريبات شاملة مع نماذج الإجابة النموذجية وتطبيقات قاعدة لوشاتيليه وحسابات ثابت الاتزان.",
                 Type: ContentType.Pdf,
-                Url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-                Order: 3
+                Url: samplePdfUrl,
+                Order: 3,
+                ModuleTitle: "الباب الثاني: الاتزان والتحليل الكيميائي",
+                AttachmentUrl: (string?)null,
+                Price: 0m
             ),
             (
                 Title: "دليل إتقان مسائل الكيمياء التحليلية والمعايرة",
                 Description: "مقال إرشادي يشرح استراتيجيات حل مسائل التحليل الكمي الحجمي والتطاير والترسيب خطوة بخطوة.",
                 Type: ContentType.Article,
                 Url: "https://en.wikipedia.org/wiki/Analytical_chemistry",
-                Order: 4
+                Order: 4,
+                ModuleTitle: "الباب الثاني: الاتزان والتحليل الكيميائي",
+                AttachmentUrl: (string?)samplePdfUrl,
+                Price: 0m
+            ),
+            (
+                Title: "محاضرة المراجعة المكثفة وحل كتاب مندليف",
+                Description: "حصة شاملة لحل أصعب أفكار كتاب مندليف والامتحان مع مذكرة التوقعات النهائية.",
+                Type: ContentType.Video,
+                Url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                Order: 5,
+                ModuleTitle: "الباب الثاني: الاتزان والتحليل الكيميائي",
+                AttachmentUrl: (string?)samplePdfUrl,
+                Price: 50m
             )
         };
 
+        var seededLessons = new Dictionary<int, Lesson>();
         foreach (var seed in lessonSeeds)
         {
-            var exists = await _context.Lessons
+            var lesson = await _context.Lessons
                 .IgnoreQueryFilters()
-                .AnyAsync(l => l.SubjectId == subjectId && l.Title == seed.Title, cancellationToken);
+                .FirstOrDefaultAsync(l => l.SubjectId == subjectId && l.Title == seed.Title, cancellationToken);
 
-            if (!exists)
+            if (lesson is null)
             {
-                _context.Lessons.Add(new Lesson
+                lesson = new Lesson
                 {
                     TenantId = tenantId,
                     SubjectId = subjectId,
@@ -362,8 +390,166 @@ public class DatabaseSeeder
                     ContentType = seed.Type,
                     ContentUrl = seed.Url,
                     SortOrder = seed.Order,
+                    ModuleTitle = seed.ModuleTitle,
+                    AttachmentUrl = seed.AttachmentUrl,
+                    Price = seed.Price,
                     IsPublished = true
+                };
+                _context.Lessons.Add(lesson);
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(lesson.ModuleTitle))
+                    lesson.ModuleTitle = seed.ModuleTitle;
+                if (string.IsNullOrWhiteSpace(lesson.AttachmentUrl) && !string.IsNullOrWhiteSpace(seed.AttachmentUrl))
+                    lesson.AttachmentUrl = seed.AttachmentUrl;
+                if (seed.Price > 0m && lesson.Price == 0m)
+                    lesson.Price = seed.Price;
+            }
+
+            seededLessons[seed.Order] = lesson;
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        await SeedDemoAssessmentsAsync(tenantId, subjectId, seededLessons, cancellationToken);
+    }
+
+    private async Task SeedDemoAssessmentsAsync(
+        Guid tenantId,
+        Guid subjectId,
+        IReadOnlyDictionary<int, Lesson> seededLessons,
+        CancellationToken cancellationToken)
+    {
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+        };
+
+        var assessments = new[]
+        {
+            (
+                Title: "واجب المحاضرة الأولى: أساسيات الكيمياء العضوية",
+                Type: AssessmentType.Homework,
+                DurationMinutes: (int?)null,
+                PassingScorePercent: 50,
+                LessonId: seededLessons.TryGetValue(1, out var l1) ? (Guid?)l1.Id : null,
+                Questions: new[]
+                {
+                    new
+                    {
+                        id = "chem-hw1-q1",
+                        prompt = "ما الصيغة العامة للألكانات الحلقية المشبعة؟",
+                        options = new[] { "CnH2n+2", "CnH2n", "CnH2n-2", "CnHn" },
+                        correctOptionIndex = 1,
+                        points = 5m
+                    },
+                    new
+                    {
+                        id = "chem-hw1-q2",
+                        prompt = "أول مركب عضوي تم تحضيره معملياً بواسطة العالم فوهلر هو:",
+                        options = new[] { "الميثان", "حمض الأسيتيك", "اليوريا", "الإيثانول" },
+                        correctOptionIndex = 2,
+                        points = 5m
+                    },
+                    new
+                    {
+                        id = "chem-hw1-q3",
+                        prompt = "عدد روابط سيجما (σ) في جزيء الإيثان (C2H6) يساوي:",
+                        options = new[] { "5 روابط", "6 روابط", "7 روابط", "8 روابط" },
+                        correctOptionIndex = 2,
+                        points = 5m
+                    }
+                }
+            ),
+            (
+                Title: "امتحان تقييمي سريع: الهيدروكربونات",
+                Type: AssessmentType.Exam,
+                DurationMinutes: (int?)15,
+                PassingScorePercent: 60,
+                LessonId: seededLessons.TryGetValue(1, out var l1b) ? (Guid?)l1b.Id : null,
+                Questions: new[]
+                {
+                    new
+                    {
+                        id = "chem-ex1-q1",
+                        prompt = "أي من المركبات التالية يزيل لون ماء البروم الأحمر؟",
+                        options = new[] { "الإيثان", "الإيثيلين", "البروبان", "الميثان" },
+                        correctOptionIndex = 1,
+                        points = 5m
+                    },
+                    new
+                    {
+                        id = "chem-ex1-q2",
+                        prompt = "التهجين الحادث في ذرتي الكربون في جزيء الإيثاين (الأسيتيلين) من النوع:",
+                        options = new[] { "sp3", "sp2", "sp", "sd2" },
+                        correctOptionIndex = 2,
+                        points = 5m
+                    },
+                    new
+                    {
+                        id = "chem-ex1-q3",
+                        prompt = "عند الهيدرة الحفزية للإيثاين في وجود حمض الكبريتيك وكبريتات الزئبق يتكون أولاً:",
+                        options = new[] { "كحول الفاينيل غير الثابت", "الإيثانول", "حمض الخليك", "الأسيتون" },
+                        correctOptionIndex = 0,
+                        points = 5m
+                    }
+                }
+            ),
+            (
+                Title: "واجب المحاضرة الثانية: قوانين فاراداي والخلايا الجلفانية",
+                Type: AssessmentType.Homework,
+                DurationMinutes: (int?)null,
+                PassingScorePercent: 50,
+                LessonId: seededLessons.TryGetValue(2, out var l2) ? (Guid?)l2.Id : null,
+                Questions: new[]
+                {
+                    new
+                    {
+                        id = "chem-hw2-q1",
+                        prompt = "في الخلية الجلفانية، تحدث عملية الأكسدة دائماً عند:",
+                        options = new[] { "الكاثود (القطب الموجب)", "الأنود (القطب السالب)", "القنطرة الملحية", "الإلكتروليت فقط" },
+                        correctOptionIndex = 1,
+                        points = 5m
+                    },
+                    new
+                    {
+                        id = "chem-hw2-q2",
+                        prompt = "كمية الكهربية اللازمة لترسيب جرام/ذرة من فلز ثنائي التكافؤ تساوي:",
+                        options = new[] { "1 فاراداي", "2 فاراداي", "3 فاراداي", "96500 فاراداي" },
+                        correctOptionIndex = 1,
+                        points = 5m
+                    }
+                }
+            )
+        };
+
+        foreach (var item in assessments)
+        {
+            var existing = await _context.Quizzes
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(q => q.SubjectId == subjectId && q.Title == item.Title, cancellationToken);
+
+            if (existing is null)
+            {
+                var totalScore = item.Questions.Sum(q => q.points);
+                _context.Quizzes.Add(new Quiz
+                {
+                    TenantId = tenantId,
+                    SubjectId = subjectId,
+                    LessonId = item.LessonId,
+                    Title = item.Title,
+                    Type = item.Type,
+                    DurationMinutes = item.DurationMinutes,
+                    PassingScorePercent = item.PassingScorePercent,
+                    IsPublished = true,
+                    QuestionsData = System.Text.Json.JsonSerializer.Serialize(item.Questions, jsonOptions),
+                    TotalScore = totalScore
                 });
+            }
+            else if (existing.LessonId is null && item.LessonId is not null)
+            {
+                existing.LessonId = item.LessonId;
             }
         }
     }

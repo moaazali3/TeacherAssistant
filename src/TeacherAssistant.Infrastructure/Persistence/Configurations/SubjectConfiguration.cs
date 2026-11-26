@@ -17,6 +17,9 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
         builder.Property(s => s.Description)
             .HasMaxLength(2000);
 
+        builder.Property(s => s.GradeLevel)
+            .HasMaxLength(60);
+
         builder.Property(s => s.Price)
             .HasPrecision(18, 2);
 

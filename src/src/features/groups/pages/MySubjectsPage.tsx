@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { groupsApi } from '../api';
 import { MyGroupDto } from '../types';
+import { subjectsApi } from '@/features/subjects/api';
+import { SubjectSummary } from '@/features/subjects/types';
 import { JoinGroupModal } from '../components/JoinGroupModal';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -13,13 +15,14 @@ import { tenantPath } from '@/lib/tenant';
 import { useAuth } from '@/features/auth/useAuth';
 import { useTenant } from '@/features/tenant/useTenant';
 import { formatDateArabic } from '@/lib/date';
-import { BookOpen, Plus, Clock, ArrowLeft } from 'lucide-react';
+import { BookOpen, Plus, Clock, ArrowLeft, Sparkles, KeyRound, PlayCircle } from 'lucide-react';
 
 export const MySubjectsPage: React.FC = () => {
   const { user } = useAuth();
   const { tenant } = useTenant();
 
   const [groups, setGroups] = useState<MyGroupDto[]>([]);
+  const [sameGradeSubjects, setSameGradeSubjects] = useState<SubjectSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -28,8 +31,12 @@ export const MySubjectsPage: React.FC = () => {
     try {
       setIsLoading(true);
       setLoadError(null);
-      const data = await groupsApi.getMyGroups();
-      setGroups(data);
+      const [groupsData, availableData] = await Promise.all([
+        groupsApi.getMyGroups(),
+        subjectsApi.getSameGradeAvailableSubjects().catch(() => [] as SubjectSummary[]),
+      ]);
+      setGroups(groupsData);
+      setSameGradeSubjects(availableData);
     } catch (err) {
       setLoadError(getApiErrorMessage(err, 'فشل تحميل المواد المسجل بها'));
     } finally {
@@ -41,10 +48,12 @@ export const MySubjectsPage: React.FC = () => {
     fetchMyGroups();
   }, [fetchMyGroups]);
 
+  const studentPrimaryGrade = groups.find((g) => g.subjectGradeLevel)?.subjectGradeLevel;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-start">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-start space-y-10">
       {/* Welcome & Action Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 bg-surface border border-border rounded-2xl p-6 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface border border-border rounded-2xl p-6 shadow-xs">
         <div>
           <span className="text-xs font-bold text-primary tracking-wider uppercase mb-1 block">
             بوابة الطالب • منصة {tenant?.name || 'التعليمية'}
@@ -68,7 +77,7 @@ export const MySubjectsPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Content */}
+      {/* Enrolled Subjects Content */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <SkeletonCard />
@@ -112,7 +121,7 @@ export const MySubjectsPage: React.FC = () => {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <Badge variant="primary" size="sm">
-                    مادة دراسية
+                    {item.subjectGradeLevel || 'مادة دراسية'}
                   </Badge>
                   <span className="text-xs text-text-muted">
                     انضممت: {formatDateArabic(item.joinedAt, 'd MMMM')}
@@ -162,6 +171,69 @@ export const MySubjectsPage: React.FC = () => {
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Companion Courses Available for the Same Grade Level */}
+      {!isLoading && !loadError && sameGradeSubjects.length > 0 && (
+        <section className="space-y-4 pt-6 border-t border-border">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <h2 className="text-lg sm:text-xl font-bold font-heading text-text-main">
+                  كورسات وفروع أخرى متاحة لصفك
+                </h2>
+                {studentPrimaryGrade && (
+                  <Badge variant="info" size="sm">
+                    {studentPrimaryGrade}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs sm:text-sm text-text-muted mt-1">
+                كورسات ومراجعات إضافية لنفس صفك الدراسي — يمكنك الانضمام لأي منها عند الحصول على كود المجموعة من المعلم.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {sameGradeSubjects.map((sub) => (
+              <Card key={sub.id} className="flex flex-col border-border bg-surface text-start">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    {sub.gradeLevel && (
+                      <Badge variant="neutral" size="sm">
+                        {sub.gradeLevel}
+                      </Badge>
+                    )}
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted">
+                      <PlayCircle className="w-3.5 h-3.5 text-primary" />
+                      <span>{sub.lessonsCount} {sub.lessonsCount === 1 ? 'درس' : 'دروس'}</span>
+                    </span>
+                  </div>
+                  <CardTitle className="text-base sm:text-lg font-bold line-clamp-1">
+                    {sub.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="py-2 flex-1">
+                  <p className="text-xs sm:text-sm text-text-muted line-clamp-2 leading-relaxed">
+                    {sub.description || 'كورس متكامل مخصص لطلاب نفس الصف الدراسي.'}
+                  </p>
+                </CardContent>
+                <CardFooter className="pt-3 border-t border-border-subtle">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full font-bold"
+                    startIcon={<KeyRound className="w-3.5 h-3.5" />}
+                    onClick={() => setIsJoinModalOpen(true)}
+                  >
+                    انضمام بكود المجموعة
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* Join Group Modal */}

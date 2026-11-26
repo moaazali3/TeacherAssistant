@@ -10,6 +10,11 @@ export const subjectSchema = z.object({
     .max(2000, 'الوصف يجب ألا يتجاوز 2000 حرف')
     .optional()
     .or(z.literal('')),
+  gradeLevel: z
+    .string()
+    .max(60, 'الصف الدراسي يجب ألا يتجاوز 60 حرفاً')
+    .optional()
+    .or(z.literal('')),
   thumbnailUrl: z
     .string()
     .refine(

@@ -7,6 +7,7 @@ public class SubjectDetailDto
     public string InstructorName { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string? GradeLevel { get; set; }
     public string? ThumbnailUrl { get; set; }
     public bool IsPublished { get; set; }
     public DateTime CreatedAt { get; set; }

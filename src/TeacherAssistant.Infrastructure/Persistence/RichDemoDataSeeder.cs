@@ -337,12 +337,18 @@ public class RichDemoDataSeeder
             {
                 Title        = spec.Title,
                 Description  = spec.Description,
+                GradeLevel   = "الصف الثالث الثانوي",
                 ThumbnailUrl = spec.ThumbnailUrl,
                 IsPublished  = spec.IsPublished,
                 TenantId     = tenant.Id,
                 InstructorId = teacher.Id,
             };
             _context.Subjects.Add(subject);
+            await _context.SaveChangesAsync(ct);
+        }
+        else if (string.IsNullOrWhiteSpace(subject.GradeLevel))
+        {
+            subject.GradeLevel = "الصف الثالث الثانوي";
             await _context.SaveChangesAsync(ct);
         }
 
@@ -370,29 +376,141 @@ public class RichDemoDataSeeder
         await _context.SaveChangesAsync(ct);
 
         // Lessons
+        const string samplePdfUrl = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
         int sortOrder = 1;
+        Lesson? firstLesson = null;
         foreach (var ls in spec.Lessons)
         {
-            var lessonExists = await _context.Lessons
-                .AnyAsync(l => l.SubjectId == subject.Id && l.Title == ls.Title, ct);
+            var moduleTitle = sortOrder <= 2
+                ? "الباب الأول: الشرح والتأسيس"
+                : "الباب الثاني: التطبيقات وحل المسائل";
+            var attachmentUrl = ls.ContentType == ContentType.Video ? samplePdfUrl : null;
 
-            if (!lessonExists)
+            var existingLesson = await _context.Lessons
+                .FirstOrDefaultAsync(l => l.SubjectId == subject.Id && l.Title == ls.Title, ct);
+
+            if (existingLesson is null)
             {
-                _context.Lessons.Add(new Lesson
+                existingLesson = new Lesson
                 {
-                    Title       = ls.Title,
-                    Description = ls.Description,
-                    ContentType = ls.ContentType,
-                    ContentUrl  = ls.ContentUrl,
-                    SortOrder   = sortOrder,
-                    IsPublished = true,
-                    TenantId    = tenant.Id,
-                    SubjectId   = subject.Id,
-                });
+                    Title         = ls.Title,
+                    Description   = ls.Description,
+                    ContentType   = ls.ContentType,
+                    ContentUrl    = ls.ContentUrl,
+                    SortOrder     = sortOrder,
+                    ModuleTitle   = moduleTitle,
+                    AttachmentUrl = attachmentUrl,
+                    IsPublished   = true,
+                    TenantId      = tenant.Id,
+                    SubjectId     = subject.Id,
+                };
+                _context.Lessons.Add(existingLesson);
             }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(existingLesson.ModuleTitle))
+                    existingLesson.ModuleTitle = moduleTitle;
+                if (string.IsNullOrWhiteSpace(existingLesson.AttachmentUrl) && attachmentUrl is not null)
+                    existingLesson.AttachmentUrl = attachmentUrl;
+            }
+
+            firstLesson ??= existingLesson;
             sortOrder++;
         }
         await _context.SaveChangesAsync(ct);
+
+        if (spec.IsPublished && firstLesson is not null)
+        {
+            await SeedSubjectAssessmentsAsync(tenant.Id, subject, firstLesson, ct);
+            await _context.SaveChangesAsync(ct);
+        }
+    }
+
+    private async Task SeedSubjectAssessmentsAsync(
+        Guid tenantId,
+        Subject subject,
+        Lesson firstLesson,
+        CancellationToken ct)
+    {
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+        };
+
+        var hwTitle = $"واجب المحاضرة الأولى — {subject.Title}";
+        if (!await _context.Quizzes.AnyAsync(q => q.SubjectId == subject.Id && q.Title == hwTitle, ct))
+        {
+            var hwQuestions = new[]
+            {
+                new
+                {
+                    id = "rich-hw-q1",
+                    prompt = $"اختبر فهمك للمفاهيم الأساسية التي تم شرحها في «{firstLesson.Title}»:",
+                    options = new[] { "تطبيق القواعد الأساسية بالخطوات المنظمة", "تجاهل المعطيات في المسألة", "حفظ الناتج النهائي بدون فهم", "عدم التحقق من وحدات القياس" },
+                    correctOptionIndex = 0,
+                    points = 5m
+                },
+                new
+                {
+                    id = "rich-hw-q2",
+                    prompt = "أفضل طريقة لمذاكرة هذه المحاضرة قبل حل الواجب الكامل هي:",
+                    options = new[] { "مشاهدة الشرح مع تدوين الملاحظات ومراجعة الملزمة", "الانتقال للامتحان دون حل تدريبات", "تأجيل الحل لنهاية العام", "الاعتماد على الملخص السطحي فقط" },
+                    correctOptionIndex = 0,
+                    points = 5m
+                }
+            };
+
+            _context.Quizzes.Add(new Quiz
+            {
+                TenantId = tenantId,
+                SubjectId = subject.Id,
+                LessonId = firstLesson.Id,
+                Title = hwTitle,
+                Type = AssessmentType.Homework,
+                PassingScorePercent = 50,
+                IsPublished = true,
+                QuestionsData = System.Text.Json.JsonSerializer.Serialize(hwQuestions, jsonOptions),
+                TotalScore = 10m
+            });
+        }
+
+        var examTitle = $"امتحان تقييمي على الباب الأول — {subject.Title}";
+        if (!await _context.Quizzes.AnyAsync(q => q.SubjectId == subject.Id && q.Title == examTitle, ct))
+        {
+            var examQuestions = new[]
+            {
+                new
+                {
+                    id = "rich-ex-q1",
+                    prompt = $"سؤال تطبيقي (1) في مادة {subject.Title}: ما الخطوة الأولى الصحيحة لحل مسائل المستويات العليا؟",
+                    options = new[] { "تحليل المعطيات وتحديد القانون المناسب", "التخمين العشوائي بين الاختيارات", "إهمال شروط المسألة", "تبديل الوحدات بشكل خاطئ" },
+                    correctOptionIndex = 0,
+                    points = 5m
+                },
+                new
+                {
+                    id = "rich-ex-q2",
+                    prompt = $"سؤال تطبيقي (2) على درس «{firstLesson.Title}»: التحقق من صحة الناتج يعتمد على:",
+                    options = new[] { "مراجعة خطوات الحل والتأكد من منطقية النتيجة", "تغيير المطلوب في السؤال", "حذف خطوة التعويض", "اختيار أطول رقم فقط" },
+                    correctOptionIndex = 0,
+                    points = 5m
+                }
+            };
+
+            _context.Quizzes.Add(new Quiz
+            {
+                TenantId = tenantId,
+                SubjectId = subject.Id,
+                LessonId = firstLesson.Id,
+                Title = examTitle,
+                Type = AssessmentType.Exam,
+                DurationMinutes = 15,
+                PassingScorePercent = 60,
+                IsPublished = true,
+                QuestionsData = System.Text.Json.JsonSerializer.Serialize(examQuestions, jsonOptions),
+                TotalScore = 10m
+            });
+        }
     }
 
     private async Task SeedStudentsAsync(

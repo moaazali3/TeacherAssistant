@@ -455,6 +455,7 @@ public class GroupService : IGroupService
                 ScheduleText = m.Group != null ? m.Group.ScheduleText : null,
                 SubjectId = m.SubjectId,
                 SubjectTitle = m.Group != null && m.Group.Subject != null ? m.Group.Subject.Title : string.Empty,
+                SubjectGradeLevel = m.Group != null && m.Group.Subject != null ? m.Group.Subject.GradeLevel : null,
                 InstructorName = m.Group != null && m.Group.Subject != null && m.Group.Subject.Instructor != null
                     ? m.Group.Subject.Instructor.Name
                     : string.Empty,

@@ -38,17 +38,23 @@ public class DatabaseSeederTests
             Assert.NotNull(teacher);
             Assert.Equal(UserRole.Instructor, teacher.Role);
 
-            // 3. Verify Primary Subject ("كيمياء - تالتة ثانوي") & 4 Lessons
+            // 3. Verify Primary Subject ("كيمياء - تالتة ثانوي") & 5 Enriched Lessons + Assessments
             var subject = await db.Subjects
                 .IgnoreQueryFilters()
                 .Include(s => s.Lessons)
+                .Include(s => s.Quizzes)
                 .FirstOrDefaultAsync(s => s.TenantId == demoTenant.Id && s.Title == "كيمياء - تالتة ثانوي");
             Assert.NotNull(subject);
             Assert.True(subject.IsPublished);
-            Assert.Equal(4, subject.Lessons.Count);
+            Assert.Equal("الصف الثالث الثانوي", subject.GradeLevel);
+            Assert.Equal(5, subject.Lessons.Count);
             Assert.All(subject.Lessons, l => Assert.True(l.IsPublished));
+            Assert.All(subject.Lessons, l => Assert.False(string.IsNullOrWhiteSpace(l.ModuleTitle)));
+            Assert.Contains(subject.Lessons, l => l.Price == 50m);
+            Assert.Equal(3, subject.Quizzes.Count);
+            Assert.All(subject.Quizzes, q => Assert.NotNull(q.LessonId));
 
-            // Verify the 4 lessons content types (Video, Link, Pdf, Article)
+            // Verify the lessons content types (Video, Link, Pdf, Article)
             var lessonTypes = subject.Lessons.Select(l => l.ContentType).ToList();
             Assert.Contains(ContentType.Video, lessonTypes);
             Assert.Contains(ContentType.Link, lessonTypes);
@@ -122,7 +128,7 @@ public class DatabaseSeederTests
             await seeder.SeedAsync();
         }
 
-        int userCount1, subjectCount1, lessonCount1, groupCount1, membershipCount1;
+        int userCount1, subjectCount1, lessonCount1, quizCount1, groupCount1, membershipCount1;
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -130,6 +136,7 @@ public class DatabaseSeederTests
             userCount1 = await db.Users.IgnoreQueryFilters().CountAsync();
             subjectCount1 = await db.Subjects.IgnoreQueryFilters().CountAsync();
             lessonCount1 = await db.Lessons.IgnoreQueryFilters().CountAsync();
+            quizCount1 = await db.Quizzes.IgnoreQueryFilters().CountAsync();
             groupCount1 = await db.Groups.IgnoreQueryFilters().CountAsync();
             membershipCount1 = await db.GroupMemberships.IgnoreQueryFilters().CountAsync();
         }
@@ -147,12 +154,14 @@ public class DatabaseSeederTests
             var userCount2 = await db.Users.IgnoreQueryFilters().CountAsync();
             var subjectCount2 = await db.Subjects.IgnoreQueryFilters().CountAsync();
             var lessonCount2 = await db.Lessons.IgnoreQueryFilters().CountAsync();
+            var quizCount2 = await db.Quizzes.IgnoreQueryFilters().CountAsync();
             var groupCount2 = await db.Groups.IgnoreQueryFilters().CountAsync();
             var membershipCount2 = await db.GroupMemberships.IgnoreQueryFilters().CountAsync();
 
             Assert.Equal(userCount1, userCount2);
             Assert.Equal(subjectCount1, subjectCount2);
             Assert.Equal(lessonCount1, lessonCount2);
+            Assert.Equal(quizCount1, quizCount2);
             Assert.Equal(groupCount1, groupCount2);
             Assert.Equal(membershipCount1, membershipCount2);
         }

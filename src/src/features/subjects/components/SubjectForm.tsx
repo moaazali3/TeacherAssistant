@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { subjectSchema, SubjectFormData } from '../schemas';
-import { SubjectDetail, SubjectSummary } from '../types';
+import { SubjectDetail, SubjectSummary, GRADE_LEVEL_OPTIONS } from '../types';
 import { Input } from '@/components/ui/Input';
 import { ImageUploadField } from '@/components/ui/ImageUploadField';
 import { Button } from '@/components/ui/Button';
@@ -36,6 +36,7 @@ export const SubjectForm: React.FC<SubjectFormProps> = ({
     defaultValues: {
       title: initialData?.title || '',
       description: initialData?.description || '',
+      gradeLevel: initialData ? initialData.gradeLevel || '' : 'الصف الثالث الثانوي',
       thumbnailUrl: initialData?.thumbnailUrl || '',
       isPublished: initialData ? initialData.isPublished : true,
     },
@@ -74,6 +75,30 @@ export const SubjectForm: React.FC<SubjectFormProps> = ({
             error={errors.title?.message}
             {...register('title')}
           />
+
+          {/* Grade Level */}
+          <div className="text-start">
+            <label className="block text-sm font-medium text-text-main mb-1.5 select-none">
+              الصف الدراسي
+            </label>
+            <select
+              className="w-full bg-surface text-text-main border border-border rounded-md px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              {...register('gradeLevel')}
+            >
+              <option value="">غير محدد</option>
+              {GRADE_LEVEL_OPTIONS.map((grade) => (
+                <option key={grade} value={grade}>
+                  {grade}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-text-muted">
+              تحديد الصف الدراسي يمنع تداخل كورسات الصفوف المختلفة ويظهر لطلاب نفس الصف فقط.
+            </p>
+            {errors.gradeLevel?.message && (
+              <p className="mt-1 text-xs text-danger font-medium">{errors.gradeLevel.message}</p>
+            )}
+          </div>
 
           {/* Description */}
           <div className="text-start">

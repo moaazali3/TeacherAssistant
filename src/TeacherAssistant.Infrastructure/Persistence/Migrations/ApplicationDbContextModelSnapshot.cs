@@ -453,6 +453,10 @@ namespace TeacherAssistant.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<string>("GradeLevel")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
                     b.Property<Guid>("InstructorId")
                         .HasColumnType("uniqueidentifier");
 

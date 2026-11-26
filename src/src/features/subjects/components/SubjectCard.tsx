@@ -52,14 +52,19 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
         )}
 
         {/* Top Floating Badges */}
-        <div className="absolute top-2.5 start-2.5 flex items-center gap-1.5 z-10">
+        <div className="absolute top-2.5 start-2.5 flex flex-wrap items-center gap-1.5 z-10">
           {isTeacherView ? (
             <Badge variant={subject.isPublished ? 'success' : 'warning'} size="sm">
               {subject.isPublished ? 'منشورة للطلاب' : 'مسودة'}
             </Badge>
           ) : (
             <Badge variant="primary" size="sm">
-              مادة دراسية
+              {subject.gradeLevel || 'مادة دراسية'}
+            </Badge>
+          )}
+          {isTeacherView && subject.gradeLevel && (
+            <Badge variant="neutral" size="sm">
+              {subject.gradeLevel}
             </Badge>
           )}
         </div>

@@ -14,6 +14,7 @@ import { useToast } from '@/components/ui/Toast';
 import { getApiErrorMessage, applyServerValidationErrors, useRateLimitCooldown } from '@/lib/api';
 import { DemoAccountsBox } from '@/components/ui/DemoAccountsBox';
 import { getStudentDemoAccounts } from '@/lib/demoAccounts';
+import { groupsApi } from '@/features/groups/api';
 import { Mail, Lock, LogIn, Clock } from 'lucide-react';
 
 export const StudentLoginPage: React.FC = () => {
@@ -56,9 +57,22 @@ export const StudentLoginPage: React.FC = () => {
 
       success(`مرحباً بك مجدداً، ${auth.name}!`);
 
-      // Redirect to previous requested page or my subjects
+      // Redirect to previous requested page, or directly to single subject, or my-subjects
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-      const target = from || tenantPath('/my-subjects');
+      if (from) {
+        navigate(from, { replace: true });
+        return;
+      }
+
+      let target = tenantPath('/my-subjects');
+      try {
+        const myGroups = await groupsApi.getMyGroups();
+        if (myGroups.length === 1) {
+          target = tenantPath(`/subjects/${myGroups[0].subjectId}`);
+        }
+      } catch {
+        // fallback to /my-subjects
+      }
       navigate(target, { replace: true });
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 429) {

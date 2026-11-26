@@ -34,6 +34,9 @@ public interface ISubjectService
     Task<ServiceResult<IReadOnlyList<SubjectSummaryDto>>> GetSubjectsAsync(
         CancellationToken cancellationToken = default);
 
+    Task<ServiceResult<IReadOnlyList<SubjectSummaryDto>>> GetSameGradeAvailableSubjectsAsync(
+        CancellationToken cancellationToken = default);
+
     Task<ServiceResult<SubjectDetailDto>> GetSubjectDetailAsync(
         Guid subjectId, CancellationToken cancellationToken = default);
 

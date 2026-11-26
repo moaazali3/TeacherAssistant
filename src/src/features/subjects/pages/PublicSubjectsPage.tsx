@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { usePublishedSubjectsQuery } from '../useSubjects';
 import { tenantPath } from '@/lib/tenant';
@@ -16,12 +16,31 @@ const ITEMS_PER_PAGE = 6;
 export const PublicSubjectsPage: React.FC = () => {
   const { data: subjects = [], isLoading, error, refetch } = usePublishedSubjectsQuery();
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedGrade, setSelectedGrade] = useState<string>('ALL');
+
+  const gradeOptions = useMemo(() => {
+    const distinct = new Set<string>();
+    subjects.forEach((s) => {
+      if (s.gradeLevel) distinct.add(s.gradeLevel);
+    });
+    return Array.from(distinct);
+  }, [subjects]);
+
+  const filteredSubjects = useMemo(() => {
+    if (selectedGrade === 'ALL') return subjects;
+    return subjects.filter((s) => s.gradeLevel === selectedGrade);
+  }, [subjects, selectedGrade]);
 
   // Pagination calculation
-  const totalSubjects = subjects.length;
+  const totalSubjects = filteredSubjects.length;
   const totalPages = Math.ceil(totalSubjects / ITEMS_PER_PAGE) || 1;
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedSubjects = subjects.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedSubjects = filteredSubjects.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleSelectGrade = (grade: string) => {
+    setSelectedGrade(grade);
+    setCurrentPage(1);
+  };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
@@ -61,7 +80,7 @@ export const PublicSubjectsPage: React.FC = () => {
         </Link>
       }
     >
-      {totalSubjects === 0 ? (
+      {subjects.length === 0 ? (
         <EmptyState
           icon={<BookOpen className="w-10 h-10 text-text-muted" />}
           title="لا توجد مواد منشورة حالياً"
@@ -69,6 +88,41 @@ export const PublicSubjectsPage: React.FC = () => {
         />
       ) : (
         <div className="space-y-8">
+          {/* Grade Filter Pills when 2+ grades exist */}
+          {gradeOptions.length >= 2 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleSelectGrade('ALL')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                  selectedGrade === 'ALL'
+                    ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                    : 'bg-surface text-text-muted border-border hover:border-primary/40 hover:text-text-main'
+                }`}
+              >
+                الكل ({subjects.length})
+              </button>
+              {gradeOptions.map((grade) => {
+                const count = subjects.filter((s) => s.gradeLevel === grade).length;
+                const active = selectedGrade === grade;
+                return (
+                  <button
+                    key={grade}
+                    type="button"
+                    onClick={() => handleSelectGrade(grade)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                      active
+                        ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                        : 'bg-surface text-text-muted border-border hover:border-primary/40 hover:text-text-main'
+                    }`}
+                  >
+                    {grade} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Subjects Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedSubjects.map((subject) => (
