@@ -59,7 +59,7 @@ public class PaymentsController : BaseApiController
         CancellationToken cancellationToken)
     {
         var response = await _paymentService.CheckoutAsync(request, cancellationToken);
-        return Ok(response);
+        return response.Success ? Ok(response) : BadRequest(response);
     }
 
     /// <summary>
@@ -72,6 +72,6 @@ public class PaymentsController : BaseApiController
         CancellationToken cancellationToken)
     {
         var response = await _paymentService.HandleWebhookAsync(webhookData, cancellationToken);
-        return Ok(response);
+        return response.Success ? Ok(response) : BadRequest(response);
     }
 }

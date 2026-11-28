@@ -262,6 +262,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.Map("/api/{**slug}", (HttpContext context) =>
+    Results.Json(
+        ApiResponse<string>.FailureResponse($"Endpoint '{context.Request.Path}' was not found."),
+        statusCode: StatusCodes.Status404NotFound));
 app.MapFallbackToFile("index.html");
 
 app.Run();

@@ -98,7 +98,7 @@ public class QuizzesController : BaseApiController
         };
 
         var response = await _aiAssessmentService.GenerateQuizFromPdfAsync(requestDto, cancellationToken);
-        return Ok(response);
+        return response.Success ? Ok(response) : BadRequest(response);
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ public class QuizzesController : BaseApiController
         CancellationToken cancellationToken)
     {
         var response = await _aiAssessmentService.SubmitQuizAsync(id, request, cancellationToken);
-        return Ok(response);
+        return response.Success ? Ok(response) : BadRequest(response);
     }
 
     private ActionResult<ApiResponse<T>> Map<T>(ServiceResult<T> result)

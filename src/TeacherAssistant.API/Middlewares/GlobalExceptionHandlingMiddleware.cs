@@ -30,6 +30,27 @@ public class GlobalExceptionHandlingMiddleware
         {
             await _next(context);
         }
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        {
+            _logger.LogInformation("Request {Method} {Path} was canceled by the client.",
+                context.Request.Method, context.Request.Path);
+            if (!context.Response.HasStarted)
+            {
+                context.Response.StatusCode = 499;
+            }
+        }
+        catch (BadHttpRequestException ex)
+        {
+            _logger.LogWarning(ex, "Bad HTTP request ({StatusCode}) on {Method} {Path}: {Message}",
+                ex.StatusCode, context.Request.Method, context.Request.Path, ex.Message);
+            await WriteErrorResponseAsync(
+                context,
+                ex.StatusCode,
+                ex.StatusCode == StatusCodes.Status413PayloadTooLarge
+                    ? "Request payload exceeds the allowed size limit."
+                    : "The HTTP request is malformed.",
+                _includeDetails ? new List<string> { ex.Message } : new List<string>());
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception occurred: {Message}", ex.Message);
@@ -39,12 +60,26 @@ public class GlobalExceptionHandlingMiddleware
 
     private static async Task HandleExceptionAsync(HttpContext context, Exception exception, bool includeDetails)
     {
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-        var response = ApiResponse<string>.FailureResponse(
+        await WriteErrorResponseAsync(
+            context,
+            (int)HttpStatusCode.InternalServerError,
             "An unexpected error occurred. Please try again later.",
             includeDetails ? new List<string> { exception.Message } : new List<string>());
+    }
+
+    private static async Task WriteErrorResponseAsync(
+        HttpContext context,
+        int statusCode,
+        string message,
+        List<string> errors)
+    {
+        if (context.Response.HasStarted)
+            return;
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = statusCode;
+
+        var response = ApiResponse<string>.FailureResponse(message, errors);
 
         var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
         {
